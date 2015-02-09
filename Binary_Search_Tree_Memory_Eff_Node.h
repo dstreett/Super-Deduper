@@ -1,27 +1,23 @@
-
+#include <stdio.h>
 #include <stdlib.h>
-#include "LinkedList.h"
 
-class BT_Memory_Eff_Node {
+class Reads_Node_Eff {
 
 	public:
 		double *seq_bin;
 		int sum_qual;	
-		int count;
-		long int location_in_file;
-		
-		BT_Memory_Eff_Node *left, *right;		
+		fpos_t file_loc1, file_loc2;
 
-		void Add_Info(double *_seq_bin,);
-		bool Add_Read_2_Ptr(Read_Two_Node **r2_nodes);
-		bool In_LinkedList(long double seq_bin);
-		Read_Two_Node *Pop();
+		Reads_Node_Eff *left, *right;		
+
+		void Add_Info(double *_seq_bin, int _sum_qual, fpos_t _file_loc1, fpos_t _file_loc2);
+		void Add_Info(double *_seq_bin, int _sum_qual);
 	
-		Read_One_Node () {
-			ll_R2 = new LinkedList;
-			read_2_ptrs_count = 0;
-			seq_bin = 0;
-			count = 0;
+		Reads_Node_Eff () {
+			seq_bin = NULL;
+			sum_qual = 0;
+		//	file_loc = NULL;
+			
 			left = NULL;
 			right = NULL;
 		}

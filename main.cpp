@@ -8,7 +8,7 @@
 
 bool converter(char *test, int start, int end, double *seq_bin_id, int &bp_added, int &index, int &size);
 
-void unzip_file(Binary_Search_Tree_Read_1_Read_2 *x, char *ifile1, char *ifile2,  int start, int end) {
+void unzip_file(Binary_Search_Tree_Read_1_Read_2 *x, char *ifile1, char *ifile2,  int start, int end, bool mem_eff, bool qual_check, FILE *f_read1, FILE *f_read2) {
         const char zcat[] = "zcat ";
         char *command_1, *command_2;
         FILE *unzipped_out_1, *unzipped_out_2;
@@ -45,8 +45,12 @@ void unzip_file(Binary_Search_Tree_Read_1_Read_2 *x, char *ifile1, char *ifile2,
 			seq_bin_id[1] = 0;
 			is_N = converter(buf_1[1], start, end, seq_bin_id, bp_added, index, size);
 			is_N = converter(buf_2[1], start, end, seq_bin_id, bp_added, index, size);
-			
-			x->Reads_Add_Tree_Public(seq_bin_id, buf_1[0], buf_2[0], buf_1[1], buf_2[1], buf_1[3], buf_2[3]);
+		
+			if (mem_eff) {
+				x->Reads_Add_Tree_Public(seq_bin_id, buf_1[0], buf_1[1], buf_1[3], buf_2[0], buf_2[1], buf_2[3], f_read1, f_read2, qual_check);
+			} else {
+				x->Reads_Add_Tree_Public(seq_bin_id, buf_1[0], buf_1[1], buf_1[3], buf_2[0], buf_2[1], buf_2[3], qual_check);
+			}
 			tmp++;
 
 			if (tmp % 1000000 == 0) {
@@ -179,8 +183,9 @@ int main(int argc, char *argv[]) {
         int long_index;
         bool to_reference = false;
         bool proper_alligment = true;
-	bool fasta_gz = true;
-	
+	bool qual_check = true;
+	bool mem_eff = false;	
+
 
         const struct option longopts[] =
         {
@@ -189,13 +194,13 @@ int main(int argc, char *argv[]) {
                 {"output", required_argument, 0, 'o'},
                 {"start", required_argument, 0, 's'},
 		{"length", required_argument, 0, 'l'},
-		{"fasta", required_argument, 0, 'f'},
-		{"fastagz", required_argument, 0, 'g'},
+		{"memory-saving-on", required_argument, 0, 'M'},
+		{"qual-check-off", required_argument, 0, 'q'},
                 {0, 0, 0, 0}
         };
 
 
-        while ((cmd_line_char = getopt_long(argc, argv, "1:2:o:s:l:fg", longopts, &long_index)) != EOF) {
+        while ((cmd_line_char = getopt_long(argc, argv, "1:2:o:s:l:Mq", longopts, &long_index)) != EOF) {
                 switch(cmd_line_char) {
                         case '1':
                                 fin_name_R1 = strdup(optarg);
@@ -210,14 +215,14 @@ int main(int argc, char *argv[]) {
 			case 's':
 				start = atoi(optarg);
 				break;
+			case 'M':
+				mem_eff = true;
+				break;
+			case 'q':
+				qual_check = false;
+				break;
 			case 'l':
 				length = atoi(optarg);
-				break;
-			case 'f':
-				fasta_gz = false;	
-				break;
-			case 'g':
-				fasta_gz = true;
 				break;
                         case '?':
                                 printf("-%c is not a valid argument\n", cmd_line_char);
@@ -229,18 +234,6 @@ int main(int argc, char *argv[]) {
 
 	Binary_Search_Tree_Read_1_Read_2 *x = new Binary_Search_Tree_Read_1_Read_2();
 	char *tok_R1 = NULL, *tok_R2 = NULL;
-	
-	if (fin_name_R1 != NULL && fin_name_R2 && fout_prefix_R1 != NULL) {
-			
-		tok_R1 = strtok_r(fin_name_R1, ",", &fin_name_R1);
- 		tok_R2 = strtok_r(fin_name_R2, ",", &fin_name_R2);
-
-		while (tok_R1 != NULL && tok_R2 != NULL) { 
-				unzip_file(x, tok_R1, tok_R2, start, end);
-				tok_R1 = strtok_r(NULL, ",", &fin_name_R1);
-				tok_R2 = strtok_r(NULL, ",", &fin_name_R2);
-		}
-	}
 
 	const char *fout_suffix_R1 = "_nodup_PE1.fastq\0";
 	const char *fout_suffix_R2 = "_nodup_PE2.fastq\0";
@@ -258,17 +251,32 @@ int main(int argc, char *argv[]) {
 	
 	FILE *output_file_1 = fopen(fout_name_R1, "w");
 	FILE *output_file_2 = fopen(fout_name_R2, "w");
+
+	
+	if (fin_name_R1 != NULL && fin_name_R2 && fout_prefix_R1 != NULL) {
+			
+		tok_R1 = strtok_r(fin_name_R1, ",", &fin_name_R1);
+ 		tok_R2 = strtok_r(fin_name_R2, ",", &fin_name_R2);
+
+		while (tok_R1 != NULL && tok_R2 != NULL) { 
+				unzip_file(x, tok_R1, tok_R2, start, end, mem_eff, qual_check, output_file_1, output_file_2);
+				tok_R1 = strtok_r(NULL, ",", &fin_name_R1);
+				tok_R2 = strtok_r(NULL, ",", &fin_name_R2);
+		}
+	}
         
 	end_c = clock();
 	time_spent = (double)(end_c - begin) / CLOCKS_PER_SEC;
-
-	x->Delete_And_Print(output_file_1, output_file_2, fasta_gz, time_spent);
+	
+	bool fasta_gz = false;
+	x->Delete_And_Print(output_file_1, output_file_2, fasta_gz, time_spent, mem_eff);
 
 	fclose(output_file_1);
 	fclose(output_file_2);
 	
 	free(fout_name_R1);
 	free(fout_name_R2);
+
 	delete x;
 
 
