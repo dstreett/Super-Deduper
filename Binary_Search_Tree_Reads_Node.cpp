@@ -1,23 +1,22 @@
-
-#include <string.h>
 #include "Binary_Search_Tree_Reads_Node.h"
 
+#include <string.h>
 
-int Sum_Qual_Score_1(char *qual) {
+/*
+void Copy_Ptr(uint64_t *copyto, uint64_t *copy, int size) {
 
-	int i = 0;
-	double qual_sum = 0;
-	while (qual[i] == '\0' || qual[i] == '\n') {
-		qual_sum += (qual[i] - 33);
-		i++;
+	for (int i = 0; i < size; i++) {
+		copyto[i] = copy[i];
 	}
-
-	return qual_sum;
 }
+*/
 
-void Reads_Node::Add_Info(double *_seq_bin, char *_id_1, char *_seq_1, char *_qual_1, char *_id_2, char *_seq_2, char *_qual_2, int _sum_qual) {
+void Reads_Node::Add_Info(uint64_t *_seq_bin, char *_id_1, char *_seq_1, char *_qual_1, char *_id_2, char *_seq_2, char *_qual_2, int _sum_qual, int size) {
 	/*binary ID*/
-	seq_bin = _seq_bin;
+	seq_bin = (uint64_t *)malloc(sizeof(uint64_t) * size );
+	memcpy(seq_bin, _seq_bin, sizeof(uint64_t) * size);
+
+//	seq_bin = _seq_bin;
 	/*read 1*/
 	seq_1 = strdup(_seq_1);
 	id_1 = strdup(_id_1);
@@ -30,3 +29,17 @@ void Reads_Node::Add_Info(double *_seq_bin, char *_id_1, char *_seq_1, char *_qu
 	sum_qual = _sum_qual;
 
 }
+void Reads_Node::Add_Info(char *_id_1, char *_seq_1, char *_qual_1, char *_id_2, char *_seq_2, char *_qual_2, int _sum_qual) {
+	/*read 1*/
+	seq_1 = strdup(_seq_1);
+	id_1 = strdup(_id_1);
+	qual_1 = strdup(_qual_1);
+	/*read 2*/
+	seq_2 = strdup(_seq_2);
+	id_2 = strdup(_id_2);
+	qual_2 = strdup(_qual_2);
+
+	sum_qual = _sum_qual;
+
+}
+

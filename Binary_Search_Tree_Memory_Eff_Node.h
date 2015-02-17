@@ -1,17 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 class Reads_Node_Eff {
 
 	public:
-		double *seq_bin;
+		uint64_t *seq_bin;
 		int sum_qual;	
 		fpos_t file_loc1, file_loc2;
 
 		Reads_Node_Eff *left, *right;		
 
-		void Add_Info(double *_seq_bin, int _sum_qual, fpos_t _file_loc1, fpos_t _file_loc2);
-		void Add_Info(double *_seq_bin, int _sum_qual);
+
+		/*Two functions of add info are added because file_location will*/
+		void Add_Info(uint64_t *_seq_bin, int _sum_qual, fpos_t _file_loc1, fpos_t _file_loc2, int size);
+		void Add_Info(int _sum_qual);
+		void Add_Info(uint64_t *_seq_bin, int size);
 	
 		Reads_Node_Eff () {
 			seq_bin = NULL;
@@ -21,7 +25,10 @@ class Reads_Node_Eff {
 			left = NULL;
 			right = NULL;
 		}
-	
+
+		~Reads_Node_Eff() {
+			free(seq_bin);
+		}	
 
 };
 
