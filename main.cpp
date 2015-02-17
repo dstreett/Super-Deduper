@@ -20,6 +20,7 @@
 bool DEBUG = false;
 
 const char *usage_string = 
+"\n\n\n"
 "Usage: super_deduper -1 <comma seperated .fastq.gz files> -2 <comma seperated .fastq.gz file> --additional arguments\n"
 "	super_deduper -U <comma seperated .fastq.gz files>\n"
 "\n\n"
