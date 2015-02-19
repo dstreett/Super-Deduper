@@ -15,6 +15,7 @@ class Reads_Node {
 
 		void Add_Info(char *_id_1, char *_seq_1, char *_qual_1, char *_id_2, char *_seq_2, char *_qual_2, int _sum_qual);
 		void Add_Info(uint64_t *_seq_bin, char *_id_1, char *_seq_1, char *_qual_1, char *_id_2, char *_seq_2, char *_qual_2, int _sum_qual, int size);
+		void Add_Info(uint64_t *_seq_bin, int size, bool tree_making);
 	
 		Reads_Node () {
 			seq_bin = NULL;
@@ -25,7 +26,7 @@ class Reads_Node {
 			id_2 = NULL;
 			qual_2 = NULL;
 
-
+			sum_qual = 0;
 			left = NULL;
 			right = NULL;
 		}

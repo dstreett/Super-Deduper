@@ -16,6 +16,18 @@ class Binary_Search_Tree_Read_1_Read_2 {
 		void Delete_Public();	
 		long int Dups() { return duplicates; };
 		long int Unique() { return reads; };
+		void Write_Tree(char *output_file, int size);
+		bool Create_Tree(char *fin_tree_data, bool mem_eff);
+		void Input_Size(int _size) { size = _size; };
+
+		Binary_Search_Tree_Read_1_Read_2() {
+			reads = 0;
+			duplicates = 0;
+			size;
+			root = NULL;
+			duplicates = NULL;
+		};
+
 	private:
 		/*You Need to have a root for either options*/
 		Reads_Node *root;
@@ -24,7 +36,13 @@ class Binary_Search_Tree_Read_1_Read_2 {
 		
 		long int reads;
 		long int duplicates;
-		
+		int size;	
+
+		void Create_Tree_Private(Reads_Node **node, uint64_t *seq_bin);
+		void Create_Tree_Private(Reads_Node_Eff **node, uint64_t *seq_bin);
+	
+		void Write_Tree_Private(Reads_Node_Eff **node, int size, FILE *f);
+		void Write_Tree_Private(Reads_Node **node, int size, FILE *f);
 		/*Adding reads for both -M and default options*/
 		void Reads_Add_Tree_Private(Reads_Node_Eff **node, uint64_t *seq_bin, char *id_1, char *seq_1, char *qual_1, char *id_2, char *seq_2, char *qual_2, FILE *f_read1, FILE *f_read, bool qual_check, int size);
 		void Reads_Add_Tree_Private(Reads_Node **node, uint64_t *seq_bin, char *id_1, char *seq_1, char *qual_1, char *id_2, char *seq_2, char *qual_2, bool qual_check, int size);
