@@ -6,6 +6,46 @@
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 
+#define windowBits 15
+#define GZIP_ENCODING 16
+
+void Binary_Search_Tree_Read_1_Read_2::Set_Gzipped ()
+{
+	gzipped = true;
+	(&zs)->zalloc = Z_NULL;
+    	(&zs)->zfree  = Z_NULL;
+    	(&zs)->opaque = Z_NULL;
+}
+
+/* Example text to print out. */
+
+
+void Binary_Search_Tree_Read_1_Read_2::gzip_output (FILE *f, char *test) {
+	int CHUNK = 4096;
+    unsigned char out[CHUNK];
+    deflateInit2 (&zs, Z_DEFAULT_COMPRESSION, Z_DEFLATED, windowBits | GZIP_ENCODING, 8, Z_DEFAULT_STRATEGY);
+    zs.next_in = (unsigned char *) test;
+    zs.avail_in = strlen (test);
+
+    do {
+        int have;
+        zs.avail_out = CHUNK;
+        zs.next_out = out;
+       	deflate (& zs, Z_FINISH);
+        have = CHUNK - zs.avail_out;
+        fwrite (out, sizeof (char), have, f);
+    }
+    while (zs.avail_out == 0);
+    deflateEnd (& zs);
+
+}
+
+void Binary_Search_Tree_Read_1_Read_2::End_Gzipped() {
+}
+
+
+
+
 /*Greater than, less than, or equal to (for array of doubles)*/
 int RIGHT = -1;
 int LEFT = 1;
@@ -126,7 +166,7 @@ void Binary_Search_Tree_Read_1_Read_2::Display_Info(double time_spent) {
 
 }
 
-void Binary_Search_Tree_Read_1_Read_2::Write_Tree(char *output_file, int size) {
+void Binary_Search_Tree_Read_1_Read_2::Write_Tree(char *output_file) {
 
 	FILE *fout = fopen(output_file, "w");
 	fprintf(fout, "%d\n", size);
@@ -163,9 +203,17 @@ void Binary_Search_Tree_Read_1_Read_2::Delete_And_Print(FILE *output_1, FILE *ou
 	Delete_And_Print_Private(&root, output_1, output_2);
 }
 
-void Write_To_File(FILE *f_out, char *id, char *seq, char *qual) {
+void Binary_Search_Tree_Read_1_Read_2::Write_To_File(FILE *f_out, char *id, char *seq, char *qual) {
+
 	if (seq != NULL) {
-		fprintf(f_out, "%s%s+\n%s", id, seq, qual);
+		if (!gzipped) {
+			fprintf(f_out, "%s%s+\n%s", id, seq, qual);
+		} else {
+			gzip_output(f_out, id);
+			gzip_output(f_out, seq);
+			gzip_output(f_out, (char *)"+\n");
+			gzip_output(f_out, qual);
+		}	
 	}
 }
 /*Prints out tree left than right recursive*/
@@ -194,9 +242,13 @@ void Binary_Search_Tree_Read_1_Read_2::Delete_And_Print_Private(Reads_Node **nod
 	Delete_And_Print_Private(&((*node)->right), output_1, output_2);
 	
 	Write_To_File(output_1, (*node)->id_1, (*node)->seq_1, (*node)->qual_1);
-	if (output_2 != NULL) {
+	//printf("%s\n", (*node)->id_1);
+	if (interleaved) {
+		Write_To_File(output_1, (*node)->id_2, (*node)->seq_2, (*node)->qual_2);
+	} else if (output_2 != NULL) {
 		Write_To_File(output_2, (*node)->id_2, (*node)->seq_2, (*node)->qual_2);
 	}
+	
 	delete *node;
 }
 
@@ -260,11 +312,21 @@ void Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Private(Reads_Node_Eff **n
 			(*node)->Add_Info(seq_bin, sum_qual, pos_1, pos_2, size); 
 	
 			/*Since this is the -M option write to file imediately*/
+		
 			Write_To_File(f_read1, id_1, seq_1, qual_1);
-			Write_To_File(f_read2, id_2, seq_2, qual_2);
+			if (interleaved) {
+				Write_To_File(f_read1, id_2, seq_2, qual_2);
+			} else {
+				Write_To_File(f_read2, id_2, seq_2, qual_2);
+			}
 		} else {
 			*node = new Reads_Node_Eff;
 			(*node)->Add_Info(seq_bin, size); 
+			if (interleaved) {
+				Write_To_File(f_read1, id_2, seq_2, qual_2);
+			} else {
+				Write_To_File(f_read2, id_2, seq_2, qual_2);
+			}
 		}	
 		
 		return;
@@ -290,6 +352,8 @@ void Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Private(Reads_Node_Eff **n
 					Write_To_File(f_read1, id_1, seq_1, qual_1);
 					if (f_read2 != NULL) {
 						Write_To_File(f_read2, id_2, seq_2, qual_2);
+					} else if (interleaved) {
+						Write_To_File(f_read1, id_2, seq_2, qual_2);
 					}
 
 					/*moves the FILE * back to the end*/
