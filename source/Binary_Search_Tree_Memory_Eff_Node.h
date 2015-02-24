@@ -15,12 +15,12 @@ class Reads_Node_Eff {
 		/*Two functions of add info are added because file_location will*/
 		void Add_Info(uint64_t *_seq_bin, int _sum_qual, fpos_t _file_loc1, fpos_t _file_loc2, int size);
 		void Add_Info(int _sum_qual);
+		void Add_Info(uint64_t *_seq_bin, int size, bool tree_making);
 		void Add_Info(uint64_t *_seq_bin, int size);
 	
 		Reads_Node_Eff () {
 			seq_bin = NULL;
 			sum_qual = 0;
-		//	file_loc = NULL;
 			
 			left = NULL;
 			right = NULL;

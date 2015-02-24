@@ -2,37 +2,219 @@
 #include <string.h>
 #include "Binary_Search_Tree.h"
 #include <stdint.h>
-
+#include <stdlib.h>
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 
+#define windowBits 15
+#define GZIP_ENCODING 16
 
-void Print_Seq_Bin_1(uint64_t *tmp, int size) {
+void Binary_Search_Tree_Read_1_Read_2::Set_Gzipped ()
+{
+	gzipped = true;
+	(&zs)->zalloc = Z_NULL;
+    	(&zs)->zfree  = Z_NULL;
+    	(&zs)->opaque = Z_NULL;
+}
 
-	for(int i = 0; i < size; i++) {
-		printf("%" PRIu64 "  ", tmp[i]);
+/* Example text to print out. */
+
+
+void Binary_Search_Tree_Read_1_Read_2::gzip_output (FILE *f, char *test) {
+	int CHUNK = 4096;
+    unsigned char out[CHUNK];
+    deflateInit2 (&zs, Z_DEFAULT_COMPRESSION, Z_DEFLATED, windowBits | GZIP_ENCODING, 8, Z_DEFAULT_STRATEGY);
+    zs.next_in = (unsigned char *) test;
+    zs.avail_in = strlen (test);
+
+    do {
+        int have;
+        zs.avail_out = CHUNK;
+        zs.next_out = out;
+       	deflate (& zs, Z_FINISH);
+        have = CHUNK - zs.avail_out;
+        fwrite (out, sizeof (char), have, f);
+    }
+    while (zs.avail_out == 0);
+    deflateEnd (& zs);
+
+}
+
+void Binary_Search_Tree_Read_1_Read_2::End_Gzipped() {
+}
+
+
+
+
+/*Greater than, less than, or equal to (for array of doubles)*/
+int RIGHT = -1;
+int LEFT = 1;
+int EQUAL = 0;
+
+int left_right_equal(uint64_t *seq_bin, uint64_t *test_node, int size) {
+	int i = 0;	
+	for (i; i < size; i++) {
+		if (seq_bin[i] > test_node[i]) {
+			return RIGHT;
+		} else if (seq_bin[i] < test_node[i]) {
+			return LEFT;
+		}
 	}
 
-	printf("\n");
-}
+	return EQUAL;
+
 	
+}
+
+void Print_Seq_Bin_1(FILE *f, uint64_t *tmp, int size) {
+
+	for(int i = 0; i < size; i++) {
+		fprintf(f, "%" PRIu64 " ", tmp[i]);
+	}
+
+	fprintf(f, "\n");
+}
+
+
+bool Binary_Search_Tree_Read_1_Read_2::Create_Tree(char *fin_tree_data, bool mem_eff) {
+
+	FILE *f = fopen(fin_tree_data, "r");
+
+	char *buff = (char *)malloc(sizeof(char) * 4096);
+	char *top_pointer = buff;
+	uint64_t seq_id[size + 1];
+
+	char *tok = NULL;
+	int line = 0, index = 0;
+	while ((fgets(buff, 4096, f) != NULL)) {
+		if (line == 0) { /* First Read is size */
+			if (size != atoi(buff)) {
+				fprintf(stderr, "Inputed File Tree has the incorrect size\n");
+				exit(-6);
+				return false;		
+			}
+
+			line++;
+		} else { /* Not the first read */
+			tok = strtok_r(buff, " ", &buff);
+			index = 0;
+			while(tok != NULL && tok[0] != 10) {
+				sscanf(tok, "%" PRIu64 " ", &seq_id[index]);
+				index++;
+				tok = strtok_r(NULL, " ", &buff);
+			}
+
+			if (mem_eff) {
+				Create_Tree_Private(&root_eff, seq_id);
+			} else {
+				Create_Tree_Private(&root, seq_id);
+			}
+		}
+		buff = top_pointer;	
+	}	
+
+	fclose(f);
+
+	free(buff);
+
+	return true;
+
+}
+
+void Binary_Search_Tree_Read_1_Read_2::Create_Tree_Private(Reads_Node **node, uint64_t *seq_bin) {
+	if (*node == NULL) {
+		*node = new Reads_Node;
+		(*node)->Add_Info(seq_bin, size, true);
+		return;	
+	} else {
+		int movement = left_right_equal(seq_bin, (*node)->seq_bin, size);
+		
+		if (movement == RIGHT) {
+			Create_Tree_Private(&((*node)->right), seq_bin);
+		} else if (movement == LEFT) {
+			Create_Tree_Private(&((*node)->left), seq_bin);
+	 	} else {
+			return;
+		}
+	}
+}
+
+
+void Binary_Search_Tree_Read_1_Read_2::Create_Tree_Private(Reads_Node_Eff **node, uint64_t *seq_bin) {
+	
+	if (*node == NULL) {
+		*node = new Reads_Node_Eff;
+		(*node)->Add_Info(seq_bin, size, true);
+		return;	
+	} else {
+		int movement = left_right_equal(seq_bin, (*node)->seq_bin, size);
+		
+		if (movement == RIGHT) {
+			Create_Tree_Private(&((*node)->right), seq_bin);
+		} else if (movement == LEFT) {
+			Create_Tree_Private(&((*node)->left), seq_bin);
+	 	} else {
+			return;
+		}
+	}
+}
+
+
 void Binary_Search_Tree_Read_1_Read_2::Display_Info(double time_spent) {
 
 	fprintf(stderr, "Final:| reads: %ld | duplicates: %ld | percent: %.2f | total_seconds: %.2f | reads/sec: %.2f\n", reads, duplicates, (double)duplicates/(double)reads, time_spent, (double)reads/(double)time_spent);
 
 }
 
+void Binary_Search_Tree_Read_1_Read_2::Write_Tree(char *output_file) {
 
+	FILE *fout = fopen(output_file, "w");
+	fprintf(fout, "%d\n", size);
+	
+	if (root == NULL) {
+		Write_Tree_Private(&root_eff, size, fout);
+	} else {
+		Write_Tree_Private(&root, size, fout);
+	}	
 
+	fclose(fout);
+}
+
+void Binary_Search_Tree_Read_1_Read_2::Write_Tree_Private(Reads_Node **node, int size, FILE *f) {
+	if (*node == NULL) { return; }
+
+	Print_Seq_Bin_1(f, (*node)->seq_bin, size);
+
+	Write_Tree_Private(&((*node)->left), size, f);
+	Write_Tree_Private(&((*node)->right), size, f);
+}
+
+void Binary_Search_Tree_Read_1_Read_2::Write_Tree_Private(Reads_Node_Eff **node, int size, FILE *f) {
+	if (*node == NULL) { return; }
+
+	Print_Seq_Bin_1(f, (*node)->seq_bin, size);
+
+	Write_Tree_Private(&((*node)->left), size, f);
+	Write_Tree_Private(&((*node)->right), size ,f);
+}
 
 void Binary_Search_Tree_Read_1_Read_2::Delete_And_Print(FILE *output_1, FILE *output_2) {
 
 	Delete_And_Print_Private(&root, output_1, output_2);
 }
 
-void Write_To_File(FILE *f_out, char *id, char *seq, char *qual) {
-	fprintf(f_out, "%s%s+\n%s", id, seq, qual);
+void Binary_Search_Tree_Read_1_Read_2::Write_To_File(FILE *f_out, char *id, char *seq, char *qual) {
 
+	if (seq != NULL) {
+		if (!gzipped) {
+			fprintf(f_out, "%s%s+\n%s", id, seq, qual);
+		} else {
+			gzip_output(f_out, id);
+			gzip_output(f_out, seq);
+			gzip_output(f_out, (char *)"+\n");
+			gzip_output(f_out, qual);
+		}	
+	}
 }
 /*Prints out tree left than right recursive*/
 void Binary_Search_Tree_Read_1_Read_2::Delete_Public() {
@@ -60,7 +242,13 @@ void Binary_Search_Tree_Read_1_Read_2::Delete_And_Print_Private(Reads_Node **nod
 	Delete_And_Print_Private(&((*node)->right), output_1, output_2);
 	
 	Write_To_File(output_1, (*node)->id_1, (*node)->seq_1, (*node)->qual_1);
-	Write_To_File(output_2, (*node)->id_2, (*node)->seq_2, (*node)->qual_2);
+	//printf("%s\n", (*node)->id_1);
+	if (interleaved) {
+		Write_To_File(output_1, (*node)->id_2, (*node)->seq_2, (*node)->qual_2);
+	} else if (output_2 != NULL) {
+		Write_To_File(output_2, (*node)->id_2, (*node)->seq_2, (*node)->qual_2);
+	}
+	
 	delete *node;
 }
 
@@ -94,25 +282,6 @@ long int Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Public(uint64_t *seq_b
 }
 
 
-/*Greater than, less than, or equal to (for array of doubles)*/
-int RIGHT = -1;
-int LEFT = 1;
-int EQUAL = 0;
-
-int left_right_equal(uint64_t *seq_bin, uint64_t *test_node, int size) {
-	int i = 0;	
-	for (i; i < size; i++) {
-		if (seq_bin[i] > test_node[i]) {
-			return RIGHT;
-		} else if (seq_bin[i] < test_node[i]) {
-			return LEFT;
-		}
-	}
-
-	return EQUAL;
-
-	
-}
 
 /*Add tree follows the same logic for both
  * If null add a new node with infomration (relative to memory saving options)
@@ -143,11 +312,21 @@ void Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Private(Reads_Node_Eff **n
 			(*node)->Add_Info(seq_bin, sum_qual, pos_1, pos_2, size); 
 	
 			/*Since this is the -M option write to file imediately*/
+		
 			Write_To_File(f_read1, id_1, seq_1, qual_1);
-			Write_To_File(f_read2, id_2, seq_2, qual_2);
+			if (interleaved) {
+				Write_To_File(f_read1, id_2, seq_2, qual_2);
+			} else {
+				Write_To_File(f_read2, id_2, seq_2, qual_2);
+			}
 		} else {
 			*node = new Reads_Node_Eff;
 			(*node)->Add_Info(seq_bin, size); 
+			if (interleaved) {
+				Write_To_File(f_read1, id_2, seq_2, qual_2);
+			} else {
+				Write_To_File(f_read2, id_2, seq_2, qual_2);
+			}
 		}	
 		
 		return;
@@ -171,7 +350,12 @@ void Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Private(Reads_Node_Eff **n
 					(*node)->Add_Info(sum_qual); 
 				
 					Write_To_File(f_read1, id_1, seq_1, qual_1);
-					Write_To_File(f_read2, id_2, seq_2, qual_2);
+					if (f_read2 != NULL) {
+						Write_To_File(f_read2, id_2, seq_2, qual_2);
+					} else if (interleaved) {
+						Write_To_File(f_read1, id_2, seq_2, qual_2);
+					}
+
 					/*moves the FILE * back to the end*/
 					fseek(f_read1, 0, SEEK_END);
 					fseek(f_read2, 0, SEEK_END);
