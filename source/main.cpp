@@ -36,7 +36,7 @@ const char *usage_string =
 "by the user. This approach creates a fast, accurate de-duplication that is able to be\n"
 "used on non-mapped reads directly from a fastq.gz/fastq file. It also allows users to \n"
 "receive the highest quality sequence back (by default) allowing for higher quality\n"
-"data to be outputted.\n"
+"data to be outputted. \n"
 "\n\n"
 "-------------------------------Required Inputs-------------------------------\n"
 "\n"
@@ -99,7 +99,7 @@ const char *usage_string =
 "  -I, --input-tree PATHS	Name of the input file in which you want to upload a previously\n"
 " 			seen tree before (output of -O).\n"
 "\n"
-"  -";
+"\n";
 
 
 /*struct for arguments
@@ -173,6 +173,7 @@ bool converter(char *test, int start, int end, uint64_t *seq_bin_id, int &bp_add
 bool gzipped_File(char *fname) {
 
 	FILE *test = fopen(fname, "r");
+	/*4096 is just arbritary*/
 	char tmp[4096];
 	int i = 0;
 	bool check1 = false, check2 = false;
@@ -278,6 +279,7 @@ bool Fill_In_Binary_Tree(Binary_Search_Tree_Read_1_Read_2 *x, FILE* file_1, FILE
 	int bp_added = 0, index = 0;
 	uint64_t incrementor;
 
+	/*This loop is getting read information and putting it back in the buf_2*/
 	while (get_data(&buf_1, &buf_2, file_1, file_2, arg->interleaved_input)) {
 		
 		bp_added = 0;
@@ -292,11 +294,12 @@ bool Fill_In_Binary_Tree(Binary_Search_Tree_Read_1_Read_2 *x, FILE* file_1, FILE
 		
 		no_N = converter(buf_1[1], arg->start, arg->length, seq_bin_id, bp_added, index, incrementor);
 	
+		/*make sure you want R1 and R2 files*/
 		if (file_2 != NULL || arg->interleaved_input) {
 			no_N = converter(buf_2[1], arg->start, arg->length, seq_bin_id, bp_added, index, incrementor);
 		}
 
-			
+		/*If there are some N's in the sequences id ignore it*/
 		if (no_N) { 
 			if (arg->mem_saving) {
 				reads = x->Reads_Add_Tree_Public(seq_bin_id, buf_1[0], buf_1[1], buf_1[3], buf_2[0], buf_2[1], buf_2[3], f_read1, f_read2, arg->quality_checking, size);
@@ -384,6 +387,8 @@ void unzip_file(Binary_Search_Tree_Read_1_Read_2 *x, char *ifile1, char *ifile2,
  * G - 01 (1)
  * */
 
+/*Possible enhancement 
+ * - using x86 intrisic functions to read in characters and making the converation*/
 
 bool converter(char *test, int start, int len, uint64_t *seq_bin_id, int &bp_added, int &index, uint64_t &incrementor) {
 
@@ -727,6 +732,7 @@ int main(int argc, char *argv[]) {
 	/*Opens output files (in the case of memory eff version*/
 	FILE *output_file_1 = NULL;
 	FILE *output_file_2 = NULL;
+
 	
 	if (program_args->interleaved_output) {
 		output_file_1 = fopen(program_args->output_filename_1, "w");
@@ -757,7 +763,6 @@ int main(int argc, char *argv[]) {
 	if (program_args->output_tree != NULL) {
 		x->Write_Tree(program_args->output_tree);
 	}
-
 
 	if (!program_args->mem_saving) {
 		x->Delete_And_Print(output_file_1, output_file_2);
