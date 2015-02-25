@@ -6,9 +6,14 @@
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 
+
+
+/* Definitions for gzip output (deflate*2 ) options*/
 #define windowBits 15
 #define GZIP_ENCODING 16
 
+
+/*Sets up the z_stream once it is initiated*/
 void Binary_Search_Tree_Read_1_Read_2::Set_Gzipped ()
 {
 	gzipped = true;
@@ -18,35 +23,32 @@ void Binary_Search_Tree_Read_1_Read_2::Set_Gzipped ()
 }
 
 /* Example text to print out. */
-
-
 void Binary_Search_Tree_Read_1_Read_2::gzip_output (FILE *f, char *test) {
 	int CHUNK = 4096;
-    unsigned char out[CHUNK];
-    deflateInit2 (&zs, Z_DEFAULT_COMPRESSION, Z_DEFLATED, windowBits | GZIP_ENCODING, 8, Z_DEFAULT_STRATEGY);
-    zs.next_in = (unsigned char *) test;
-    zs.avail_in = strlen (test);
+   	unsigned char out[CHUNK];
 
-    do {
-        int have;
-        zs.avail_out = CHUNK;
-        zs.next_out = out;
-       	deflate (& zs, Z_FINISH);
-        have = CHUNK - zs.avail_out;
-        fwrite (out, sizeof (char), have, f);
-    }
-    while (zs.avail_out == 0);
-    deflateEnd (& zs);
+	/*Deflate in a gzip (not zlib) type compression*/
+   	deflateInit2 (&zs, Z_DEFAULT_COMPRESSION, Z_DEFLATED, windowBits | GZIP_ENCODING, 8, Z_DEFAULT_STRATEGY);
+
+	/*What is to be compressed and how big is it*/
+    	zs.next_in = (unsigned char *) test;
+    	zs.avail_in = strlen (test);
+
+	/*Compress it, to the output and write it out to the file*/
+    	do {
+        	int have;
+        	zs.avail_out = CHUNK;
+        	zs.next_out = out;
+       		deflate (& zs, Z_FINISH);
+        	have = CHUNK - zs.avail_out;
+        	fwrite (out, sizeof (char), have, f);
+    	} while (zs.avail_out == 0);
+    	
+	deflateEnd (& zs);
 
 }
 
-void Binary_Search_Tree_Read_1_Read_2::End_Gzipped() {
-}
-
-
-
-
-/*Greater than, less than, or equal to (for array of doubles)*/
+/*Greater than, less than, or equal to (for array uint64_t)*/
 int RIGHT = -1;
 int LEFT = 1;
 int EQUAL = 0;
@@ -66,6 +68,9 @@ int left_right_equal(uint64_t *seq_bin, uint64_t *test_node, int size) {
 	
 }
 
+
+/*Prints the sequence id (sequence binary number) to file for option output tree*/
+
 void Print_Seq_Bin_1(FILE *f, uint64_t *tmp, int size) {
 
 	for(int i = 0; i < size; i++) {
@@ -75,6 +80,8 @@ void Print_Seq_Bin_1(FILE *f, uint64_t *tmp, int size) {
 	fprintf(f, "\n");
 }
 
+
+/* This creates a tree and from the given binary tree -O options */
 
 bool Binary_Search_Tree_Read_1_Read_2::Create_Tree(char *fin_tree_data, bool mem_eff) {
 
@@ -86,6 +93,8 @@ bool Binary_Search_Tree_Read_1_Read_2::Create_Tree(char *fin_tree_data, bool mem
 
 	char *tok = NULL;
 	int line = 0, index = 0;
+
+	/*Gets line by line for the sequence binary files and inputs them into the tree*/
 	while ((fgets(buff, 4096, f) != NULL)) {
 		if (line == 0) { /* First Read is size */
 			if (size != atoi(buff)) {
@@ -104,6 +113,7 @@ bool Binary_Search_Tree_Read_1_Read_2::Create_Tree(char *fin_tree_data, bool mem
 				tok = strtok_r(NULL, " ", &buff);
 			}
 
+			/*Where to add to the tree*/
 			if (mem_eff) {
 				Create_Tree_Private(&root_eff, seq_id);
 			} else {
@@ -121,6 +131,7 @@ bool Binary_Search_Tree_Read_1_Read_2::Create_Tree(char *fin_tree_data, bool mem
 
 }
 
+/*Recursive function to add tree for regular read node*/
 void Binary_Search_Tree_Read_1_Read_2::Create_Tree_Private(Reads_Node **node, uint64_t *seq_bin) {
 	if (*node == NULL) {
 		*node = new Reads_Node;
@@ -139,7 +150,7 @@ void Binary_Search_Tree_Read_1_Read_2::Create_Tree_Private(Reads_Node **node, ui
 	}
 }
 
-
+/*Create Tree for memory efficent nodes*/
 void Binary_Search_Tree_Read_1_Read_2::Create_Tree_Private(Reads_Node_Eff **node, uint64_t *seq_bin) {
 	
 	if (*node == NULL) {
@@ -160,12 +171,15 @@ void Binary_Search_Tree_Read_1_Read_2::Create_Tree_Private(Reads_Node_Eff **node
 }
 
 
+/*Display info about the current state of binary search tree*/
 void Binary_Search_Tree_Read_1_Read_2::Display_Info(double time_spent) {
 
 	fprintf(stderr, "Final:| reads: %ld | duplicates: %ld | percent: %.2f | total_seconds: %.2f | reads/sec: %.2f\n", reads, duplicates, (double)duplicates/(double)reads, time_spent, (double)reads/(double)time_spent);
 
 }
 
+
+/*Output Tree info*/
 void Binary_Search_Tree_Read_1_Read_2::Write_Tree(char *output_file) {
 
 	FILE *fout = fopen(output_file, "w");
@@ -180,18 +194,23 @@ void Binary_Search_Tree_Read_1_Read_2::Write_Tree(char *output_file) {
 	fclose(fout);
 }
 
+
+/*Write tree for regular node*/
 void Binary_Search_Tree_Read_1_Read_2::Write_Tree_Private(Reads_Node **node, int size, FILE *f) {
 	if (*node == NULL) { return; }
 
+	/*Write out the sequence id with space imbetween*/
 	Print_Seq_Bin_1(f, (*node)->seq_bin, size);
 
 	Write_Tree_Private(&((*node)->left), size, f);
 	Write_Tree_Private(&((*node)->right), size, f);
 }
 
+/*Write tree for memory efficent option*/
 void Binary_Search_Tree_Read_1_Read_2::Write_Tree_Private(Reads_Node_Eff **node, int size, FILE *f) {
 	if (*node == NULL) { return; }
 
+	/*Write out the sequence id with space imbetween*/
 	Print_Seq_Bin_1(f, (*node)->seq_bin, size);
 
 	Write_Tree_Private(&((*node)->left), size, f);
@@ -203,12 +222,15 @@ void Binary_Search_Tree_Read_1_Read_2::Delete_And_Print(FILE *output_1, FILE *ou
 	Delete_And_Print_Private(&root, output_1, output_2);
 }
 
-void Binary_Search_Tree_Read_1_Read_2::Write_To_File(FILE *f_out, char *id, char *seq, char *qual) {
 
+void Binary_Search_Tree_Read_1_Read_2::Write_To_File(FILE *f_out, char *id, char *seq, char *qual) {
+	/*Only write if seq is id*/
 	if (seq != NULL) {
 		if (!gzipped) {
+			/*non-gzipped out*/
 			fprintf(f_out, "%s%s+\n%s", id, seq, qual);
 		} else {
+			/*gzipped options for output*/
 			gzip_output(f_out, id);
 			gzip_output(f_out, seq);
 			gzip_output(f_out, (char *)"+\n");
@@ -232,6 +254,8 @@ void Binary_Search_Tree_Read_1_Read_2::Delete_Private(Reads_Node_Eff **node) {
 	delete *node;
 }
 
+
+/*Delete and print for normal nodes, it will also check if the user wants it in a interleaved output*/
 void Binary_Search_Tree_Read_1_Read_2::Delete_And_Print_Private(Reads_Node **node, FILE *output_1, FILE *output_2) {
 
 	if (*node == NULL) {
@@ -242,7 +266,7 @@ void Binary_Search_Tree_Read_1_Read_2::Delete_And_Print_Private(Reads_Node **nod
 	Delete_And_Print_Private(&((*node)->right), output_1, output_2);
 	
 	Write_To_File(output_1, (*node)->id_1, (*node)->seq_1, (*node)->qual_1);
-	//printf("%s\n", (*node)->id_1);
+
 	if (interleaved) {
 		Write_To_File(output_1, (*node)->id_2, (*node)->seq_2, (*node)->qual_2);
 	} else if (output_2 != NULL) {
@@ -252,12 +276,15 @@ void Binary_Search_Tree_Read_1_Read_2::Delete_And_Print_Private(Reads_Node **nod
 	delete *node;
 }
 
+/*Summation of quality score
+ * This is used isntead of average because long reads are prefered*/
 
 int Sum_Qual_Score(char *qual) {
 
         int i = 0;
         double qual_sum = 0;
         while (qual[i] != '\0' && qual[i] != '\n') {
+		/*-33 for quality score offset*/
 		qual_sum += (qual[i] - 33);
                 i++;
         }
@@ -322,6 +349,7 @@ void Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Private(Reads_Node_Eff **n
 		} else {
 			*node = new Reads_Node_Eff;
 			(*node)->Add_Info(seq_bin, size); 
+			/*If f_read2 is NULL, single end read*/
 			if (interleaved) {
 				Write_To_File(f_read1, id_2, seq_2, qual_2);
 			} else {
@@ -350,6 +378,7 @@ void Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Private(Reads_Node_Eff **n
 					(*node)->Add_Info(sum_qual); 
 				
 					Write_To_File(f_read1, id_1, seq_1, qual_1);
+					/*If f_read2 is NULL, single end read*/
 					if (f_read2 != NULL) {
 						Write_To_File(f_read2, id_2, seq_2, qual_2);
 					} else if (interleaved) {
@@ -372,6 +401,8 @@ void Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Private(Reads_Node_Eff **n
 
 
 }
+
+
 
 void Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Private(Reads_Node **node, uint64_t *seq_bin, char *id_1, char *seq_1, char *qual_1, char *id_2, char *seq_2, char *qual_2, bool qual_check, int size) {
 

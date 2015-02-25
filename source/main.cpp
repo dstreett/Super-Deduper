@@ -102,6 +102,8 @@ const char *usage_string =
 "  -";
 
 
+/*struct for arguments
+ * typedef to args*/
 typedef struct {
 
 	char **read_1;
@@ -136,6 +138,7 @@ typedef struct {
 
 } args;
 
+/*Constrcutor function for args*/
 
 void Start_Args(args*  arg) {
 	arg->output_tree = NULL;
@@ -156,21 +159,17 @@ void Start_Args(args*  arg) {
 
 }
 
-void Free_Args(args arg) {
 
-}
-
+/*Since there is a 64 unsigned int you can add 31 base pairs at a time*/
 int BPS_ADDED = 31;
 int size;
+
 /* This function is the convert that creates a sequence binary number (seq_bin) used in the binary search tree */
 bool converter(char *test, int start, int end, uint64_t *seq_bin_id, int &bp_added, int &index, uint64_t &incrementor);
 
 
-/*This function unzips the fastq.gz file given
- *this uses zcat to un-gzip the files
- *needs some memory clean up - but overall okay
- */
-
+/*Checks to see if the file is gzipped
+ * or of the file is just fastq*/
 bool gzipped_File(char *fname) {
 
 	FILE *test = fopen(fname, "r");
@@ -201,6 +200,8 @@ bool gzipped_File(char *fname) {
 				
 }
 
+/*Get four lines in files for @id, sequence, +, quality*/
+
 bool get_four(char ***buf, FILE *f) {
 
 	for (int i = 0; i < 4; i++) {
@@ -209,6 +210,7 @@ bool get_four(char ***buf, FILE *f) {
 		}
 	}
 
+	/* 1st must be an '@' and 3rd must be '+'*/
 	if ((*buf)[0][0] == '@' && (*buf)[2][0] == '+') {
 		return true;
 	} else {
@@ -219,10 +221,12 @@ bool get_four(char ***buf, FILE *f) {
 
 }
 
+/*Get data will pull in the file information*/
 bool get_data(char ***buf_1, char ***buf_2, FILE *R1, FILE *R2, bool interleaved) {
 
 	bool check, check2;
 
+	/*interleaved R1 then R2*/
 	if (interleaved) {
 		check = get_four(buf_1, R1);
 		check2 = get_four(buf_2, R1);
@@ -232,8 +236,10 @@ bool get_data(char ***buf_1, char ***buf_2, FILE *R1, FILE *R2, bool interleaved
 			exit(-101);
 		}
 
+	/*This is the case of a single end reads*/
 	} else if (R2 == NULL) {
 		check = get_four(buf_1, R1);
+	/*Read 1 and Read 2 conditions*/
 	} else {
 		check = get_four(buf_1, R1);
 		check2 = get_four(buf_2, R2);
@@ -247,8 +253,11 @@ bool get_data(char ***buf_1, char ***buf_2, FILE *R1, FILE *R2, bool interleaved
 	
 }
 
+
 bool Fill_In_Binary_Tree(Binary_Search_Tree_Read_1_Read_2 *x, FILE* file_1, FILE* file_2, args *arg, FILE *f_read1, FILE *f_read2, double time_start) {
-       	 
+
+
+	       	 
 	char **buf_1 = NULL;
         char **buf_2 = NULL;
 
@@ -313,15 +322,20 @@ bool Fill_In_Binary_Tree(Binary_Search_Tree_Read_1_Read_2 *x, FILE* file_1, FILE
 		sprintf(buf_2[1], "\0");
 	}
 
+
 }
 
+/* gzipped are most effinectly handled by opening a pipe
+ * with zcat*/
 FILE *gzip_open(char *f) {
 
-	const char *zcat_cmd = "zcat ";
+	/*Opens zcat*/
+	const char *zcat_cmd = "gunzip -c ";
 	
 	char *cmd = (char *)malloc(sizeof(char) * (strlen(f) + strlen(zcat_cmd) + 1));
 	sprintf(cmd, "%s%s", zcat_cmd, f);
 	
+
 	FILE * piped_file = popen(cmd, "r");
 
 	free(cmd);
@@ -344,6 +358,7 @@ void unzip_file(Binary_Search_Tree_Read_1_Read_2 *x, char *ifile1, char *ifile2,
 		file_1 = fopen(ifile1, "r");
 	}
 	
+	/*single versus read 1 and read 2*/	
 	if (ifile2 != NULL) {
 		check = gzipped_File(ifile2);
 
@@ -355,6 +370,7 @@ void unzip_file(Binary_Search_Tree_Read_1_Read_2 *x, char *ifile1, char *ifile2,
 		
 	}
 
+	/*This is the read-in function of the program*/
 	Fill_In_Binary_Tree(x, file_1, file_2, arg, f_read1, f_read2, time_start);
 
 
@@ -367,6 +383,8 @@ void unzip_file(Binary_Search_Tree_Read_1_Read_2 *x, char *ifile1, char *ifile2,
  * C - 10 (2)
  * G - 01 (1)
  * */
+
+
 bool converter(char *test, int start, int len, uint64_t *seq_bin_id, int &bp_added, int &index, uint64_t &incrementor) {
 
 
@@ -436,6 +454,9 @@ bool converter(char *test, int start, int len, uint64_t *seq_bin_id, int &bp_add
 
 }
 
+
+/*Make sures the files actually exist*/
+
 void Check_Permissions(char *fname, int permissions) {
 
 	if (access(fname, F_OK) != -1 ) {
@@ -447,6 +468,8 @@ void Check_Permissions(char *fname, int permissions) {
 
 }
 
+
+/*Counter made for strtok_r function to understand how much room is needed*/
 int Count_String(char *file_string, char character) {
 	int i = 0, count = 0;
 	while (file_string[i] != '\0') {
@@ -459,6 +482,8 @@ int Count_String(char *file_string, char character) {
 	
 }
 
+
+/* Split Function */
 int Parse_Comma_Separation(char *file_string, char ***arg_string) {
 
 	int number_of_string = Count_String(file_string, ',');
@@ -489,13 +514,12 @@ int Parse_Comma_Separation(char *file_string, char ***arg_string) {
 	} 
 	*arg_string = holder_arg;	
 	
-//	printf("arg_string %s\n", arg_string[0]);
-
 	return number_of_string;
 }
-	
+
+
+/*Creates name of the output file (gz)*/	
 void Concat_File_Names(char **outputfile, const char * suffix, bool gzip) {
-	//+4 for .gz (possible and NULL character
 	char *correct_output = (char *)malloc(sizeof(char) * (strlen(suffix)+strlen(*outputfile)) + 4);
 
 	strcpy(correct_output, *outputfile);
@@ -508,9 +532,11 @@ void Concat_File_Names(char **outputfile, const char * suffix, bool gzip) {
 	*outputfile = correct_output;
 }
 
+/*Main function hads argv and argc here*/
 args *Arguements_Collection(int argc, char *argv[]) {
 
 
+	/*Get opt long varaibles*/
         int cmd_line_char;
         extern char *optarg;
         extern int optind;
@@ -518,12 +544,15 @@ args *Arguements_Collection(int argc, char *argv[]) {
         extern int opterr;
 	int long_index;
 
+	/*Creates args struct*/
 	args *program_args = (args *)malloc(sizeof(args));
 	Start_Args(program_args);
        
 
+	/*Check and see what is used (R1 and R2, Single End Read, or Interleaved Input*/
 	bool read1 = false, read2 = false, single = false;
 
+	/*Arguments for super_deduper*/
 	const struct option longopts[] =
         {
                 {"read1", required_argument, 0, '1'},
@@ -545,6 +574,7 @@ args *Arguements_Collection(int argc, char *argv[]) {
                 {0, 0, 0, 0}
         };
 
+	/*Parser of command lines*/
         while ((cmd_line_char = getopt_long(argc, argv, "1:2:p:s:l:d:MqvU:O:I:hi:og", longopts, &long_index)) != EOF) {
 
                 switch(cmd_line_char) {
@@ -567,6 +597,7 @@ args *Arguements_Collection(int argc, char *argv[]) {
 				program_args->mem_saving = true;
                                 break;
                         case 'q':
+				program_args->mem_saving = true;
                              	program_args->quality_checking = false;
                                 break;
                         case 'l':
@@ -612,6 +643,7 @@ args *Arguements_Collection(int argc, char *argv[]) {
         }
 
 
+	/*Error handling to make sure multiple formats are not created*/
 	if (read1 && read2 && single && program_args->interleaved_input) {
 		fprintf(stderr, "Please, specifiy either read 1 AND read 2 (-1 and -2)  OR single end read (-U) OR interleaved files (-i), not all multiple types\n");
 		exit(-10);
@@ -634,6 +666,9 @@ args *Arguements_Collection(int argc, char *argv[]) {
 		Concat_File_Names(&(program_args->output_filename_1), "_nodup_PE1.fastq", program_args->gzip_output);
 		free(program_args->output_filename_2);
 		program_args->output_filename_2=NULL;
+	} else { //interleaved input with r1 r2 output
+		Concat_File_Names(&(program_args->output_filename_1), "_nodup_PE1.fastq", program_args->gzip_output);
+		Concat_File_Names(&(program_args->output_filename_2), "_nodup_PE2.fastq", program_args->gzip_output);
 	}
 
 
@@ -675,12 +710,14 @@ int main(int argc, char *argv[]) {
 		size = (((program_args->length))/BPS_ADDED)+1;
 	}
 
+	/*Gives tree size, gzip, boolean for output type*/
 	x->Input_Size(size);
 	x->Interleaved(program_args->interleaved_output);
 
 	if (program_args->gzip_output) {
 		x->Set_Gzipped();
 	}
+
 	/*Creates tree if that option is given*/
 	for (int i = 0; i < program_args->tree_files; i++) {
 		x->Create_Tree(program_args->input_trees[i], program_args->mem_saving);
@@ -701,7 +738,7 @@ int main(int argc, char *argv[]) {
 		output_file_1 = fopen(program_args->output_filename_1, "w");
 	}
 	 
-
+	/*Loops through all files given, regardless of type (types with non-given would just be 0 and the loop would not be entered)*/
 	for (int i = 0; i < program_args->read_1_files; i++) {
 		unzip_file(x, (program_args->read_1)[i], (program_args->read_2)[i], program_args, output_file_1, output_file_2, begin);
 	}
@@ -716,6 +753,7 @@ int main(int argc, char *argv[]) {
 
 	
 	
+	/*Outputs files*/
 	if (program_args->output_tree != NULL) {
 		x->Write_Tree(program_args->output_tree);
 	}
@@ -725,9 +763,6 @@ int main(int argc, char *argv[]) {
 		x->Delete_And_Print(output_file_1, output_file_2);
 	}
 
-	if (program_args->gzip_output) {
-		x->End_Gzipped();
-	}
 	
 	end_c = clock();
 	time_spent = (double)(end_c - begin) / CLOCKS_PER_SEC;
@@ -739,6 +774,7 @@ int main(int argc, char *argv[]) {
 		fclose(output_file_2);
 	}
 
+	/*Clean up*/
 	if (!program_args->mem_saving) {
 		delete x;
 	}
