@@ -33,7 +33,6 @@ class Binary_Search_Tree_Read_1_Read_2 {
 			duplicates = NULL;
 			gzipped = false;
 		};
-
 	private:
 		/*You Need to have a root for either options*/
 		Reads_Node *root;
