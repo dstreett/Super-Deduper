@@ -17,12 +17,14 @@ class Reads_Node_Eff {
 		void Add_Info(int _sum_qual);
 		void Add_Info(uint64_t *_seq_bin, int size, bool tree_making);
 		void Add_Info(uint64_t *_seq_bin, int size);
-	
+		int seq_id;
+		int dups;
 		Reads_Node_Eff () {
+			dups=2;
 			seq_bin = NULL;
 			sum_qual = 0;
-			
 			left = NULL;
+			seq_id = 0;
 			right = NULL;
 		}
 

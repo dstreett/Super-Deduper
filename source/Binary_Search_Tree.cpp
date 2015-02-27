@@ -240,14 +240,33 @@ void Binary_Search_Tree_Read_1_Read_2::Write_To_File(FILE *f_out, char *id, char
 }
 /*Prints out tree left than right recursive*/
 void Binary_Search_Tree_Read_1_Read_2::Delete_Public() {
+	fprintf(temp, "strict graph {\n");
 	Delete_Private(&root_eff);
+	fprintf(temp, "}");
 }
+
 
 void Binary_Search_Tree_Read_1_Read_2::Delete_Private(Reads_Node_Eff **node) {
 	if (*node == NULL) {
 		return;
 	}
 
+	char tmp[4096];
+
+	if (((*node)->left) != NULL) {
+		//fprintf(temp, "%" PRIu64 "%" PRIu64 " -- %" PRIu64 "%" PRIu64 "\n", (*node)->seq_bin[0], (*node)->seq_bin[1], ((*node)->left)->seq_bin[0], ((*node)->left)->seq_bin[1]);
+		fprintf(temp, "%d -- %d\n", (*node)->seq_id, ((*node)->left)->seq_id);
+		//sprintf(tmp, "echo '%" PRIu64 "%" PRIu64 " -- %" PRIu64 "%" PRIu64 "' >> tmp_file.dot", (*node)->seq_bin[0], (*node)->seq_bin[1], ((*node)->left)->seq_bin[0], ((*node)->left)->seq_bin[1]);
+		//system(tmp);
+	} 
+//	printf("new\n");
+	if (((*node)->right) != NULL) {
+		fprintf(temp, "%d -- %d\n", (*node)->seq_id, ((*node)->right)->seq_id);
+		//fprintf(temp, "%" PRIu64 "%" PRIu64 " -- %" PRIu64 "%" PRIu64 "\n", (*node)->seq_bin[0], (*node)->seq_bin[1], ((*node)->right)->seq_bin[0], ((*node)->right)->seq_bin[1]);
+//		system(tmp);
+	} 
+	
+	fprintf(temp, "%d [shape=polygon,sides=%d]\n", (*node)->seq_id, (*node)->dups);
 	Delete_Private(&((*node)->left));
 	Delete_Private(&((*node)->right));
 	
@@ -322,7 +341,6 @@ long int Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Public(uint64_t *seq_b
 void Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Private(Reads_Node_Eff **node, uint64_t *seq_bin, char *id_1, char *seq_1, char *qual_1, char *id_2, char *seq_2, char *qual_2, FILE *f_read1, FILE *f_read2, bool qual_check, int size) {
 	if (*node == NULL) {
 		int sum_qual = 0;
-
 		if (qual_check) {
 			sum_qual = Sum_Qual_Score(qual_1) + Sum_Qual_Score(qual_2);
 
@@ -367,6 +385,7 @@ void Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Private(Reads_Node_Eff **n
 		} else if (movement == LEFT) {
 			Reads_Add_Tree_Private(&((*node)->left), seq_bin, id_1, seq_1, qual_1, id_2, seq_2, qual_2, f_read1, f_read2, qual_check, size);
 		} else if (movement == EQUAL) {
+				(*node)->dups++;
 			if (qual_check) {
 				int sum_qual = 0;
 				sum_qual = Sum_Qual_Score(qual_1) + Sum_Qual_Score(qual_2);
