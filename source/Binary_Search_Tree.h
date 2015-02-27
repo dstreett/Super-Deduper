@@ -32,8 +32,11 @@ class Binary_Search_Tree_Read_1_Read_2 {
 			root = NULL;
 			duplicates = NULL;
 			gzipped = false;
+			temp = fopen("test.dot", "w");
 		};
+
 	private:
+		FILE *temp;
 		/*You Need to have a root for either options*/
 		Reads_Node *root;
 		Reads_Node_Eff *root_eff;

@@ -1,6 +1,10 @@
 #include <string.h>
 #include "Binary_Search_Tree_Memory_Eff_Node.h"
 
+
+
+int seq_id_track = 0;
+
 void Reads_Node_Eff::Add_Info(int _sum_qual) {
 	/*binary ID*/
 
@@ -9,8 +13,11 @@ void Reads_Node_Eff::Add_Info(int _sum_qual) {
 }
 
 void Reads_Node_Eff::Add_Info(uint64_t *_seq_bin, int size) {
+	dups++;
 	if (sum_qual != -1) {
 		/*binary ID*/
+		seq_id_track++;
+		seq_id = seq_id_track;
 		seq_bin = (uint64_t *)malloc(sizeof(uint64_t) * size );
 		memcpy(seq_bin, _seq_bin, sizeof(uint64_t) * size);
 	}

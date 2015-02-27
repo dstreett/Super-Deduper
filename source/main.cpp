@@ -74,7 +74,7 @@ const char *usage_string =
 "\n"
 "  -p, --output-prefix PREFIX	Prefix to outputted unique sequences. Default: output\n"
 "\n"
-"  -g, -gzip-output		Will output in a gzipped compressed file. This will slow down\n"
+"  -g, --gzip-output		Will output in a gzipped compressed file. This will slow down\n"
 "		Run time significantly\n"
 "\n"
 "  -s, --start NUM		The starting location for the starting base pair of the unique\n"
@@ -766,6 +766,8 @@ int main(int argc, char *argv[]) {
 
 	if (!program_args->mem_saving) {
 		x->Delete_And_Print(output_file_1, output_file_2);
+	} else {
+		x->Delete_Public();
 	}
 
 	
