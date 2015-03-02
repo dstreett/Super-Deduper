@@ -373,9 +373,10 @@ void Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Private(Reads_Node_Eff **n
 			Write_To_File(f_read1, id_1, seq_1, qual_1);
 			if (interleaved) {
 				Write_To_File(f_read1, id_2, seq_2, qual_2);
-			} else {
+			} else if (f_read2 != NULL) {
 				Write_To_File(f_read2, id_2, seq_2, qual_2);
 			}
+
 		} else {
 			*node = new Reads_Node_Eff;
 			(*node)->Add_Info(seq_bin, size); 
