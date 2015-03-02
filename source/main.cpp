@@ -300,6 +300,7 @@ bool Fill_In_Binary_Tree(Binary_Search_Tree_Read_1_Read_2 *x, FILE* file_1, FILE
 		}
 
 		/*If there are some N's in the sequences id ignore it*/
+
 		if (no_N) { 
 			if (arg->mem_saving) {
 				reads = x->Reads_Add_Tree_Public(seq_bin_id, buf_1[0], buf_1[1], buf_1[3], buf_2[0], buf_2[1], buf_2[3], f_read1, f_read2, arg->quality_checking, size);
@@ -307,7 +308,6 @@ bool Fill_In_Binary_Tree(Binary_Search_Tree_Read_1_Read_2 *x, FILE* file_1, FILE
 				reads = x->Reads_Add_Tree_Public(seq_bin_id, buf_1[0], buf_1[1], buf_1[3], buf_2[0], buf_2[1], buf_2[3], arg->quality_checking, size);
 			}
 		}
-		
 		free(seq_bin_id);
 		seq_bin_id= NULL;
 
@@ -757,7 +757,6 @@ int main(int argc, char *argv[]) {
 		unzip_file(x, (program_args->single_reads)[i], NULL, program_args, output_file_1, output_file_2, begin);
 	}	
 
-	
 	
 	/*Outputs files*/
 	if (program_args->output_tree != NULL) {
