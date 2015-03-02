@@ -170,7 +170,7 @@ bool converter(char *test, int start, int end, uint64_t *seq_bin_id, int &bp_add
 
 /*Checks to see if the file is gzipped
  * or of the file is just fastq*/
-bool gzipped_File(char *fname) {
+int gzipped_File(char *fname) {
 
 	FILE *test = fopen(fname, "r");
 	/*4096 is just arbritary*/
@@ -192,11 +192,14 @@ bool gzipped_File(char *fname) {
 	}
 
 	fclose(test);
-
-	if (check1 && check2) {
-		return false;
+	/*empty case*/
+	if (i == 0) {
+		return -1;
+	/*fastq format files*/
+	} else if (check1 && check2) {
+		return 0;
 	} else {
-		return true;
+		return 1;
 	}
 				
 }
@@ -350,25 +353,33 @@ FILE *gzip_open(char *f) {
 
 void unzip_file(Binary_Search_Tree_Read_1_Read_2 *x, char *ifile1, char *ifile2, args *arg, FILE *f_read1, FILE *f_read2, double time_start) {
 
-	bool check;
+	int check;
 
 	FILE *file_1 = NULL, *file_2 = NULL;
 
 	/*calculates size of array need*/
-	if (check = gzipped_File(ifile1)) {
+
+	/*Check is 1 for gzip, 0 for fastq, and -1 for empty file*/
+	check = gzipped_File(ifile1);
+
+	if (check == 1) {
 		file_1 = gzip_open(ifile1);
-	} else {
+	} else if (check == 0) {
 		file_1 = fopen(ifile1, "r");
+	} else {
+		fprintf(stderr, "File named %s is empty\n", ifile1);
 	}
 	
 	/*single versus read 1 and read 2*/	
 	if (ifile2 != NULL) {
 		check = gzipped_File(ifile2);
 
-		if (check) {
+		if (check == 1) {
 			file_2 = gzip_open(ifile2);
-		} else {
+		} else if (check == 0) {
 			file_2 = fopen(ifile2, "r");
+		} else {
+			fprintf(stderr, "File named %s is empty\n", ifile2);
 		}
 		
 	}
@@ -733,7 +744,6 @@ int main(int argc, char *argv[]) {
 	FILE *output_file_1 = NULL;
 	FILE *output_file_2 = NULL;
 
-	
 	if (program_args->interleaved_output) {
 		output_file_1 = fopen(program_args->output_filename_1, "w");
 		output_file_2 = NULL;
