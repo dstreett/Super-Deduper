@@ -32,7 +32,7 @@ class Binary_Search_Tree_Read_1_Read_2 {
 			root = NULL;
 			duplicates = NULL;
 			gzipped = false;
-			temp = fopen("test.dot", "w");
+		//	temp = fopen("test.dot", "w");
 		};
 
 	private:

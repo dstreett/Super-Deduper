@@ -240,33 +240,45 @@ void Binary_Search_Tree_Read_1_Read_2::Write_To_File(FILE *f_out, char *id, char
 }
 /*Prints out tree left than right recursive*/
 void Binary_Search_Tree_Read_1_Read_2::Delete_Public() {
-	fprintf(temp, "strict graph {\n");
+//	fprintf(temp, "strict graph {\n");
 	Delete_Private(&root_eff);
-	fprintf(temp, "}");
+//	fprintf(temp, "}");
 }
+
+
+/*Code for dot to execute and print out tree -- useful in debuggin and future feature
+char *colors[] = {"black", "red", "blue", "green", "yellow", "pink", "gray", "white"};
+
+void Print_To_GraphViz(Reads_Node_Eff **node) {
+
+	char tmp[4096];
+
+	if (((*node)->left) != NULL) {
+		fprintf(temp, "%d -- %d\n", (*node)->seq_id, ((*node)->left)->seq_id);
+	} 
+	if (((*node)->right) != NULL) {
+		fprintf(temp, "%d -- %d\n", (*node)->seq_id, ((*node)->right)->seq_id);
+	} 
+	
+	if ((*node)->dups < 11) {
+		fprintf(temp, "%d [style = filled shape=polygon sides=%d fillcolor=%s]\n", (*node)->seq_id, (*node)->dups, colors[(*node)->dups-3]);
+	} else {
+		fprintf(temp, "%d [style = filled shape=polygon sides=%d fillcolor=%s]\n", (*node)->seq_id, (*node)->dups, colors[7]);
+	}
+
+
+}
+*/
+
+
+
 
 
 void Binary_Search_Tree_Read_1_Read_2::Delete_Private(Reads_Node_Eff **node) {
 	if (*node == NULL) {
 		return;
 	}
-
-	char tmp[4096];
-
-	if (((*node)->left) != NULL) {
-		//fprintf(temp, "%" PRIu64 "%" PRIu64 " -- %" PRIu64 "%" PRIu64 "\n", (*node)->seq_bin[0], (*node)->seq_bin[1], ((*node)->left)->seq_bin[0], ((*node)->left)->seq_bin[1]);
-		fprintf(temp, "%d -- %d\n", (*node)->seq_id, ((*node)->left)->seq_id);
-		//sprintf(tmp, "echo '%" PRIu64 "%" PRIu64 " -- %" PRIu64 "%" PRIu64 "' >> tmp_file.dot", (*node)->seq_bin[0], (*node)->seq_bin[1], ((*node)->left)->seq_bin[0], ((*node)->left)->seq_bin[1]);
-		//system(tmp);
-	} 
-//	printf("new\n");
-	if (((*node)->right) != NULL) {
-		fprintf(temp, "%d -- %d\n", (*node)->seq_id, ((*node)->right)->seq_id);
-		//fprintf(temp, "%" PRIu64 "%" PRIu64 " -- %" PRIu64 "%" PRIu64 "\n", (*node)->seq_bin[0], (*node)->seq_bin[1], ((*node)->right)->seq_bin[0], ((*node)->right)->seq_bin[1]);
-//		system(tmp);
-	} 
 	
-	fprintf(temp, "%d [shape=polygon,sides=%d]\n", (*node)->seq_id, (*node)->dups);
 	Delete_Private(&((*node)->left));
 	Delete_Private(&((*node)->right));
 	
@@ -368,9 +380,11 @@ void Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Private(Reads_Node_Eff **n
 			*node = new Reads_Node_Eff;
 			(*node)->Add_Info(seq_bin, size); 
 			/*If f_read2 is NULL, single end read*/
+			Write_To_File(f_read1, id_1, seq_1, qual_1);
+			
 			if (interleaved) {
 				Write_To_File(f_read1, id_2, seq_2, qual_2);
-			} else {
+			} else if (f_read2 != NULL)  {
 				Write_To_File(f_read2, id_2, seq_2, qual_2);
 			}
 		}	
