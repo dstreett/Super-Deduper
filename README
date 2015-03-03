@@ -31,7 +31,10 @@ to show up in the same order as the pairs occur.
 The default output is output_nodup_PE1.fastq and output_nodup_PE2 for paired end reads
 and output_nodup_PE1 for single end reads. However, the prefix can be changed
 from output to whatever is deemed appropriate by the user with the -o option
-(the suffix is always _nodup_PE?.fastq)
+(the suffix is always _nodup_PE?.fastq). Additionally, this program will discard
+any sequence that contains an N in the sequence ID. This is because N's should be
+of low quality, and they are not 'true DNA' sequence. The number discarded will be
+be outputted at the end or during verbose options -v
 
 
 -------------------------------Options---------------------------------------
@@ -56,7 +59,7 @@ from output to whatever is deemed appropriate by the user with the -o option
 
   -p, --output-prefix PREFIX	Prefix to outputted unique sequences. Default: output
 
-  -g, -gzip-output		Will output in a gzipped compressed file. This will slow down
+  -g, --gzip-output		Will output in a gzipped compressed file. This will slow down
 		Run time significantly
 
   -s, --start NUM		The starting location for the starting base pair of the unique

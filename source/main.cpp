@@ -50,7 +50,10 @@ const char *usage_string =
 "The default output is output_nodup_PE1.fastq and output_nodup_PE2 for paired end reads\n"
 "and output_nodup_PE1 for single end reads. However, the prefix can be changed\n"
 "from output to whatever is deemed appropriate by the user with the -o option\n"
-"(the suffix is always _nodup_PE?.fastq)\n"
+"(the suffix is always _nodup_PE?.fastq). Additionally, this program will discard\n"
+"any sequence that contains an N in the sequence ID. This is because N's should be\n"
+"of low quality, and they are not 'true DNA' sequence. The number discarded will be\n"
+"be outputted at the end or during verbose options (-v).\n"
 "\n\n"
 "-------------------------------Options---------------------------------------\n"
 "  -1, --read1 PATHS		Paths to paired end Read 1 fastq.gz files that are desired\n"
@@ -310,6 +313,8 @@ bool Fill_In_Binary_Tree(Binary_Search_Tree_Read_1_Read_2 *x, FILE* file_1, FILE
 			} else {
 				reads = x->Reads_Add_Tree_Public(seq_bin_id, buf_1[0], buf_1[1], buf_1[3], buf_2[0], buf_2[1], buf_2[3], arg->quality_checking, size);
 			}
+		} else {
+			x->Discarded();
 		}
 		free(seq_bin_id);
 		seq_bin_id= NULL;

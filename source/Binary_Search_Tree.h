@@ -24,6 +24,7 @@ class Binary_Search_Tree_Read_1_Read_2 {
 		void Set_Gzipped();
 		void End_Gzipped();
 		void Interleaved(bool inter) { interleaved = inter; };
+		void Discarded() { discarded++; };
 
 		Binary_Search_Tree_Read_1_Read_2() {
 			reads = 0;
@@ -32,11 +33,13 @@ class Binary_Search_Tree_Read_1_Read_2 {
 			root = NULL;
 			duplicates = NULL;
 			gzipped = false;
+			discarded = 0;
 		//	temp = fopen("test.dot", "w");
 		};
 
 	private:
 		FILE *temp;
+		int discarded;
 		/*You Need to have a root for either options*/
 		Reads_Node *root;
 		Reads_Node_Eff *root_eff;
