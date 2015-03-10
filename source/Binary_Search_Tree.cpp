@@ -331,9 +331,10 @@ long int Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Public(uint64_t *seq_b
 	Reads_Add_Tree_Private(&(root_eff), seq_bin, id_1, seq_1, qual_1, id_2, seq_2, qual_2, f_read1, f_read2, qual_check, size);
 	return reads;
 }
+
 /*"Normal" data structure - faster, but takes much more memory (default)*/
 long int Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Public(uint64_t *seq_bin, char *id_1, char *seq_1, char *qual_1, char *id_2, char *seq_2, char *qual_2, bool qual_check, int size) {
-	//Print_Seq_Bin_1(seq_bin, size);
+
 	reads++;
 	Reads_Add_Tree_Private(&(root), seq_bin, id_1, seq_1, qual_1, id_2, seq_2, qual_2, qual_check, size);
 	return reads;
