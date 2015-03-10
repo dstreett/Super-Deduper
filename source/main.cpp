@@ -168,7 +168,7 @@ int BPS_ADDED = 31;
 int size;
 
 /* This function is the convert that creates a sequence binary number (seq_bin) used in the binary search tree */
-bool converter(char *test, int start, int end, uint64_t *seq_bin_id, int &bp_added, int &index, uint64_t &incrementor);
+bool converter(char *test, int start, int end, uint64_t *seq_bin_id, int &bp_added, int &index, uint64_t &incrementor, bool cr);
 
 
 /*Checks to see if the file is gzipped
@@ -210,7 +210,6 @@ int gzipped_File(char *fname) {
 /*Get four lines in files for @id, sequence, +, quality*/
 
 bool get_four(char ***buf, FILE *f) {
-
 	for (int i = 0; i < 4; i++) {
 		if (fgets((*buf)[i], 4096, f) == NULL) {
 			return false;
@@ -232,7 +231,6 @@ bool get_four(char ***buf, FILE *f) {
 bool get_data(char ***buf_1, char ***buf_2, FILE *R1, FILE *R2, bool interleaved) {
 
 	bool check, check2;
-
 	/*interleaved R1 then R2*/
 	if (interleaved) {
 		check = get_four(buf_1, R1);
@@ -261,6 +259,22 @@ bool get_data(char ***buf_1, char ***buf_2, FILE *R1, FILE *R2, bool interleaved
 }
 
 
+
+uint64_t *Greater_Than(uint64_t* seq, uint64_t* seq_cr, int size) {
+	int i = 0;
+
+	while (i < size && seq[i] == seq_cr[i]) {
+		i++;
+	}
+
+	if (seq[i] > seq_cr[i]) {
+		return seq;
+	} else {
+		return seq_cr;
+	}
+
+}
+
 bool Fill_In_Binary_Tree(Binary_Search_Tree_Read_1_Read_2 *x, FILE* file_1, FILE* file_2, args *arg, FILE *f_read1, FILE *f_read2, double time_start) {
 
 
@@ -277,14 +291,15 @@ bool Fill_In_Binary_Tree(Binary_Search_Tree_Read_1_Read_2 *x, FILE* file_1, FILE
 	}
 
 	int line_num = 0;
-	uint64_t *seq_bin_id;
+	uint64_t *seq_bin_id = NULL;
+	uint64_t *seq_bin_id_cr = NULL, *seq_bin = NULL;
 	long int i = 0;
 	int repeat = 1;
 	int reads = 0;
 	bool no_N = false;
 	int bp_added = 0, index = 0;
 	uint64_t incrementor;
-
+	
 	/*This loop is getting read information and putting it back in the buf_2*/
 	while (get_data(&buf_1, &buf_2, file_1, file_2, arg->interleaved_input)) {
 		
@@ -293,32 +308,52 @@ bool Fill_In_Binary_Tree(Binary_Search_Tree_Read_1_Read_2 *x, FILE* file_1, FILE
 		incrementor = 1;
 
 		seq_bin_id = (uint64_t *)malloc(sizeof(uint64_t) * size);
-			
+		seq_bin_id_cr = (uint64_t *)malloc(sizeof(uint64_t) * size);
+
 		for (int clean = 0; clean < size; clean++) {
 			seq_bin_id[clean] = 0;
+			seq_bin_id_cr[clean] = 0;
 		}
 		
-		no_N = converter(buf_1[1], arg->start, arg->length, seq_bin_id, bp_added, index, incrementor);
+		no_N = converter(buf_1[1], arg->start, arg->length, seq_bin_id, bp_added, index, incrementor, false);
 	
 		/*make sure you want R1 and R2 files*/
 		if (file_2 != NULL || arg->interleaved_input) {
-			no_N = converter(buf_2[1], arg->start, arg->length, seq_bin_id, bp_added, index, incrementor);
+			no_N = converter(buf_2[1], arg->start, arg->length, seq_bin_id, bp_added, index, incrementor, true);
 		}
+
+		bp_added = 0;
+		index = 0;
+		incrementor = 1;
+
+
+		if (file_2 != NULL || arg->interleaved_input) {
+			no_N = converter(buf_2[1], arg->start, arg->length, seq_bin_id_cr, bp_added, index, incrementor, false);
+		}
+		
+		no_N = converter(buf_1[1], arg->start, arg->length, seq_bin_id_cr, bp_added, index, incrementor, true);
+		
+		seq_bin = Greater_Than(seq_bin_id, seq_bin_id_cr, size); 
+		//printf("%" PRIu64 "\n", seq_bin[0]);
 
 		/*If there are some N's in the sequences id ignore it*/
 
 		if (no_N) { 
 			if (arg->mem_saving) {
-				reads = x->Reads_Add_Tree_Public(seq_bin_id, buf_1[0], buf_1[1], buf_1[3], buf_2[0], buf_2[1], buf_2[3], f_read1, f_read2, arg->quality_checking, size);
+				reads = x->Reads_Add_Tree_Public(seq_bin, buf_1[0], buf_1[1], buf_1[3], buf_2[0], buf_2[1], buf_2[3], f_read1, f_read2, arg->quality_checking, size);
 			} else {
-				reads = x->Reads_Add_Tree_Public(seq_bin_id, buf_1[0], buf_1[1], buf_1[3], buf_2[0], buf_2[1], buf_2[3], arg->quality_checking, size);
+				reads = x->Reads_Add_Tree_Public(seq_bin, buf_1[0], buf_1[1], buf_1[3], buf_2[0], buf_2[1], buf_2[3], arg->quality_checking, size);
 			}
 		} else {
 			x->Discarded();
 		}
-		free(seq_bin_id);
-		seq_bin_id= NULL;
 
+		free(seq_bin_id);
+		seq_bin_id = NULL;
+		free(seq_bin_id_cr);
+		seq_bin_id_cr= NULL;
+		
+		
 		if (arg->verbose) {
 			if (reads % 1000000 == 0) {
 					x->Display_Info((clock() - time_start)/CLOCKS_PER_SEC);
@@ -406,7 +441,7 @@ void unzip_file(Binary_Search_Tree_Read_1_Read_2 *x, char *ifile1, char *ifile2,
 /*Possible enhancement 
  * - using x86 intrisic functions to read in characters and making the converation*/
 
-bool converter(char *test, int start, int len, uint64_t *seq_bin_id, int &bp_added, int &index, uint64_t &incrementor) {
+bool converter(char *test, int start, int len, uint64_t *seq_bin_id, int &bp_added, int &index, uint64_t &incrementor, bool cr) {
 
 
 	/*Values for corresponding values*/
@@ -414,6 +449,14 @@ bool converter(char *test, int start, int len, uint64_t *seq_bin_id, int &bp_add
 	int C = 2;
 	int G = 1;
 	int T = 3;
+
+
+	if (cr) {
+		A = 3;
+		T = 0;
+		C = 1;
+		G = 2;
+	}
 
 	int i = start -1;
 	int end = start + len - 1;
@@ -441,35 +484,65 @@ bool converter(char *test, int start, int len, uint64_t *seq_bin_id, int &bp_add
 		fprintf(stderr, "[ERROR] out of bounds. Start: %i End: %i Length: %i\n", start, end, length);
 		exit(-1);
 	}
+
+	if (!cr) {	
+		for (i = start - 1; i < end; i++) {
+			/*Creates the 'binary number'*/
+			if (test[i] == 'A') {
+				seq_bin_id[index] += (A * incrementor);
+			} else if (test[i] == 'C') {
+				seq_bin_id[index] += (C * incrementor);
+			} else if (test[i] == 'T') {
+				seq_bin_id[index] += (T * incrementor);
+			} else if (test[i] == 'G') {
+					seq_bin_id[index] += (G * incrementor);
+			} else if (test[i] == 'N') {
+				/*Tells if there is a bad case*/
+				return false;
+			}
+			/*Shifts bits by 3 to create the binary number*/
+			incrementor *= 4;
+			/*prevent from overflow 2^64 is the highest 100% percision mark*/
 	
-	for (i = start-1; i < end; i++) {
-		/*Creates the 'binary number'*/
-		if (test[i] == 'A') {
-			seq_bin_id[index] += (A * incrementor);
-		} else if (test[i] == 'C') {
-			seq_bin_id[index] += (C * incrementor);
-		} else if (test[i] == 'T') {
-			seq_bin_id[index] += (T * incrementor);
-		} else if (test[i] == 'G') {
-			seq_bin_id[index] += (G * incrementor);
-		} else if (test[i] == 'N') {
-			/*Tells if there is a bad case*/
-			return false;
+			if (bp_added == BPS_ADDED) {
+				bp_added = 0;
+				index++;
+				incrementor = 1;
+				} else {
+				bp_added++;
+			}
 		}
-		/*Shifts bits by 3 to create the binary number*/
-		incrementor *= 4;
-		/*prevent from overflow 2^64 is the highest 100% percision mark*/
-
-		if (bp_added == BPS_ADDED) {
-			bp_added = 0;
-			index++;
-			incrementor = 1;
-		} else {
-			bp_added++;
-		}
-
+	} else {
 		
+		for (i = end-1; i > start-2; i--) {
+			/*Creates the 'binary number'*/
+			if (test[i] == 'A') {
+				seq_bin_id[index] += (A * incrementor);
+			} else if (test[i] == 'C') {
+				seq_bin_id[index] += (C * incrementor);
+			} else if (test[i] == 'T') {
+				seq_bin_id[index] += (T * incrementor);
+			} else if (test[i] == 'G') {
+					seq_bin_id[index] += (G * incrementor);
+			} else if (test[i] == 'N') {
+				/*Tells if there is a bad case*/
+				return false;
+			}
+			/*Shifts bits by 3 to create the binary number*/
+			incrementor *= 4;
+			/*prevent from overflow 2^64 is the highest 100% percision mark*/
+	
+			if (bp_added == BPS_ADDED) {
+				bp_added = 0;
+				index++;
+				incrementor = 1;
+			} else {
+				bp_added++;
+			}
+		}
 	}
+		
+
 	/*no Ns*/
 	return true;
 
