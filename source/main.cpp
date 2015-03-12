@@ -102,7 +102,9 @@ const char *usage_string =
 "  -I, --input-tree PATHS	Name of the input file in which you want to upload a previously\n"
 " 			seen tree before (output of -O).\n"
 "\n"
-"\n";
+"\n"
+"version 1.1.1\n"
+;
 
 
 /*struct for arguments
@@ -122,7 +124,7 @@ typedef struct {
 	int tree_files;
 	int interleaved_files;
 
-
+	
 	char *output_filename_1;
 	char *output_filename_2;
 	char *output_tree;
@@ -136,7 +138,7 @@ typedef struct {
 	bool interleaved_input;
 	bool interleaved_output;	
 	bool gzip_output;
-
+	bool output_stdout;
 	
 
 } args;
@@ -365,33 +367,35 @@ void unzip_file(Binary_Search_Tree_Read_1_Read_2 *x, char *ifile1, char *ifile2,
 	/*calculates size of array need*/
 
 	/*Check is 1 for gzip, 0 for fastq, and -1 for empty file*/
-	check = gzipped_File(ifile1);
-
-	if (check == 1) {
-		file_1 = gzip_open(ifile1);
-	} else if (check == 0) {
-		file_1 = fopen(ifile1, "r");
+	if (strcmp(ifile1, "stdin") == 0) {
+		file_1 = stdin;
 	} else {
-		fprintf(stderr, "File named %s is empty\n", ifile1);
-	}
-	
-	/*single versus read 1 and read 2*/	
-	if (ifile2 != NULL) {
-		check = gzipped_File(ifile2);
-
+		check = gzipped_File(ifile1);
+		
 		if (check == 1) {
-			file_2 = gzip_open(ifile2);
+			file_1 = gzip_open(ifile1);
 		} else if (check == 0) {
-			file_2 = fopen(ifile2, "r");
+				file_1 = fopen(ifile1, "r");
 		} else {
-			fprintf(stderr, "File named %s is empty\n", ifile2);
+			fprintf(stderr, "File named %s is empty\n", ifile1);
 		}
 		
-	}
+		/*single versus read 1 and read 2*/	
+		if (ifile2 != NULL) {
+			check = gzipped_File(ifile2);
 
+			if (check == 1) {
+				file_2 = gzip_open(ifile2);
+			} else if (check == 0) {
+				file_2 = fopen(ifile2, "r");
+			} else {
+				fprintf(stderr, "File named %s is empty\n", ifile2);
+		}
+		
+		}
+	}
 	/*This is the read-in function of the program*/
 	Fill_In_Binary_Tree(x, file_1, file_2, arg, f_read1, f_read2, time_start);
-
 
 }
 
@@ -517,7 +521,7 @@ int Parse_Comma_Separation(char *file_string, char ***arg_string) {
 		tok = strtok_r(file_string, ",", &file_string);
 
 		while (tok != NULL) {
-			Check_Permissions(tok, R_OK);
+			//Check_Permissions(tok, R_OK);
 			holder_arg[i] = strdup(tok);
 			i++;
 			tok = strtok_r(NULL, ",", &file_string);
@@ -572,6 +576,7 @@ args *Arguements_Collection(int argc, char *argv[]) {
 
 	/*Check and see what is used (R1 and R2, Single End Read, or Interleaved Input*/
 	bool read1 = false, read2 = false, single = false;
+	program_args->output_stdout = false;
 
 	/*Arguments for super_deduper*/
 	const struct option longopts[] =
@@ -608,6 +613,10 @@ args *Arguements_Collection(int argc, char *argv[]) {
 				read2 = true;
                                 break;
                         case 'p':
+				if (strcmp(optarg, "stdout") == 0) {
+					program_args->output_stdout = true;
+				}
+
 				program_args->output_filename_1 = strdup(optarg);	
 				program_args->output_filename_2 = strdup(optarg);	
                                 break;
@@ -709,7 +718,6 @@ args *Arguements_Collection(int argc, char *argv[]) {
 }
 
 
-
 int main(int argc, char *argv[]) {
 	/*Set up arguements from user*/	
 	args *program_args = Arguements_Collection(argc, argv);
@@ -749,7 +757,10 @@ int main(int argc, char *argv[]) {
 	FILE *output_file_1 = NULL;
 	FILE *output_file_2 = NULL;
 
-	if (program_args->interleaved_output) {
+	if (program_args->output_stdout) {
+		output_file_1 = stdout;
+		output_file_2 = NULL;
+	} else if(program_args->interleaved_output) {
 		output_file_1 = fopen(program_args->output_filename_1, "w");
 		output_file_2 = NULL;
 	} else if (program_args->output_filename_2 != NULL) {
