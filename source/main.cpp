@@ -832,6 +832,9 @@ int main(int argc, char *argv[]) {
 
 	if (program_args->output_stdout) {
 		output_file_1 = stdout;
+		if (program_args->interleaved_input) {
+			x->Interleaved(true);
+		}
 		output_file_2 = NULL;
 	} else if(program_args->interleaved_output) {
 		output_file_1 = fopen(program_args->output_filename_1, "w");
