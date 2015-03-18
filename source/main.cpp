@@ -22,8 +22,14 @@
 
 bool DEBUG = false;
 
+#ifndef VERSION
+#define VERSION 0.0
+#endif
+
+const char *version = "1.4";
+
 const char *usage_string = 
-"\n\n\n"
+"Super Deduper: Version 1.4\n\n\n"
 "Usage: super_deduper [OPTIONS] -1  <comma seperated .fastq.gz/fastq files> -2 <comma seperated .fastq.gz/fastq file>\n"
 "	super_deduper [OPTIONS] -U <comma seperated .fastq.gz/fastq files>\n"
 "	super_deduper [OPTIONS] -i <comma seperated .fastq.gz/fastq files>\n"
@@ -101,9 +107,9 @@ const char *usage_string =
 "\n"
 "  -I, --input-tree PATHS	Name of the input file in which you want to upload a previously\n"
 " 			seen tree before (output of -O).\n"
+"  -V, --version		Outputs version number and then exits\n"
 "\n"
 "\n"
-"version 1.1.1\n"
 ;
 
 
@@ -654,6 +660,7 @@ args *Arguements_Collection(int argc, char *argv[]) {
 	/*Arguments for super_deduper*/
 	const struct option longopts[] =
         {
+		{"version", no_argument, 0, 'V'},
                 {"read1", required_argument, 0, '1'},
                 {"read2", required_argument, 0, '2'},
                 {"singleend", required_argument, 0, 'U'},
@@ -674,9 +681,13 @@ args *Arguements_Collection(int argc, char *argv[]) {
         };
 
 	/*Parser of command lines*/
-        while ((cmd_line_char = getopt_long(argc, argv, "1:2:p:s:l:d:MqvU:O:I:hi:og", longopts, &long_index)) != EOF) {
+        while ((cmd_line_char = getopt_long(argc, argv, "1:2:p:s:l:d:MqvU:O:I:hi:ogV", longopts, &long_index)) != EOF) {
 
                 switch(cmd_line_char) {
+			case 'V':
+				printf("%s Version\n", version);
+				exit(10);
+				break;
                         case '1':
 				program_args->read_1_files = Parse_Comma_Separation(optarg, &(program_args->read_1));
 				read1 = true;
