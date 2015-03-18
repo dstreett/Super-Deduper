@@ -222,6 +222,7 @@ bool get_four(char ***buf, FILE *f) {
 	if ((*buf)[0][0] == '@' && (*buf)[2][0] == '+') {
 		return true;
 	} else {
+		printf("%s\n", (*buf)[0]);
 		fprintf(stderr, "FASTQ format is not held, please check your files\n");
 		exit(-100);
 	}
@@ -292,7 +293,6 @@ bool Fill_In_Binary_Tree(Binary_Search_Tree_Read_1_Read_2 *x, FILE* file_1, FILE
 		buf_2[tmp] = (char *)malloc(sizeof(char)*4096);	
 	}
 
-	int line_num = 0;
 	uint64_t *seq_bin_id = NULL;
 	uint64_t *seq_bin_id_cr = NULL, *seq_bin = NULL;
 	long int i = 0;
