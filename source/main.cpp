@@ -228,7 +228,6 @@ bool get_four(char ***buf, FILE *f) {
 	if ((*buf)[0][0] == '@' && (*buf)[2][0] == '+') {
 		return true;
 	} else {
-		printf("%s\n", (*buf)[0]);
 		fprintf(stderr, "FASTQ format is not held, please check your files\n");
 		exit(-100);
 	}
@@ -735,6 +734,9 @@ args *Arguements_Collection(int argc, char *argv[]) {
 				program_args->output_tree = strdup(optarg);
                                 break;
 			case 'o':
+				if (strcmp(optarg, "stdout") == 0) {
+					program_args->output_stdout = true;
+				}
 				program_args->interleaved_output = true;
 				break;
 			case 'i':
@@ -843,9 +845,7 @@ int main(int argc, char *argv[]) {
 
 	if (program_args->output_stdout) {
 		output_file_1 = stdout;
-		if (program_args->interleaved_input) {
-			x->Interleaved(true);
-		}
+		x->Interleaved(true);
 		output_file_2 = NULL;
 	} else if(program_args->interleaved_output) {
 		output_file_1 = fopen(program_args->output_filename_1, "w");

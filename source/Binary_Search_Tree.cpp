@@ -297,7 +297,6 @@ void Binary_Search_Tree_Read_1_Read_2::Delete_And_Print_Private(Reads_Node **nod
 	Delete_And_Print_Private(&((*node)->right), output_1, output_2);
 	
 	Write_To_File(output_1, (*node)->id_1, (*node)->seq_1, (*node)->qual_1);
-
 	if (interleaved) {
 		Write_To_File(output_1, (*node)->id_2, (*node)->seq_2, (*node)->qual_2);
 	} else if (output_2 != NULL) {
