@@ -183,8 +183,16 @@ bool converter(char *test, int start, int end, uint64_t *seq_bin_id, int &bp_add
  * or of the file is just fastq*/
 int gzipped_File(char *fname) {
 
+	int len = strlen(fname);
+
+	if (strcmp(".gz", &fname[len-3]) == 0) {
+		printf("GZ FILE\n");
+	} else {
+		printf("NOT GZ FILE\n");
+	}	
+	/*
 	FILE *test = fopen(fname, "r");
-	/*4096 is just arbritary*/
+
 	char tmp[4096];
 	int i = 0;
 	bool check1 = false, check2 = false;
@@ -203,16 +211,14 @@ int gzipped_File(char *fname) {
 	}
 
 	fclose(test);
-	/*empty case*/
 	if (i == 0) {
 		return -1;
-	/*fastq format files*/
 	} else if (check1 && check2) {
 		return 0;
 	} else {
 		return 1;
 	}
-				
+	*/			
 }
 
 /*Get four lines in files for @id, sequence, +, quality*/
@@ -223,7 +229,7 @@ bool get_four(char ***buf, FILE *f) {
 			return false;
 		}
 	}
-
+	printf("%s\n", (*buf)[0]);
 	/* 1st must be an '@' and 3rd must be '+'*/
 	if ((*buf)[0][0] == '@' && (*buf)[2][0] == '+') {
 		return true;
@@ -415,7 +421,7 @@ void unzip_file(Binary_Search_Tree_Read_1_Read_2 *x, char *ifile1, char *ifile2,
 		if (check == 1) {
 			file_1 = gzip_open(ifile1);
 		} else if (check == 0) {
-				file_1 = fopen(ifile1, "r");
+			file_1 = fopen(ifile1, "r");
 		} else {
 			fprintf(stderr, "File named %s is empty\n", ifile1);
 		}
