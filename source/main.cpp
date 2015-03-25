@@ -186,9 +186,9 @@ int gzipped_File(char *fname) {
 	int len = strlen(fname);
 
 	if (strcmp(".gz", &fname[len-3]) == 0) {
-		printf("GZ FILE\n");
+		return 1;
 	} else {
-		printf("NOT GZ FILE\n");
+		return 0;
 	}	
 	/*
 	FILE *test = fopen(fname, "r");
@@ -229,7 +229,6 @@ bool get_four(char ***buf, FILE *f) {
 			return false;
 		}
 	}
-	printf("%s\n", (*buf)[0]);
 	/* 1st must be an '@' and 3rd must be '+'*/
 	if ((*buf)[0][0] == '@' && (*buf)[2][0] == '+') {
 		return true;
@@ -690,7 +689,7 @@ args *Arguements_Collection(int argc, char *argv[]) {
 
                 switch(cmd_line_char) {
 			case 'V':
-				printf("%s Version\n", version);
+				fprintf(stderr, "%s Version\n", version);
 				exit(10);
 				break;
                         case '1':
