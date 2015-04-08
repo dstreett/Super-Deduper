@@ -66,8 +66,7 @@ Here are the basic arguements
 
 
 <p>If you are doing paired end reads (that aren't interleaved)</p>
-<pre><code>
--1, --read1 [path to read 1 (fastq or fastq.gz)]
+<pre><code>-1, --read1 [path to read 1 (fastq or fastq.gz)]
 -2, --read2 [path to read 2 (fastq or fastq.gz)]
 </code></pre>
 
@@ -83,7 +82,30 @@ If you want to use an interleaved file - no problem
 <code>-U, --singleend [path to single end file] </code>
 </pre>
 
-<p><b><i>All these options can be comma seperated to add multiple files.</b></i></p>
+<p><b>All these options can be comma seperated to add multiple files.</b></p>
+
+<p>To change the region in which the Super Deduper determines duplicates here are the arguments</p>
+
+<pre><code>-s, -start NUM [starting base pair of ID]
+-l, --length NUM [number of base pairs from the starting base pair]
+</pre></code>
+
+<p><b>If you enter inputs that are out of bounds for reads the application will stop running and exit</b><p>
+
+
+<p>Output arguments are as follows</p>
+
+<pre><code>-p, --output-prefix PREFIX [This will add PREFIX to the start of "_nodup_PE1.fastq]
+-o, --interleaved-output PREFIX [Outputs in interleaved format with prefix specified]
+-g, --gzip-output [Outputs in gzipped format]
+</code></pre>
+
+
+<p>If you would like to save the duplication sceme for a later data, you can actually output the tree and input it the next time you run it<\p>
+<pre><code>-O, --output-tree PATH [outputs tree to the file]
+-I, --input-tree PATH [Tree files to read in (comma seperated)]
+</code></pre>
+
 
 <h3>
 <a id="authors-and-contributors" class="anchor" href="#authors-and-contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
