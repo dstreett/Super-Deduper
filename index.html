@@ -65,18 +65,26 @@ Here are the basic arguements
 </p>
 
 
-<pre>
-
 <p>If you are doing paired end reads (that aren't interleaved)</p>
+<pre>
 <code>
 -1, --read1 [path to read 1 (fastq or fastq.gz)]
 -2, --read2 [path to read 2 (fastq or fastq.gz)]
 </code>
+</pre>
+<p>
 If you want to use an interleaved file - no problem
+<pre>
 <code>
 -i, --interleaved-input <path to interleaved file>
 </code>
-Additionally, single ends are handled just fine
+</pre>
+</p>
+
+
+<p>Additionally, single ends are handled just fine</p>
+
+<pre>
 <code>
 -U, --singleend <path to single end file> 
 </code>
