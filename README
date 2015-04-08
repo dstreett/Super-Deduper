@@ -1,4 +1,4 @@
-
+Read more here http://dstreett.github.io/Super-Deduper
 
 
 Usage: super_deduper [OPTIONS] -1  <comma seperated .fastq.gz/fastq files> -2 <comma seperated .fastq.gz/fastq file>
