@@ -66,8 +66,8 @@ Here are the basic arguements
 
 
 <p>If you are doing paired end reads (that aren't interleaved)</p>
-<pre><code>-1, --read1 [path to read 1 (fastq or fastq.gz)]
--2, --read2 [path to read 2 (fastq or fastq.gz)]
+<pre><code>-1, --read1 [path to read 1]
+-2, --read2 [path to read 2]
 </code></pre>
 
 <p>
@@ -82,7 +82,7 @@ If you want to use an interleaved file - no problem
 <code>-U, --singleend [path to single end file] </code>
 </pre>
 
-<p><b>All these options can be comma seperated to add multiple files.</b></p>
+<p><b>All these options can be comma seperated to add multiple files. Additionally, fastq or fastq.gz are accepted as input.</b></p>
 
 <p>To change the region in which the Super Deduper determines duplicates here are the arguments</p>
 
