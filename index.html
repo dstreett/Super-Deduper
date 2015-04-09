@@ -51,6 +51,13 @@ $ ./super_deduper -U ./examples/phix_example_SE.fastq.gz
 
 <p>
 The Super Deduper turns a region of the sequence (or the entire sequence) into a binary number. It does this by mapping A to 00, T to 11, C to 01, and G to 10.
+</p>
+
+<h2>Mapping Information</h2>
+<img src="image/mapping.png" alt="Mapping" style="width:304px;height:228px">
+
+
+<p>
 Super deduper concatenates read 1's and read 2's binary numbers together and creates a unique ID for the pair that is then used to determine duplications in a binary search tree. With single end reads the same thing happens, except there is no read 2 to concatenate with.
 Both the read and the reverse compliment are tested for - however, only the larger of the two are kept. Doing this ensures that the reverse compliment is tested for and that all reads that are duplicates (be in a reverse compliment duplicate) are tested and mapped to the same unique ID.
 A node is created in this tree if a new sequence ID is seen. If an ID is all ready seen a summation of the quality score of the entire read is taken. The read with the higher summation is taken.
