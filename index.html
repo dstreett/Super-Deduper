@@ -58,6 +58,11 @@ The Super Deduper turns a region of the sequence (or the entire sequence) into a
 
 <p>
 Super deduper concatenates read 1's and read 2's binary numbers together and creates a unique ID for the pair that is then used to determine duplications in a binary search tree. With single end reads the same thing happens, except there is no read 2 to concatenate with.
+</p>
+
+<img src="images/mapping.png" alt="Mapping" style="width:400px;height:228px" align="middle">
+
+<p>
 Both the read and the reverse compliment are tested for - however, only the larger of the two are kept. Doing this ensures that the reverse compliment is tested for and that all reads that are duplicates (be in a reverse compliment duplicate) are tested and mapped to the same unique ID.
 A node is created in this tree if a new sequence ID is seen. If an ID is all ready seen a summation of the quality score of the entire read is taken. The read with the higher summation is taken.
 The reason for a summation versus an average is summations give preferential treatment to longer reads as well as higher quality scores.
