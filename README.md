@@ -1,4 +1,4 @@
-[![Analytics](https://ga-beacon.appspot.com/UA-62149453-2/Super-Deduper/README)](https://github.com/igrigorik/ga-beacon)
+[![Analytics](https://ga-beacon.appspot.com/UA-62149453-2/Super-Deduper/README.md)](https://github.com/igrigorik/ga-beacon)
 
 
 Read more here http://dstreett.github.io/Super-Deduper
