@@ -376,8 +376,8 @@ bool Fill_In_Binary_Tree(Binary_Search_Tree_Read_1_Read_2 *x, FILE* file_1, FILE
 		i++;
 		reads++;
 
-		sprintf(buf_1[1], "\0");
-		sprintf(buf_2[1], "\0");
+		//sprintf(buf_1[1], "\0");
+		//sprintf(buf_2[1], "\0");
 	}
 
 
@@ -685,7 +685,7 @@ args *Arguements_Collection(int argc, char *argv[]) {
         };
 
 	/*Parser of command lines*/
-        while ((cmd_line_char = getopt_long(argc, argv, "1:2:p:s:l:d:MqvU:O:I:hi:ogV", longopts, &long_index)) != EOF) {
+        while ((cmd_line_char = getopt_long(argc, argv, "1:2:p:s:l:d:MqvU:O:I:hi:o:gV", longopts, &long_index)) != EOF) {
 
                 switch(cmd_line_char) {
 			case 'V':
@@ -711,7 +711,7 @@ args *Arguements_Collection(int argc, char *argv[]) {
                         case 's':
 				program_args->start = atoi(optarg);
                                 break;
-                        case 'M':
+                       case 'M':
 				program_args->mem_saving = true;
                                 break;
                         case 'q':
@@ -741,6 +741,8 @@ args *Arguements_Collection(int argc, char *argv[]) {
 			case 'o':
 				if (strcmp(optarg, "stdout") == 0) {
 					program_args->output_stdout = true;
+				} else {
+					program_args->output_filename_1 = strdup(optarg);	
 				}
 				program_args->interleaved_output = true;
 				break;
@@ -762,7 +764,6 @@ args *Arguements_Collection(int argc, char *argv[]) {
 			
                 }
         }
-
 
 	/*Error handling to make sure multiple formats are not created*/
 	if (read1 && read2 && single && program_args->interleaved_input) {
@@ -812,7 +813,6 @@ args *Arguements_Collection(int argc, char *argv[]) {
 int main(int argc, char *argv[]) {
 	/*Set up arguements from user*/	
 	args *program_args = Arguements_Collection(argc, argv);
-
 	clock_t begin, end_c;
 	double time_spent;
 	
@@ -833,7 +833,6 @@ int main(int argc, char *argv[]) {
 	/*Gives tree size, gzip, boolean for output type*/
 	x->Input_Size(size);
 	x->Interleaved(program_args->interleaved_output);
-
 	if (program_args->gzip_output) {
 		x->Set_Gzipped();
 	}

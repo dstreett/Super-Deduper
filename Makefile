@@ -38,5 +38,5 @@ build: Binary_Search_Tree.o Binary_Search_Tree_Memory_Eff_Node.o Binary_Search_T
 	$(CC) $(CFLAGS) $(LDFLAGS) $(OPT) $? -o super_deduper $(LIBS)
 
 debug:
-	$(MAKE) build "CFLAGS=-Wall -pedantic -g -DDEBUG"
+	$(MAKE) build
 

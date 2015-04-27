@@ -22,7 +22,7 @@ echo "switching the output prefix with -p option to output_new interleaved outpu
 echo "Expected"
 echo "Final:| reads: 500000 | duplicates: 297210 | percent: 0.59 | total_seconds: * | reads/sec: *"
 echo "Output"
-../super_deduper -1 ../examples/phix_example_PE1.fastq.gz -2 ../examples/phix_example_PE2.fastq.gz -p "output_new" -o
+../super_deduper -1 ../examples/phix_example_PE1.fastq.gz -2 ../examples/phix_example_PE2.fastq.gz -o interleaved_out
 
 echo ""
 echo ""
@@ -46,7 +46,7 @@ echo ""
 
 echo "reading in tree outputted (with.fastq.gz  file)"
 echo "Expected"
-echo "Final:| reads: 500000 | duplicates: 297210 | percent: 0.59 | total_seconds: * | reads/sec: *"
+echo "Final:| reads: 500000 | duplicates: 362385 | percent: 72.48 | discarded: 0 | total_seconds: * | reads/sec: *"
 echo "Output"
 ../super_deduper -i ../examples/interleaved_example.fastq.gz -O tree_output
 echo ""
@@ -55,7 +55,7 @@ echo ""
 echo "single end read examples"
 echo "all inputted file arguements can be comma seperated"
 echo "Expected"
-echo "Final:| reads: 500000 | duplicates: 491312 | percent: 98.26 | discarded: 0 | total_seconds: 0.62 | reads/sec: 810814.32"
+echo "Final:| reads: 500000 | duplicates: 491312 | percent: 98.26 | discarded: 0 | total_seconds: * | reads/sec: *"
 echo "Output"
 ../super_deduper -U ../examples/phix_example_SE.fastq.gz
 
