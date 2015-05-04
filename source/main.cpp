@@ -1,516 +1,514 @@
-#include<unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+	#include<unistd.h>
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <math.h>
+	#include <string.h>
+	#include <sys/types.h>
+	#include <sys/wait.h>
 
-#include <fcntl.h>
-#include <zlib.h>
+	#include <fcntl.h>
+	#include <zlib.h>
 
-#include "Binary_Search_Tree.h"
-#include <getopt.h>
-#include <time.h>
-#include <unistd.h>
+	#include "Binary_Search_Tree.h"
+	#include <getopt.h>
+	#include <time.h>
+	#include <unistd.h>
 
-#include<stdint.h>
-#define __STDC_FORMAT_MACROS
-#include <inttypes.h>
-
-
-
-bool DEBUG = false;
-
-#ifndef VERSION
-#define VERSION 0.0
-#endif
-
-const char *version = "1.4";
-
-const char *usage_string = 
-"Super Deduper: Version 1.4\n\n\n"
-"Usage: super_deduper [OPTIONS] -1  <comma seperated .fastq.gz/fastq files> -2 <comma seperated .fastq.gz/fastq file>\n"
-"	super_deduper [OPTIONS] -U <comma seperated .fastq.gz/fastq files>\n"
-"	super_deduper [OPTIONS] -i <comma seperated .fastq.gz/fastq files>\n"
-"\n\n"
-"-------------------------------Description-----------------------------------\n"
-"\n"
-"Super Deduper is a duplication removal application designed to remove duplicates\n"
-"introduced by PCR amplification. It accomplishes this by creating a binary search\n"
-"tree and creating a unique sequence ID for each read (or region of read) specified\n"
-"by the user. This approach creates a fast, accurate de-duplication that is able to be\n"
-"used on non-mapped reads directly from a fastq.gz/fastq file. It also allows users to \n"
-"receive the highest quality sequence back (by default) allowing for higher quality\n"
-"data to be outputted. \n"
-"\n\n"
-"-------------------------------Required Inputs-------------------------------\n"
-"\n"
-"Required inputs are fastq.gz paired end reads specified in -1 and -2, or single end\n"
-"fastq.gz file -U. Both of these can be comma separated and given multiple files\n"
-"When using the -1 and -2 options, the comma separated files are assumed\n"
-"to show up in the same order as the pairs occur.\n"
-"\n\n"
-"-------------------------------Output----------------------------------------\n"
-"\n\n"
-"The default output is output_nodup_PE1.fastq and output_nodup_PE2 for paired end reads\n"
-"and output_nodup_PE1 for single end reads. However, the prefix can be changed\n"
-"from output to whatever is deemed appropriate by the user with the -o option\n"
-"(the suffix is always _nodup_PE?.fastq). Additionally, this program will discard\n"
-"any sequence that contains an N in the sequence ID. This is because N's should be\n"
-"of low quality, and they are not 'true DNA' sequence. The number discarded will be\n"
-"be outputted at the end or during verbose options (-v).\n"
-"\n\n"
-"-------------------------------Options---------------------------------------\n"
-"  -1, --read1 PATHS		Paths to paired end Read 1 fastq.gz files that are desired\n"
-"		 to be deduplicated. Multiple files can be give if they are comma \n"
-"		separated.\n"
-"\n"
-"  -2, --read2 PATHS		Paths to paired end Read 2 fastq.gz files that are desired\n"
-"		 to be deduplicated. Multiple files can be give if they are comma \n"
-"		separated.\n"
-"\n"
-"  -U, --singleend PATHS	Paths to single end reads fastq.gz files that are desired\n"
-"		 to be deduplicated. Multiple files can be give if they are comma \n"
-"		separated.\n"
-"\n"
-"  -i, --interleaved-input PATH Paths to interleaved fastq/fastq.gz files that are desired\n"
-"		to be deduplicated. Multiple files can be given if they are comma \n"
-"		seperated.\n"
-"\n"
-"  -o, --interleaved-output PATH Output in interleaved format. This output will go to\n"
-"		prefix + '_nodup_PE1.fastq' or '_nodup_PE2.fastq.gz' if -g is specified\n"
-"\n"
-"  -p, --output-prefix PREFIX	Prefix to outputted unique sequences. Default: output\n"
-"\n"
-"  -g, --gzip-output		Will output in a gzipped compressed file. This will slow down\n"
-"		Run time significantly\n"
-"\n"
-"  -s, --start NUM		The starting location for the starting base pair of the unique\n"
-"		sequence ID. Default: 10\n"
-"\n"
-"  -l, --length NUM		The length of the base pairs in the unique sequence ID (the number.\n"
-"		of base pairs in the unique ID). Default 25\n"
-"\n"
-"  -M, --memory-saving-on	Turns on a memory efficiency. Using efficient memory options slows \n"
-"		down the speed of computation and uses virtual memory, swap space, and IO versus RAM.\n"
-"		(This slows things down by about 10 times, but cuts back on RAM usage by about 1/6.)\n"
-"		Default: false\n"
-"\n"
-"  -q, --quality-check-off	Turns off quality check. This will reduce run time since it will not\n"
-"		compute nor check for highest quality scores. (For fastest speeds run this option\n"
-"		with -M) Default: false\n"
-"\n"
-"  -v, --verbose		Turns on verbose option - ouputs information every 1,000,000 reads. Default: false\n"
-"\n"
-"  -O, --output-tree FILE 	Name of file where you what the outputed tree information to go.\n"
-"\n"
-"  -I, --input-tree PATHS	Name of the input file in which you want to upload a previously\n"
-" 			seen tree before (output of -O).\n"
-"  -V, --version		Outputs version number and then exits\n"
-"\n"
-"\n"
-;
-
-
-/*struct for arguments
- * typedef to args*/
-typedef struct {
-
-	char **read_1;
-	char **read_2;
-	char **single_reads;
-	char **interleaved;
-
-	char **input_trees;	
-	
-	int read_1_files;
-	int read_2_files;
-	int single_files;
-	int tree_files;
-	int interleaved_files;
-
-	
-	char *output_filename_1;
-	char *output_filename_2;
-	char *output_tree;
-	
-	int start;
-	int length;
-
-	bool mem_saving;
-	bool quality_checking;
-	bool verbose;
-	bool interleaved_input;
-	bool interleaved_output;	
-	bool gzip_output;
-	bool output_stdout;
-	
-
-} args;
-
-/*Constrcutor function for args*/
-
-void Start_Args(args*  arg) {
-	arg->output_tree = NULL;
-	arg->start = 10;
-	arg->length = 25;
-	arg->read_1_files = 0;
-	arg->read_2_files = 0;
-	arg->single_files = 0;
-	arg->tree_files = 0;
-	arg->mem_saving = false;
-	arg->quality_checking = true;
-	arg->verbose = false;
-	arg->interleaved_input = false;
-	arg->interleaved_output = false;
-	arg->gzip_output = false;
-	arg->output_filename_1 = strdup("output");
-	arg->output_filename_2 = strdup("output");
-
-}
-
-
-/*Since there is a 64 unsigned int you can add 31 base pairs at a time*/
-int BPS_ADDED = 31;
-int size;
-
-/* This function is the convert that creates a sequence binary number (seq_bin) used in the binary search tree */
-bool converter(char *test, int start, int end, uint64_t *seq_bin_id, int &bp_added, int &index, uint64_t &incrementor, bool cr);
-
-
-/*Checks to see if the file is gzipped
- * or of the file is just fastq*/
-int gzipped_File(char *fname) {
-
-	int len = strlen(fname);
-
-	if (strcmp(".gz", &fname[len-3]) == 0) {
-		return 1;
-	} else {
-		return 0;
-	}	
-	/*
-	FILE *test = fopen(fname, "r");
-
-	char tmp[4096];
-	int i = 0;
-	bool check1 = false, check2 = false;
-
-	while (fgets(tmp, 4096, test) != NULL) {
-		if (i == 0 && tmp[0] == '@') {
-			check1 = true;
-		}
-		if (i == 2 && tmp[0] == '+') {
-			check2 = true;
-		}
-		if (i == 3) {
-			break;
-		}
-		i++;
-	}
-
-	fclose(test);
-	if (i == 0) {
-		return -1;
-	} else if (check1 && check2) {
-		return 0;
-	} else {
-		return 1;
-	}
-	*/			
-}
-
-/*Get four lines in files for @id, sequence, +, quality*/
-
-bool get_four(char ***buf, FILE *f) {
-	for (int i = 0; i < 4; i++) {
-		if (fgets((*buf)[i], 4096, f) == NULL) {
-			return false;
-		}
-	}
-	/* 1st must be an '@' and 3rd must be '+'*/
-	if ((*buf)[0][0] == '@' && (*buf)[2][0] == '+') {
-		return true;
-	} else {
-		fprintf(stderr, "FASTQ format is not held, please check your files\n");
-		exit(-100);
-	}
-
-
-}
-
-/*Get data will pull in the file information*/
-bool get_data(char ***buf_1, char ***buf_2, FILE *R1, FILE *R2, bool interleaved) {
-
-	bool check, check2;
-	/*interleaved R1 then R2*/
-	if (interleaved) {
-		check = get_four(buf_1, R1);
-		check2 = get_four(buf_2, R1);
-
-		if (check != check2) {
-			fprintf(stderr, "Read 1 and Read 2 Lengths are not equal\n");
-			exit(-101);
-		}
-
-	/*This is the case of a single end reads*/
-	} else if (R2 == NULL) {
-		check = get_four(buf_1, R1);
-	/*Read 1 and Read 2 conditions*/
-	} else {
-		check = get_four(buf_1, R1);
-		check2 = get_four(buf_2, R2);
-
-		if (check != check2) {
-			exit(-101);
-		}
-	}
-
-	return check;
-	
-}
+	#include<stdint.h>
+	#define __STDC_FORMAT_MACROS
+	#include <inttypes.h>
 
 
 
-uint64_t *Greater_Than(uint64_t* seq, uint64_t* seq_cr, int size) {
-	int i = 0;
+	bool DEBUG = false;
 
-	while (i < size && seq[i] == seq_cr[i]) {
-		i++;
-	}
+	#ifndef VERSION
+	#define VERSION 0.0
+	#endif
 
-	if (seq[i] > seq_cr[i]) {
-		return seq;
-	} else {
-		return seq_cr;
-	}
+	const char *version = "1.4";
 
-}
+	const char *usage_string = 
+	"Super Deduper: Version 1.4\n\n\n"
+	"Usage: super_deduper [OPTIONS] -1  <comma seperated .fastq.gz/fastq files> -2 <comma seperated .fastq.gz/fastq file>\n"
+	"	super_deduper [OPTIONS] -U <comma seperated .fastq.gz/fastq files>\n"
+	"	super_deduper [OPTIONS] -i <comma seperated .fastq.gz/fastq files>\n"
+	"\n\n"
+	"-------------------------------Description-----------------------------------\n"
+	"\n"
+	"Super Deduper is a duplication removal application designed to remove duplicates\n"
+	"introduced by PCR amplification. It accomplishes this by creating a binary search\n"
+	"tree and creating a unique sequence ID for each read (or region of read) specified\n"
+	"by the user. This approach creates a fast, accurate de-duplication that is able to be\n"
+	"used on non-mapped reads directly from a fastq.gz/fastq file. It also allows users to \n"
+	"receive the highest quality sequence back (by default) allowing for higher quality\n"
+	"data to be outputted. \n"
+	"\n\n"
+	"-------------------------------Required Inputs-------------------------------\n"
+	"\n"
+	"Required inputs are fastq.gz paired end reads specified in -1 and -2, or single end\n"
+	"fastq.gz file -U. Both of these can be comma separated and given multiple files\n"
+	"When using the -1 and -2 options, the comma separated files are assumed\n"
+	"to show up in the same order as the pairs occur.\n"
+	"\n\n"
+	"-------------------------------Output----------------------------------------\n"
+	"\n\n"
+	"The default output is output_nodup_PE1.fastq and output_nodup_PE2 for paired end reads\n"
+	"and output_nodup_PE1 for single end reads. However, the prefix can be changed\n"
+	"from output to whatever is deemed appropriate by the user with the -o option\n"
+	"(the suffix is always _nodup_PE?.fastq). Additionally, this program will discard\n"
+	"any sequence that contains an N in the sequence ID. This is because N's should be\n"
+	"of low quality, and they are not 'true DNA' sequence. The number discarded will be\n"
+	"be outputted at the end or during verbose options (-v).\n"
+	"\n\n"
+	"-------------------------------Options---------------------------------------\n"
+	"  -1, --read1 PATHS		Paths to paired end Read 1 fastq.gz files that are desired\n"
+	"		 to be deduplicated. Multiple files can be give if they are comma \n"
+	"		separated.\n"
+	"\n"
+	"  -2, --read2 PATHS		Paths to paired end Read 2 fastq.gz files that are desired\n"
+	"		 to be deduplicated. Multiple files can be give if they are comma \n"
+	"		separated.\n"
+	"\n"
+	"  -U, --singleend PATHS	Paths to single end reads fastq.gz files that are desired\n"
+	"		 to be deduplicated. Multiple files can be give if they are comma \n"
+	"		separated.\n"
+	"\n"
+	"  -i, --interleaved-input PATH Paths to interleaved fastq/fastq.gz files that are desired\n"
+	"		to be deduplicated. Multiple files can be given if they are comma \n"
+	"		seperated.\n"
+	"\n"
+	"  -o, --interleaved-output PATH Output in interleaved format. This output will go to\n"
+	"		prefix + '_nodup_PE1.fastq' or '_nodup_PE2.fastq.gz' if -g is specified\n"
+	"\n"
+	"  -p, --output-prefix PREFIX	Prefix to outputted unique sequences. Default: output\n"
+	"\n"
+	"  -g, --gzip-output		Will output in a gzipped compressed file. This will slow down\n"
+	"		Run time significantly\n"
+	"\n"
+	"  -s, --start NUM		The starting location for the starting base pair of the unique\n"
+	"		sequence ID. Default: 10\n"
+	"\n"
+	"  -l, --length NUM		The length of the base pairs in the unique sequence ID (the number.\n"
+	"		of base pairs in the unique ID). Default 25\n"
+	"\n"
+	"  -M, --memory-saving-on	Turns on a memory efficiency. Using efficient memory options slows \n"
+	"		down the speed of computation and uses virtual memory, swap space, and IO versus RAM.\n"
+	"		(This slows things down by about 10 times, but cuts back on RAM usage by about 1/6.)\n"
+	"		Default: false\n"
+	"\n"
+	"  -q, --quality-check-off	Turns off quality check. This will reduce run time since it will not\n"
+	"		compute nor check for highest quality scores. (For fastest speeds run this option\n"
+	"		with -M) Default: false\n"
+	"\n"
+	"  -v, --verbose		Turns on verbose option - ouputs information every 1,000,000 reads. Default: false\n"
+	"\n"
+	"  -O, --output-tree FILE 	Name of file where you what the outputed tree information to go.\n"
+	"\n"
+	"  -I, --input-tree PATHS	Name of the input file in which you want to upload a previously\n"
+	" 			seen tree before (output of -O).\n"
+	"  -V, --version		Outputs version number and then exits\n"
+	"\n"
+	"\n"
+	;
 
-bool Fill_In_Binary_Tree(Binary_Search_Tree_Read_1_Read_2 *x, FILE* file_1, FILE* file_2, args *arg, FILE *f_read1, FILE *f_read2, double time_start) {
 
+	/*struct for arguments
+	 * typedef to args*/
+	typedef struct {
 
-	       	 
-	char **buf_1 = NULL;
-        char **buf_2 = NULL;
+		char **read_1;
+		char **read_2;
+		char **single_reads;
+		char **interleaved;
 
-	buf_1 = (char **)malloc(sizeof(char *) * 4);
-	buf_2 = (char **)malloc(sizeof(char *) * 4);
-	
-	for (int tmp = 0; tmp < 4; tmp++) {
-		buf_1[tmp] = (char *)malloc(sizeof(char)*4096);	
-		buf_2[tmp] = (char *)malloc(sizeof(char)*4096);	
-	}
-
-	uint64_t *seq_bin_id = NULL;
-	uint64_t *seq_bin_id_cr = NULL, *seq_bin = NULL;
-	long int i = 0;
-	int repeat = 1;
-	int reads = 0;
-	bool no_N = false;
-	int bp_added = 0, index = 0;
-	uint64_t incrementor;
-	
-	/*This loop is getting read information and putting it back in the buf_2*/
-	while (get_data(&buf_1, &buf_2, file_1, file_2, arg->interleaved_input)) {
+		char **input_trees;	
 		
-		bp_added = 0;
-		index = 0;
-		incrementor = 1;
+		int read_1_files;
+		int read_2_files;
+		int single_files;
+		int tree_files;
+		int interleaved_files;
 
-		seq_bin_id = (uint64_t *)malloc(sizeof(uint64_t) * size);
-		seq_bin_id_cr = (uint64_t *)malloc(sizeof(uint64_t) * size);
-
-		for (int clean = 0; clean < size; clean++) {
-			seq_bin_id[clean] = 0;
-			seq_bin_id_cr[clean] = 0;
-		}
 		
-		no_N = converter(buf_1[1], arg->start, arg->length, seq_bin_id, bp_added, index, incrementor, false);
-	
-		/*make sure you want R1 and R2 files*/
-		if (file_2 != NULL || arg->interleaved_input) {
-			no_N = converter(buf_2[1], arg->start, arg->length, seq_bin_id, bp_added, index, incrementor, true);
+		char *output_filename_1;
+		char *output_filename_2;
+		char *output_tree;
+		
+		int start;
+		int length;
+
+		bool mem_saving;
+		bool quality_checking;
+		bool verbose;
+		bool interleaved_input;
+		bool interleaved_output;	
+		bool gzip_output;
+		bool output_stdout;
+		
+
+	} args;
+
+	/*Constrcutor function for args*/
+
+	void Start_Args(args*  arg) {
+		arg->output_tree = NULL;
+		arg->start = 10;
+		arg->length = 25;
+		arg->read_1_files = 0;
+		arg->read_2_files = 0;
+		arg->single_files = 0;
+		arg->tree_files = 0;
+		arg->mem_saving = false;
+		arg->quality_checking = true;
+		arg->verbose = false;
+		arg->interleaved_input = false;
+		arg->interleaved_output = false;
+		arg->gzip_output = false;
+		arg->output_filename_1 = strdup("output");
+		arg->output_filename_2 = strdup("output");
+
+	}
+
+
+	/*Since there is a 64 unsigned int you can add 31 base pairs at a time*/
+	int BPS_ADDED = 31;
+	int size;
+
+	/* This function is the convert that creates a sequence binary number (seq_bin) used in the binary search tree */
+	bool converter(char *test, int start, int end, uint64_t *seq_bin_id, int &bp_added, int &index, uint64_t &incrementor, bool cr);
+
+
+	/*Checks to see if the file is gzipped
+	 * or of the file is just fastq*/
+	int gzipped_File(char *fname) {
+
+		int len = strlen(fname);
+
+		if (strcmp(".gz", &fname[len-3]) == 0) {
+			return 1;
+		} else {
+			return 0;
+		}	
+		/*
+		FILE *test = fopen(fname, "r");
+
+		char tmp[4096];
+		int i = 0;
+		bool check1 = false, check2 = false;
+
+		while (fgets(tmp, 4096, test) != NULL) {
+			if (i == 0 && tmp[0] == '@') {
+				check1 = true;
+			}
+			if (i == 2 && tmp[0] == '+') {
+				check2 = true;
+			}
+			if (i == 3) {
+				break;
+			}
+			i++;
 		}
 
-		bp_added = 0;
-		index = 0;
-		incrementor = 1;
-
-
-		if (file_2 != NULL || arg->interleaved_input) {
-			no_N = converter(buf_2[1], arg->start, arg->length, seq_bin_id_cr, bp_added, index, incrementor, false);
+		fclose(test);
+		if (i == 0) {
+			return -1;
+		} else if (check1 && check2) {
+			return 0;
+		} else {
+			return 1;
 		}
-		
-		no_N = converter(buf_1[1], arg->start, arg->length, seq_bin_id_cr, bp_added, index, incrementor, true);
-		
-		seq_bin = Greater_Than(seq_bin_id, seq_bin_id_cr, size); 
-		//printf("%" PRIu64 "\n", seq_bin[0]);
+		*/			
+	}
 
-		/*If there are some N's in the sequences id ignore it*/
+	/*Get four lines in files for @id, sequence, +, quality*/
 
-		if (no_N) { 
-			if (arg->mem_saving) {
-				reads = x->Reads_Add_Tree_Public(seq_bin, buf_1[0], buf_1[1], buf_1[3], buf_2[0], buf_2[1], buf_2[3], f_read1, f_read2, arg->quality_checking, size);
+	bool get_four(char ***buf, FILE *f) {
+		for (int i = 0; i < 4; i++) {
+			if (fgets((*buf)[i], 4096, f) == NULL) {
+				return false;
+			}
+		}
+		/* 1st must be an '@' and 3rd must be '+'*/
+		if ((*buf)[0][0] == '@' && (*buf)[2][0] == '+') {
+			return true;
+		} else {
+			fprintf(stderr, "FASTQ format is not held, please check your files\n");
+			exit(-100);
+		}
+
+
+	}
+
+	/*Get data will pull in the file information*/
+	bool get_data(char ***buf_1, char ***buf_2, FILE *R1, FILE *R2, bool interleaved) {
+
+		bool check, check2;
+		/*interleaved R1 then R2*/
+		if (interleaved) {
+			check = get_four(buf_1, R1);
+			check2 = get_four(buf_2, R1);
+
+			if (check != check2) {
+				fprintf(stderr, "Read 1 and Read 2 Lengths are not equal\n");
+				exit(-101);
+			}
+
+		/*This is the case of a single end reads*/
+		} else if (R2 == NULL) {
+			check = get_four(buf_1, R1);
+		/*Read 1 and Read 2 conditions*/
+		} else {
+			check = get_four(buf_1, R1);
+			check2 = get_four(buf_2, R2);
+
+			if (check != check2) {
+				exit(-101);
+			}
+		}
+
+		return check;
+		
+	}
+
+
+
+	uint64_t *Greater_Than(uint64_t* seq, uint64_t* seq_cr, int size) {
+		int i = 0;
+
+		while (i < size && seq[i] == seq_cr[i]) {
+			i++;
+		}
+
+		if (seq[i] > seq_cr[i]) {
+			return seq;
+		} else {
+			return seq_cr;
+		}
+
+	}
+
+	bool Fill_In_Binary_Tree(Binary_Search_Tree_Read_1_Read_2 *x, FILE* file_1, FILE* file_2, args *arg, FILE *f_read1, FILE *f_read2, double time_start) {
+
+
+			 
+		char **buf_1 = NULL;
+		char **buf_2 = NULL;
+
+		buf_1 = (char **)malloc(sizeof(char *) * 4);
+		buf_2 = (char **)malloc(sizeof(char *) * 4);
+		
+		for (int tmp = 0; tmp < 4; tmp++) {
+			buf_1[tmp] = (char *)malloc(sizeof(char)*4096);	
+			buf_2[tmp] = (char *)malloc(sizeof(char)*4096);	
+		}
+
+		uint64_t *seq_bin_id = NULL;
+		uint64_t *seq_bin_id_cr = NULL, *seq_bin = NULL;
+		long int i = 0;
+		int repeat = 1;
+		int reads = 0;
+		bool no_N = false;
+		int bp_added = 0, index = 0;
+		uint64_t incrementor;
+		
+		/*This loop is getting read information and putting it back in the buf_2*/
+		while (get_data(&buf_1, &buf_2, file_1, file_2, arg->interleaved_input)) {
+			
+			bp_added = 0;
+			index = 0;
+			incrementor = 1;
+
+			seq_bin_id = (uint64_t *)malloc(sizeof(uint64_t) * size);
+			seq_bin_id_cr = (uint64_t *)malloc(sizeof(uint64_t) * size);
+
+			for (int clean = 0; clean < size; clean++) {
+				seq_bin_id[clean] = 0;
+				seq_bin_id_cr[clean] = 0;
+			}
+			
+			no_N = converter(buf_1[1], arg->start, arg->length, seq_bin_id, bp_added, index, incrementor, false);
+		
+			/*make sure you want R1 and R2 files*/
+			if ((file_2 != NULL || arg->interleaved_input) && no_N) {
+				no_N = converter(buf_2[1], arg->start, arg->length, seq_bin_id, bp_added, index, incrementor, true);
+			}
+
+			bp_added = 0;
+			index = 0;
+			incrementor = 1;
+
+
+			if ((file_2 != NULL || arg->interleaved_input) && no_N) {
+				no_N = converter(buf_2[1], arg->start, arg->length, seq_bin_id_cr, bp_added, index, incrementor, false);
+			}
+			
+			if (no_N) {
+				no_N = converter(buf_1[1], arg->start, arg->length, seq_bin_id_cr, bp_added, index, incrementor, true);
+				seq_bin = Greater_Than(seq_bin_id, seq_bin_id_cr, size); 
+			}
+
+			if (no_N) { 
+				if (arg->mem_saving) {
+					reads = x->Reads_Add_Tree_Public(seq_bin, buf_1[0], buf_1[1], buf_1[3], buf_2[0], buf_2[1], buf_2[3], f_read1, f_read2, arg->quality_checking, size);
+				} else {
+					reads = x->Reads_Add_Tree_Public(seq_bin, buf_1[0], buf_1[1], buf_1[3], buf_2[0], buf_2[1], buf_2[3], arg->quality_checking, size);
+				}
 			} else {
-				reads = x->Reads_Add_Tree_Public(seq_bin, buf_1[0], buf_1[1], buf_1[3], buf_2[0], buf_2[1], buf_2[3], arg->quality_checking, size);
+				x->Discarded();
 			}
-		} else {
-			x->Discarded();
+
+			free(seq_bin_id);
+			seq_bin_id = NULL;
+			free(seq_bin_id_cr);
+			seq_bin_id_cr= NULL;
+			
+			
+			if (arg->verbose) {
+				if (reads % 1000000 == 0) {
+						x->Display_Info((clock() - time_start)/CLOCKS_PER_SEC);
+				}
+			}
+
+
+			i++;
+			reads++;
+
+			//sprintf(buf_1[1], "\0");
+			//sprintf(buf_2[1], "\0");
 		}
 
-		free(seq_bin_id);
-		seq_bin_id = NULL;
-		free(seq_bin_id_cr);
-		seq_bin_id_cr= NULL;
+
+	}
+
+	/* gzipped are most effinectly handled by opening a pipe
+	 * with zcat*/
+	FILE *gzip_open(char *f) {
+
+		/*Opens zcat*/
+		const char *zcat_cmd = "gunzip -c ";
 		
+		char *cmd = (char *)malloc(sizeof(char) * (strlen(f) + strlen(zcat_cmd) + 1));
+		sprintf(cmd, "%s%s", zcat_cmd, f);
 		
-		if (arg->verbose) {
-			if (reads % 1000000 == 0) {
-					x->Display_Info((clock() - time_start)/CLOCKS_PER_SEC);
-			}
-		}
 
+		FILE * piped_file = popen(cmd, "r");
 
-		i++;
-		reads++;
+		free(cmd);
 
-		//sprintf(buf_1[1], "\0");
-		//sprintf(buf_2[1], "\0");
+		return piped_file;
+
 	}
 
 
-}
+	void unzip_file(Binary_Search_Tree_Read_1_Read_2 *x, char *ifile1, char *ifile2, args *arg, FILE *f_read1, FILE *f_read2, double time_start) {
 
-/* gzipped are most effinectly handled by opening a pipe
- * with zcat*/
-FILE *gzip_open(char *f) {
+		int check;
 
-	/*Opens zcat*/
-	const char *zcat_cmd = "gunzip -c ";
-	
-	char *cmd = (char *)malloc(sizeof(char) * (strlen(f) + strlen(zcat_cmd) + 1));
-	sprintf(cmd, "%s%s", zcat_cmd, f);
-	
+		FILE *file_1 = NULL, *file_2 = NULL;
 
-	FILE * piped_file = popen(cmd, "r");
+		/*calculates size of array need*/
 
-	free(cmd);
-
-	return piped_file;
-
-}
-
-
-void unzip_file(Binary_Search_Tree_Read_1_Read_2 *x, char *ifile1, char *ifile2, args *arg, FILE *f_read1, FILE *f_read2, double time_start) {
-
-	int check;
-
-	FILE *file_1 = NULL, *file_2 = NULL;
-
-	/*calculates size of array need*/
-
-	/*Check is 1 for gzip, 0 for fastq, and -1 for empty file*/
-	if (strcmp(ifile1, "stdin") == 0) {
-		file_1 = stdin;
-	} else {
-		check = gzipped_File(ifile1);
-		
-		if (check == 1) {
-			file_1 = gzip_open(ifile1);
-		} else if (check == 0) {
-			file_1 = fopen(ifile1, "r");
+		/*Check is 1 for gzip, 0 for fastq, and -1 for empty file*/
+		if (strcmp(ifile1, "stdin") == 0) {
+			file_1 = stdin;
 		} else {
-			fprintf(stderr, "File named %s is empty\n", ifile1);
-		}
-		
-		/*single versus read 1 and read 2*/	
-		if (ifile2 != NULL) {
-			check = gzipped_File(ifile2);
-
+			check = gzipped_File(ifile1);
+			
 			if (check == 1) {
-				file_2 = gzip_open(ifile2);
+				file_1 = gzip_open(ifile1);
 			} else if (check == 0) {
-				file_2 = fopen(ifile2, "r");
+				file_1 = fopen(ifile1, "r");
 			} else {
-				fprintf(stderr, "File named %s is empty\n", ifile2);
+				fprintf(stderr, "File named %s is empty\n", ifile1);
+			}
+			
+			/*single versus read 1 and read 2*/	
+			if (ifile2 != NULL) {
+				check = gzipped_File(ifile2);
+
+				if (check == 1) {
+					file_2 = gzip_open(ifile2);
+				} else if (check == 0) {
+					file_2 = fopen(ifile2, "r");
+				} else {
+					fprintf(stderr, "File named %s is empty\n", ifile2);
+			}
+			
+			}
 		}
-		
+		/*This is the read-in function of the program*/
+		Fill_In_Binary_Tree(x, file_1, file_2, arg, f_read1, f_read2, time_start);
+
+	}
+
+	/*returns false if there is a N or true if it is sucessfuli
+	 *creates binary number for sequence on a two bit format
+	 * A - 00 (0)
+	 * T - 11 (3)
+	 * C - 10 (2)
+	 * G - 01 (1)
+	 * */
+
+	/*Possible enhancement 
+	 * - using x86 intrisic functions to read in characters and making the converation*/
+
+	bool converter(char *test, int start, int len, uint64_t *seq_bin_id, int &bp_added, int &index, uint64_t &incrementor, bool cr) {
+
+
+		/*Values for corresponding values*/
+		int A = 0;
+		int C = 2;
+		int G = 1;
+		int T = 3;
+
+
+		if (cr) {
+			A = 3;
+			T = 0;
+			C = 1;
+			G = 2;
 		}
-	}
-	/*This is the read-in function of the program*/
-	Fill_In_Binary_Tree(x, file_1, file_2, arg, f_read1, f_read2, time_start);
 
-}
+		int i = start -1;
+		int end = start + len - 1;
+		int length = strlen(test) - 1;
 
-/*returns false if there is a N or true if it is sucessfuli
- *creates binary number for sequence on a two bit format
- * A - 00 (0)
- * T - 11 (3)
- * C - 10 (2)
- * G - 01 (1)
- * */
+	/*Ensures proper numbers are assigned (positive numbers and that it doesn't fall off the end)*/
+		if (i > end) {
+			fprintf(stderr, "[ERROR] out of bounds. Start: %i End: %i Length: %i\n", start, end, length);
+			exit(-1);
+		}
 
-/*Possible enhancement 
- * - using x86 intrisic functions to read in characters and making the converation*/
+		if (i < 0) {
+			fprintf(stderr, "[ERROR] out of bounds. Start: %i End: %i Length: %i\n", start, end, length);
+			exit(-1);
+			i = 0;
+		} else if ( i > length -1) {
+			fprintf(stderr, "[ERROR] out of bounds. Start: %i End: %i Length: %i\n", start, end, length);
+			exit(-1);
+		}
 
-bool converter(char *test, int start, int len, uint64_t *seq_bin_id, int &bp_added, int &index, uint64_t &incrementor, bool cr) {
+		if (end > length) {
+			fprintf(stderr, "[ERROR] out of bounds. Start: %i End: %i Length: %i\n", start, end, length);
+			exit(-1);
+		} else if (end < 1) {
+			fprintf(stderr, "[ERROR] out of bounds. Start: %i End: %i Length: %i\n", start, end, length);
+			exit(-1);
+		}
 
-
-	/*Values for corresponding values*/
-	int A = 0;
-	int C = 2;
-	int G = 1;
-	int T = 3;
-
-
-	if (cr) {
-		A = 3;
-		T = 0;
-		C = 1;
-		G = 2;
-	}
-
-	int i = start -1;
-	int end = start + len - 1;
-	int length = strlen(test) - 1;
-
-/*Ensures proper numbers are assigned (positive numbers and that it doesn't fall off the end)*/
-	if (i > end) {
-		fprintf(stderr, "[ERROR] out of bounds. Start: %i End: %i Length: %i\n", start, end, length);
-		exit(-1);
-	}
-
-	if (i < 0) {
-		fprintf(stderr, "[ERROR] out of bounds. Start: %i End: %i Length: %i\n", start, end, length);
-		exit(-1);
-		i = 0;
-	} else if ( i > length -1) {
-		fprintf(stderr, "[ERROR] out of bounds. Start: %i End: %i Length: %i\n", start, end, length);
-		exit(-1);
-	}
-
-	if (end > length) {
-		fprintf(stderr, "[ERROR] out of bounds. Start: %i End: %i Length: %i\n", start, end, length);
-		exit(-1);
-	} else if (end < 1) {
-		fprintf(stderr, "[ERROR] out of bounds. Start: %i End: %i Length: %i\n", start, end, length);
-		exit(-1);
-	}
-
-	if (!cr) {	
-		for (i = start - 1; i < end; i++) {
-			/*Creates the 'binary number'*/
-			if (test[i] == 'A') {
-				seq_bin_id[index] += (A * incrementor);
-			} else if (test[i] == 'C') {
-				seq_bin_id[index] += (C * incrementor);
-			} else if (test[i] == 'T') {
-				seq_bin_id[index] += (T * incrementor);
-			} else if (test[i] == 'G') {
-					seq_bin_id[index] += (G * incrementor);
-			} else if (test[i] == 'N') {
+		if (!cr) {	
+			for (i = start - 1; i < end; i++) {
+				/*Creates the 'binary number'*/
+				if (test[i] == 'A') {
+					seq_bin_id[index] += (A * incrementor);
+				} else if (test[i] == 'C') {
+					seq_bin_id[index] += (C * incrementor);
+				} else if (test[i] == 'T') {
+					seq_bin_id[index] += (T * incrementor);
+				} else if (test[i] == 'G') {
+						seq_bin_id[index] += (G * incrementor);
+				} else if (test[i] == 'N') {
 				/*Tells if there is a bad case*/
 				return false;
 			}
