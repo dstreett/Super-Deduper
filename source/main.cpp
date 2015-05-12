@@ -5,6 +5,7 @@
 	#include <string.h>
 	#include <sys/types.h>
 	#include <sys/wait.h>
+	#include <sys/stat.h>
 
 	#include <fcntl.h>
 	#include <zlib.h>
@@ -112,7 +113,7 @@
 	"\n"
 	;
 
-
+	int checkfile(char *fname);
 	/*struct for arguments
 	 * typedef to args*/
 	typedef struct {
@@ -190,35 +191,6 @@
 		} else {
 			return 0;
 		}	
-		/*
-		FILE *test = fopen(fname, "r");
-
-		char tmp[4096];
-		int i = 0;
-		bool check1 = false, check2 = false;
-
-		while (fgets(tmp, 4096, test) != NULL) {
-			if (i == 0 && tmp[0] == '@') {
-				check1 = true;
-			}
-			if (i == 2 && tmp[0] == '+') {
-				check2 = true;
-			}
-			if (i == 3) {
-				break;
-			}
-			i++;
-		}
-
-		fclose(test);
-		if (i == 0) {
-			return -1;
-		} else if (check1 && check2) {
-			return 0;
-		} else {
-			return 1;
-		}
-		*/			
 	}
 
 	/*Get four lines in files for @id, sequence, +, quality*/
@@ -418,6 +390,7 @@
 			if (check == 1) {
 				file_1 = gzip_open(ifile1);
 			} else if (check == 0) {
+				check_file(ifile1);
 				file_1 = fopen(ifile1, "r");
 			} else {
 				fprintf(stderr, "File named %s is empty\n", ifile1);
@@ -430,6 +403,7 @@
 				if (check == 1) {
 					file_2 = gzip_open(ifile2);
 				} else if (check == 0) {
+					check_file(ifile2);
 					file_2 = fopen(ifile2, "r");
 				} else {
 					fprintf(stderr, "File named %s is empty\n", ifile2);

@@ -5,12 +5,28 @@
 #include <stdlib.h>
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <sys/types.h>
+
 
 
 
 /* Definitions for gzip output (deflate*2 ) options*/
 #define windowBits 15
 #define GZIP_ENCODING 16
+
+int check_file(char *fname) {
+	struct stat statbuf;
+	if (stat(fname, &statbuf) == 0) {
+		return 1;
+	} else {
+		fprintf(stderr, "%s cannot be opened\n", fname);
+		exit(-5);
+	}
+}
 
 
 /*Sets up the z_stream once it is initiated*/
@@ -84,7 +100,7 @@ void Print_Seq_Bin_1(FILE *f, uint64_t *tmp, int size) {
 /* This creates a tree and from the given binary tree -O options */
 
 bool Binary_Search_Tree_Read_1_Read_2::Create_Tree(char *fin_tree_data, bool mem_eff) {
-
+	check_file(fin_tree_data);
 	FILE *f = fopen(fin_tree_data, "r");
 
 	char *buff = (char *)malloc(sizeof(char) * 4096);

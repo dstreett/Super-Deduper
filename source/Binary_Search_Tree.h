@@ -2,6 +2,7 @@
 #include "Binary_Search_Tree_Memory_Eff_Node.h"
 #include <zlib.h>
 
+int check_file(char *filename);
 
 class Binary_Search_Tree_Read_1_Read_2 {
 
