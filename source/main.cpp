@@ -88,10 +88,10 @@
 	"		Run time significantly\n"
 	"\n"
 	"  -s, --start NUM		The starting location for the starting base pair of the unique\n"
-	"		sequence ID. Default: 10\n"
+	"		sequence ID. Default: 5\n"
 	"\n"
 	"  -l, --length NUM		The length of the base pairs in the unique sequence ID (the number.\n"
-	"		of base pairs in the unique ID). Default 25\n"
+	"		of base pairs in the unique ID). Default 10\n"
 	"\n"
 	"  -M, --memory-saving-on	Turns on a memory efficiency. Using efficient memory options slows \n"
 	"		down the speed of computation and uses virtual memory, swap space, and IO versus RAM.\n"
@@ -154,8 +154,8 @@
 
 	void Start_Args(args*  arg) {
 		arg->output_tree = NULL;
-		arg->start = 10;
-		arg->length = 25;
+		arg->start = 5;
+		arg->length = 10;
 		arg->read_1_files = 0;
 		arg->read_2_files = 0;
 		arg->single_files = 0;
