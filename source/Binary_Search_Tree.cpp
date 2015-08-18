@@ -183,7 +183,7 @@ void Binary_Search_Tree_Read_1_Read_2::Create_Tree_Private(Reads_Node_Eff **node
 /*Display info about the current state of binary search tree*/
 void Binary_Search_Tree_Read_1_Read_2::Display_Info(double time_spent) {
 
-	fprintf(stderr, "Final:| reads: %ld | duplicates: %ld | percent: %.2f | discarded: %d | total_seconds: %.2f | reads/sec: %.2f\n", reads, duplicates, (((double)duplicates/(double)reads) * 100), discarded, time_spent, (double)reads/(double)time_spent);
+	fprintf(stderr, "Final:| reads: %ld | duplicates: %ld | reads_written: %ld | percent: %.2f | discarded: %d | total_seconds: %.2f | reads/sec: %.2f\n", reads, duplicates, written, (((double)duplicates/(double)reads) * 100), discarded, time_spent, (double)reads/(double)time_spent);
 
 }
 
@@ -280,9 +280,6 @@ void Print_To_GraphViz(Reads_Node_Eff **node) {
 */
 
 
-
-
-
 void Binary_Search_Tree_Read_1_Read_2::Delete_Private(Reads_Node_Eff **node) {
 	if (*node == NULL) {
 		return;
@@ -302,9 +299,10 @@ void Binary_Search_Tree_Read_1_Read_2::Delete_And_Print_Private(Reads_Node **nod
 		return;
 	}
 
+	written++;
 	Delete_And_Print_Private(&((*node)->left), output_1, output_2);
 	Delete_And_Print_Private(&((*node)->right), output_1, output_2);
-	
+		
 	Write_To_File(output_1, (*node)->id_1, (*node)->seq_1, (*node)->qual_1);
 	if (interleaved) {
 		Write_To_File(output_1, (*node)->id_2, (*node)->seq_2, (*node)->qual_2);
@@ -378,7 +376,7 @@ void Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Private(Reads_Node_Eff **n
 			(*node)->Add_Info(seq_bin, sum_qual, pos_1, pos_2, size); 
 	
 			/*Since this is the -M option write to file imediately*/
-		
+			written++;	
 			Write_To_File(f_read1, id_1, seq_1, qual_1);
 			if (interleaved) {
 				Write_To_File(f_read1, id_2, seq_2, qual_2);
@@ -391,7 +389,7 @@ void Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Private(Reads_Node_Eff **n
 			(*node)->Add_Info(seq_bin, size); 
 			/*If f_read2 is NULL, single end read*/
 			Write_To_File(f_read1, id_1, seq_1, qual_1);
-			
+			written++;	
 			if (interleaved) {
 				Write_To_File(f_read1, id_2, seq_2, qual_2);
 			} else if (f_read2 != NULL)  {
@@ -419,7 +417,7 @@ void Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Private(Reads_Node_Eff **n
 					fsetpos(f_read2, &((*node)->file_loc2));
 					
 					(*node)->Add_Info(sum_qual); 
-				
+					written++;	
 					Write_To_File(f_read1, id_1, seq_1, qual_1);
 					/*If f_read2 is NULL, single end read*/
 					if (f_read2 != NULL) {

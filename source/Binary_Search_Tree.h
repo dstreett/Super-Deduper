@@ -35,6 +35,7 @@ class Binary_Search_Tree_Read_1_Read_2 {
 			duplicates = 0;
 			gzipped = false;
 			discarded = 0;
+			written = 0;
 		//	temp = fopen("test.dot", "w");
 		};
 
@@ -51,6 +52,7 @@ class Binary_Search_Tree_Read_1_Read_2 {
 		void Write_To_File(FILE *f_out, char *id, char *seq, char *qual);
 		long int reads;
 		long int duplicates;
+		long int written;
 		int size;	
 		bool gzipped;
 		void Create_Tree_Private(Reads_Node **node, uint64_t *seq_bin);
