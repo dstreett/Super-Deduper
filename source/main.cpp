@@ -841,6 +841,9 @@ int main(int argc, char *argv[]) {
 		unzip_file(x, (program_args->single_reads)[i], NULL, program_args, output_file_1, output_file_2, begin);
 	}	
 
+	end_c = clock();
+	time_spent = (double)(end_c - begin) / CLOCKS_PER_SEC;
+	x->Display_Info(time_spent);
 	
 	/*Outputs files*/
 	if (program_args->output_tree != NULL) {
@@ -854,9 +857,6 @@ int main(int argc, char *argv[]) {
 	}
 
 	
-	end_c = clock();
-	time_spent = (double)(end_c - begin) / CLOCKS_PER_SEC;
-	x->Display_Info(time_spent);
 
 	fclose(output_file_1);
 

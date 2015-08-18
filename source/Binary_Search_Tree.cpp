@@ -302,6 +302,7 @@ void Binary_Search_Tree_Read_1_Read_2::Delete_And_Print_Private(Reads_Node **nod
 		return;
 	}
 
+	written++;
 	Delete_And_Print_Private(&((*node)->left), output_1, output_2);
 	Delete_And_Print_Private(&((*node)->right), output_1, output_2);
 	
