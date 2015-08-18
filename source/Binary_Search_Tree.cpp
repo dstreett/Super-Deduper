@@ -183,7 +183,7 @@ void Binary_Search_Tree_Read_1_Read_2::Create_Tree_Private(Reads_Node_Eff **node
 /*Display info about the current state of binary search tree*/
 void Binary_Search_Tree_Read_1_Read_2::Display_Info(double time_spent) {
 
-	fprintf(stderr, "Final:| reads: %ld | duplicates: %ld | percent: %.2f | discarded: %d | total_seconds: %.2f | reads/sec: %.2f\n", reads, duplicates, (((double)duplicates/(double)reads) * 100), discarded, time_spent, (double)reads/(double)time_spent);
+	fprintf(stderr, "Final:| reads: %ld | duplicates: %ld | reads_written: %ld | percent: %.2f | discarded: %d | total_seconds: %.2f | reads/sec: %.2f\n", reads, duplicates, written, (((double)duplicates/(double)reads) * 100), discarded, time_spent, (double)reads/(double)time_spent);
 
 }
 
