@@ -11,9 +11,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-
-
-
 /* Definitions for gzip output (deflate*2 ) options*/
 #define windowBits 15
 #define GZIP_ENCODING 16
@@ -81,12 +78,9 @@ int left_right_equal(uint64_t *seq_bin, uint64_t *test_node, int size) {
 
 	return EQUAL;
 
-	
 }
 
-
 /*Prints the sequence id (sequence binary number) to file for option output tree*/
-
 void Print_Seq_Bin_1(FILE *f, uint64_t *tmp, int size) {
 
 	for(int i = 0; i < size; i++) {
@@ -98,7 +92,6 @@ void Print_Seq_Bin_1(FILE *f, uint64_t *tmp, int size) {
 
 
 /* This creates a tree and from the given binary tree -O options */
-
 bool Binary_Search_Tree_Read_1_Read_2::Create_Tree(char *fin_tree_data, bool mem_eff) {
 	check_file(fin_tree_data);
 	FILE *f = fopen(fin_tree_data, "r");

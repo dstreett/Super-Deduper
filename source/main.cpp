@@ -22,7 +22,7 @@ bool DEBUG = false;
 #define VERSION 0.0
 #endif
 
-const char *version = "1.4";
+const char *version = "2.0";
 
 const char *usage_string = 
 "Super Deduper: Version 1.4\n\n\n"
