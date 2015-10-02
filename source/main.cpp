@@ -446,24 +446,23 @@ bool converter(char *test, int start, int len, uint64_t *seq_bin_id, int &bp_add
 	/*Ensures proper numbers are assigned (positive numbers and that it doesn't fall off the end)*/
 	if (i > end) {
 		fprintf(stderr, "[ERROR] out of bounds. Start: %i End: %i Length: %i\n", start, end, length);
-		exit(-1);
+        return false;
 	}
 
 	if (i < 0) {
 		fprintf(stderr, "[ERROR] out of bounds. Start: %i End: %i Length: %i\n", start, end, length);
-		exit(-1);
-		i = 0;
+        return false;
 	} else if ( i > length -1) {
 		fprintf(stderr, "[ERROR] out of bounds. Start: %i End: %i Length: %i\n", start, end, length);
-		exit(-1);
+        return false;
 	}
 
 	if (end > length) {
 		fprintf(stderr, "[ERROR] out of bounds. Start: %i End: %i Length: %i\n", start, end, length);
-		exit(-1);
+        return false;
 	} else if (end < 1) {
 		fprintf(stderr, "[ERROR] out of bounds. Start: %i End: %i Length: %i\n", start, end, length);
-		exit(-1);
+        return false;
 	}
 
 	if (!cr) {	

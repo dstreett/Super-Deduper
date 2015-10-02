@@ -231,10 +231,20 @@ void Binary_Search_Tree_Read_1_Read_2::Delete_And_Print(FILE *output_1, FILE *ou
 	Delete_And_Print_Private(&root, output_1, output_2);
 }
 
+/*Add 0/1 0/2 per @sklages*/
+void Add_EndBit(char **id, int read) {
+    int len = strlen(*id)-1;
+    /*Converst char to asci*/
+    if ((*id)[len-1]-48 != read && (*id)[len-4] != '#') {
+        (*id) = (char *)realloc(*id, len + 5  * sizeof(char));
+        sprintf(*id + len, "#0/%d\n", read);
+    }
+}
 
-void Binary_Search_Tree_Read_1_Read_2::Write_To_File(FILE *f_out, char *id, char *seq, char *qual) {
+void Binary_Search_Tree_Read_1_Read_2::Write_To_File(FILE *f_out, char *id, char *seq, char *qual, int read) {
 	/*Only write if seq is id*/
 	if (seq != NULL) {
+        Add_EndBit(&id, read);
 		if (!gzipped) {
 			/*non-gzipped out*/
 			fprintf(f_out, "%s%s+\n%s", id, seq, qual);
@@ -303,11 +313,12 @@ void Binary_Search_Tree_Read_1_Read_2::Delete_And_Print_Private(Reads_Node **nod
 	Delete_And_Print_Private(&((*node)->left), output_1, output_2);
 	Delete_And_Print_Private(&((*node)->right), output_1, output_2);
 		
-	Write_To_File(output_1, (*node)->id_1, (*node)->seq_1, (*node)->qual_1);
+	Write_To_File(output_1, (*node)->id_1, (*node)->seq_1, (*node)->qual_1, 1);
+
 	if (interleaved) {
-		Write_To_File(output_1, (*node)->id_2, (*node)->seq_2, (*node)->qual_2);
+		Write_To_File(output_1, (*node)->id_2, (*node)->seq_2, (*node)->qual_2, 2);
 	} else if (output_2 != NULL) {
-		Write_To_File(output_2, (*node)->id_2, (*node)->seq_2, (*node)->qual_2);
+		Write_To_File(output_2, (*node)->id_2, (*node)->seq_2, (*node)->qual_2, 2);
 	}
 	
 	delete *node;
@@ -377,23 +388,23 @@ void Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Private(Reads_Node_Eff **n
 	
 			/*Since this is the -M option write to file imediately*/
 			written++;	
-			Write_To_File(f_read1, id_1, seq_1, qual_1);
+			Write_To_File(f_read1, id_1, seq_1, qual_1, 1);
 			if (interleaved) {
-				Write_To_File(f_read1, id_2, seq_2, qual_2);
+				Write_To_File(f_read1, id_2, seq_2, qual_2, 2);
 			} else if (f_read2 != NULL) {
-				Write_To_File(f_read2, id_2, seq_2, qual_2);
+				Write_To_File(f_read2, id_2, seq_2, qual_2, 2);
 			}
 
 		} else {
 			*node = new Reads_Node_Eff;
 			(*node)->Add_Info(seq_bin, size); 
 			/*If f_read2 is NULL, single end read*/
-			Write_To_File(f_read1, id_1, seq_1, qual_1);
+			Write_To_File(f_read1, id_1, seq_1, qual_1, 1);
 			written++;	
 			if (interleaved) {
-				Write_To_File(f_read1, id_2, seq_2, qual_2);
+				Write_To_File(f_read1, id_2, seq_2, qual_2, 2);
 			} else if (f_read2 != NULL)  {
-				Write_To_File(f_read2, id_2, seq_2, qual_2);
+				Write_To_File(f_read2, id_2, seq_2, qual_2, 2);
 			}
 		}	
 		
@@ -418,12 +429,12 @@ void Binary_Search_Tree_Read_1_Read_2::Reads_Add_Tree_Private(Reads_Node_Eff **n
 					
 					(*node)->Add_Info(sum_qual); 
 					written++;	
-					Write_To_File(f_read1, id_1, seq_1, qual_1);
+					Write_To_File(f_read1, id_1, seq_1, qual_1, 1);
 					/*If f_read2 is NULL, single end read*/
 					if (f_read2 != NULL) {
-						Write_To_File(f_read2, id_2, seq_2, qual_2);
+						Write_To_File(f_read2, id_2, seq_2, qual_2, 2);
 					} else if (interleaved) {
-						Write_To_File(f_read1, id_2, seq_2, qual_2);
+						Write_To_File(f_read1, id_2, seq_2, qual_2, 2);
 					}
 
 					/*moves the FILE * back to the end*/

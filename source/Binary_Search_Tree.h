@@ -49,7 +49,7 @@ class Binary_Search_Tree_Read_1_Read_2 {
 		bool interleaved;
 
 		void gzip_output (FILE *f, char *test);
-		void Write_To_File(FILE *f_out, char *id, char *seq, char *qual);
+		void Write_To_File(FILE *f_out, char *id, char *seq, char *qual, int read);
 		long int reads;
 		long int duplicates;
 		long int written;
