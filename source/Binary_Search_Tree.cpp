@@ -244,7 +244,7 @@ void Add_EndBit(char **id, int read) {
 void Binary_Search_Tree_Read_1_Read_2::Write_To_File(FILE *f_out, char *id, char *seq, char *qual, int read) {
 	/*Only write if seq is id*/
 	if (seq != NULL) {
-        Add_EndBit(&id, read);
+        //Add_EndBit(&id, read);
 		if (!gzipped) {
 			/*non-gzipped out*/
 			fprintf(f_out, "%s%s+\n%s", id, seq, qual);
