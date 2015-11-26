@@ -30,7 +30,6 @@ class Binary_Search_Tree_Read_1_Read_2 {
 		Binary_Search_Tree_Read_1_Read_2() {
 			reads = 0;
 			duplicates = 0;
-			size;
 			root = NULL;
 			duplicates = 0;
 			gzipped = false;

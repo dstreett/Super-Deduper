@@ -252,7 +252,8 @@ uint64_t *Greater_Than(uint64_t* seq, uint64_t* seq_cr, int size) {
 	} else {
 		return seq_cr;
 	}
-
+	
+	return seq;
 }
 
 bool Fill_In_Binary_Tree(Binary_Search_Tree_Read_1_Read_2 *x, FILE* file_1, FILE* file_2, args *arg, FILE *f_read1, FILE *f_read2, double time_start) {
@@ -305,7 +306,6 @@ bool Fill_In_Binary_Tree(Binary_Search_Tree_Read_1_Read_2 *x, FILE* file_1, FILE
 		index = 0;
 		incrementor = 1;
 
-
 		if ((file_2 != NULL || arg->interleaved_input) && no_N) {
 			no_N = converter(buf_2[1], arg->start, arg->length, seq_bin_id_cr, bp_added, index, incrementor, false);
 		}
@@ -345,7 +345,7 @@ bool Fill_In_Binary_Tree(Binary_Search_Tree_Read_1_Read_2 *x, FILE* file_1, FILE
 		//sprintf(buf_2[1], "\0");
 	}
 
-
+	return 0;
 }
 
 /* gzipped are most effinectly handled by opening a pipe

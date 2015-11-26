@@ -67,8 +67,8 @@ int LEFT = 1;
 int EQUAL = 0;
 
 int left_right_equal(uint64_t *seq_bin, uint64_t *test_node, int size) {
-	int i = 0;	
-	for (i; i < size; i++) {
+	int i;	
+	for (i = 0; i < size; i++) {
 		if (seq_bin[i] > test_node[i]) {
 			return RIGHT;
 		} else if (seq_bin[i] < test_node[i]) {
