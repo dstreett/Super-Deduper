@@ -67,11 +67,6 @@ FileWriter::FileWriter(bool force) {
 
 
 
-void FileWriter::Openner(char *fName) {
-
-
-}
-
 void FileWriter::OpenFile(char *fName) {
     
     if (to_stdout) {
