@@ -85,7 +85,7 @@ void FileWriter::OpenFile(char *fName) {
                     exit(9);
                 }
             } else {
-                fprintf(stderr, "File %s exists - please use -F option to force overwrite or delete file\n", fName);
+                fprintf(stderr, "File %s exists - please use -F option to force overwrite, -P to change the name of the file, or manually remove or move the file\n", fName);
                 exit(10);
             }
         } else {

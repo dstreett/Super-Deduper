@@ -1,9 +1,6 @@
 #include "argCollector.h"
 
 argCollector::argCollector(int argc, char *argv[]) {
-   
-
-
 
     const char *help = "\
         --version, -v Version print\n\
@@ -23,6 +20,8 @@ argCollector::argCollector(int argc, char *argv[]) {
         --tab-output, -t Tab-delimited output\n\
         --to-stdout, -O Prints to STDOUT in Tab Delimited\n\
         --prefix, -P Prefix for outputted files\n\
+        --log-file, -L Output-Logfile\n\
+        --no-log, N No logfile (outputs to stderr)\n\
         --help, -h Prints help.\n";
 
     
@@ -36,6 +35,7 @@ argCollector::argCollector(int argc, char *argv[]) {
     R1_Out = NULL;
     R2_Out = NULL;
     SE_Out = NULL;
+    log = NULL;
 
     bpWindowSize = 12;
     startLoc = 10; 
@@ -66,6 +66,8 @@ argCollector::argCollector(int argc, char *argv[]) {
         {"to-stdout", no_argument, 0, 'O'},
         {"prefix", no_argument, 0, 'P'},
         {"help", no_argument, 0, 'h'},
+        {"log-file", required_argument, 0, 'L'},
+        {"no-log", no_argument, 0, 'N'},
         {0, 0, 0, 0}
     };
 
@@ -82,8 +84,17 @@ argCollector::argCollector(int argc, char *argv[]) {
     bool force = false;
     char *prefix = NULL;
 
-    while ((cmd_line_char = getopt_long(argc, argv, "V1:2:U:I:T:Os:l:qgiftsP:FSh", longopts, &long_index)) != EOF) {
+    char *tmplog = (char *)malloc(10);
+    sprintf(tmplog, "sd.log\0");
+
+    while ((cmd_line_char = getopt_long(argc, argv, "VNL:1:2:U:I:T:Os:l:qgiftsP:FSh", longopts, &long_index)) != EOF) {
         switch(cmd_line_char) {
+            case 'N':
+                log = stderr;
+                break;
+            case 'L':
+                tmplog = strdup(optarg);
+                break;
             case 'O':
                 to_stdout = true;
                 fastq = false;
@@ -154,6 +165,22 @@ argCollector::argCollector(int argc, char *argv[]) {
            }  
     }
 
+    if (force || access(tmplog, F_OK) == -1) {
+        if (log == NULL) {
+            log = fopen(tmplog, "w");
+            if (log == NULL) {
+                fprintf(stderr, "Within argCollecter.cpp in argCollector tmpLog all ready exists\n");
+                fprintf(stderr, "Error with opening file %s\n", tmplog);
+                exit(29);
+            }
+        }
+    } else if (!log) {
+        fprintf(stderr, "Within argCollecter.cpp in argCollector tmpLog all ready exists\n");
+        fprintf(stderr, "Please, use -F option (force overwrite), -L to change the name, or manually remove or move %s\n", tmplog);
+        exit(28);
+    }
+       
+
     if (!R1_In && !R2_In && !SE_In && !TAB_In && !INTER_In && !STDIN_In) {
         fprintf(stderr, "Within argCollector.cpp argCollector(). Error: No input files given\n");
         exit(17);
@@ -213,7 +240,7 @@ argCollector::argCollector(int argc, char *argv[]) {
         /*Sets up character start with prefix (either collected or default)*/
         /*Plus one is full the null character*/
         /*Make sure there is at least one R1 or R2*/
-        if (R1_In || STDIN_In) {
+        if (R1_In || TAB_In || INTER_In || STDIN_In) {
             char *r1 = (char *)malloc(strlen(prefix)+strlen("_R1.fastq")+1);
             sprintf(r1, "%s_R1.fastq", prefix);
             char *r2 = (char *)malloc(strlen(prefix)+strlen("_R2.fastq")+1);

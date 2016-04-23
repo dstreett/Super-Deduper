@@ -26,8 +26,8 @@ class readInfo {
             free(header);
             free(seq);
             free(qual);
-            free(useq);
-            free(uqual);
+            //free(useq);
+            //free(uqual);
         }        
         char *getSeq() {return seq;};
         char *getQual() {return qual;};

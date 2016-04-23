@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <time.h>
 
 
 #include "readInfo.h"
@@ -15,76 +16,123 @@ class BinarySearchTree {
     private:
         class Node {
             public:
-            Node *left;
-            Node *right;
-            readInfo *R1;
-            readInfo *R2;
-            uint16_t *id;
-            uint32_t qualScore;
-            bool single;
-            Node (readInfo *R1_, readInfo *R2_, uint16_t *id_, uint32_t qualScore_) {
-                left = NULL;
-                right = NULL;
-                R1 = R1_;
-                R2 = R2_;
-                qualScore = qualScore_;
-                if (!R2) {
-                    single = true;
-                }
-                id = id_;
-            }
+                /*Search pointers for the bst*/
+                Node *left;
+                Node *right;
+                
 
-            ~Node() {
-                delete left;
-                delete right;
-                delete R1;
-                delete R2;
-                free(id);
-            }
-            
-            void Replace(readInfo *R1_, readInfo *R2_, uint32_t qualScore_) {
-                delete R1;
-                delete R2;
-                R1 = R1_;
-                R2 = R2_;
-                qualScore = qualScore_;
-            } 
+                /*Contains read info, it will either have R1, or both R1 and R2*/
+                readInfo *R1;
+                readInfo *R2;
+
+                /*ID is the key for the BST*/
+                uint16_t *id;
+
+                /*If quality checking is off, qualScore is zero*/
+                uint32_t qualScore;
+                uint16_t count;
+
+                bool single;
+                
+                /*This is the only constructor needed, the only reason to create is to have reads within each node*/
+                Node (readInfo *R1_, readInfo *R2_, uint16_t *id_, uint32_t qualScore_) {
+                    left = NULL;
+                    right = NULL;
+                    R1 = R1_;
+                    R2 = R2_;
+                    qualScore = qualScore_;
+                    if (!R2) {
+                        single = true;
+                    }
+                    id = id_;
+                }
+
+                /*Deconstructor to ensure memory cleanup*/
+                ~Node() {
+                    delete left;
+                    delete right;
+                    delete R1;
+                    delete R2;
+                    free(id);
+                }
+
+                /*Replace values within the node and frees old memory*/
+                void Replace(readInfo *R1_, readInfo *R2_, uint32_t qualScore_) {
+                    delete R1;
+                    delete R2;
+                    R1 = NULL;
+                    R2 = NULL;
+                    R1 = R1_;
+                    R2 = R2_;
+                    qualScore = qualScore_;
+                } 
         };
+        /*A, T, G, C binary mapped to values*/
         uint8_t A;
         uint8_t T;
         uint8_t G ;
         uint8_t C;
-        
+       
+
+        /*Tree Stats*/
+        uint32_t time_start;
+        uint32_t time_end;
         uint64_t disReads;
         uint64_t nodesCreated;
-
-
+        uint64_t singletons;
+        uint64_t doubles;
+        uint64_t threeplus;
+        uint64_t replaced;
 
         bool qualCheck; 
+        
+        
+        
+        
         Node *root;
-        void PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, uint16_t *id, uint32_t qualScore);
+
+
         uint32_t qualSum(char *q);
-        bool getID(readInfo *R1, readInfo *R2, uint16_t **id);
         uint16_t charLength, mallocLength, start;
+        
 
-
+        bool getID(readInfo *R1, readInfo *R2, uint16_t **id);
         bool FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id);
         int GreaterThan(uint16_t *test, uint16_t *value);
+        void PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, uint16_t *id, uint32_t qualScore);
         void PrintAndDeletePrivate(Node *n, FileWriter *R1, FileWriter *R2, FileWriter *SE);
     public:
 
 
         BinarySearchTree() {
+            /*Time start*/
+            time_start = time(NULL);
+
             root = NULL;
             /*Defaults*/
             qualCheck = true;
+            /*Default values*/
             setStart(9);
             setLength(12);
+            
+            
+            
+            
+            /*Stats zero out*/
+            nodesCreated = 0;
+            singletons = 0;
+            doubles = 0;
+            threeplus = 0;
+            replaced = 0;
             disReads = 0;
-        
+
+            /*00*/ 
             A = 0;
+            /*11*/
             T = 3;
+            /*10*/
             G = 2;
+            /*01*/
             C = 1;
         };
         
@@ -96,7 +144,10 @@ class BinarySearchTree {
         void setStart(uint16_t i) {start = i;};
         void setQualCheck(bool b) {qualCheck = b;};
         void PrintAndDelete(FileWriter *R1, FileWriter *R2, FileWriter *SE);
-
+        void endTime() {time_end = time(0);};
+        
+        /*Must be called after PrintAndDelete*/
+        void outputStats(FILE *f);
 
 
 

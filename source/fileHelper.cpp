@@ -97,6 +97,7 @@ void FileHelper::readData(readInfo **r1, readInfo **r2) {
         } else {
             fprintf(stderr, "Error in fileHelper.cpp readData(readInfo**, readInfo**)\n");
             fprintf(stderr, "Tab delimited format is broken. Make sure tabs are tabs and not space, and make sure there is either 3 or 5 enteries per line\n");
+            fprintf(stderr, "Could also be an extra line at the end of your fastq file as well\n");
             exit(23);
         }
     } else if (interleaved) {

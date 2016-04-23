@@ -97,6 +97,9 @@ int main(int argc, char *argv[]) {
             }
         }
     }
+    
     bst->PrintAndDelete(args->R1_Out, args->R2_Out, args->SE_Out);
-
+    bst->endTime();
+    bst->outputStats(args->log);
+    delete bst;
 }

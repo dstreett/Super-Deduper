@@ -3,20 +3,42 @@
 #include "binarySearch.h"
 
 
+void BinarySearchTree::outputStats(FILE *f) {
+    fprintf(f, "Reads_Written\tSingletons\tDoubles\tThree_Plus\tDiscarded_Reads\tReplacements_Called\tTotal_Time\n");
+    fprintf(f, "%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%llu\n",
+                nodesCreated,
+                       singletons,
+                             doubles,
+                                   threeplus,
+                                         disReads,
+                                                replaced,
+                                                   time_end-time_start);
+}
+
+
 /*Print and Delete*/
 void BinarySearchTree::PrintAndDelete(FileWriter *R1, FileWriter *R2, FileWriter *SE) {
     PrintAndDeletePrivate(root, R1, R2, SE);
 }
+
 void BinarySearchTree::PrintAndDeletePrivate(Node *n, FileWriter *R1, FileWriter *R2, FileWriter *SE) {
     if (n != NULL) {
+        if (n->count == 1) {
+            singletons++;
+        } else if (n->count == 2) {
+            doubles++;
+        } else {
+           threeplus++;
+        }
+
         PrintAndDeletePrivate(n->left, R1, R2, SE); 
         PrintAndDeletePrivate(n->right, R1, R2, SE); 
         /*Only if Fastq file exists*/
         if (R2) {
             /*R1 and R2 printed Normal Fastq format*/
             if (n->R2) {
+                R1->writeData(n->R1, NULL, NULL);
                 R2->writeData(n->R2, NULL, NULL);
-                R1->writeData(n->R2, NULL, NULL);
             }
         } else {
             if (!SE) {
@@ -72,6 +94,7 @@ bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id) 
     if (strlen(seq_1) < start+charLength) {
         fprintf(stderr, "Error within binarySearch.cpp in funciton FlipBitsChars() strlen of R1 larger than start + length\n");
         fprintf(stderr, "String Len = %lu, start = %d, length = %d\n", strlen(seq_1), start, charLength);
+        disReads++;
         return false;
     }
 
@@ -87,10 +110,13 @@ bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id) 
             tmp = G;
         } else if (seq[loc] == 'C') {
             tmp = C;
+        } else if (seq[loc] == 'N') {
+            disReads++;
+            return false;
         } else {
             fprintf(stderr, "In binarySearch.cpp in funciton FlipBitsChar() Bad character in R1\n");
             fprintf(stderr,"Bad character string = %s Bad Char = %c\n", seq, seq[loc]);
-            return false;
+            exit(27);
         }
 
         (*id)[idLoc] ^= (tmp << bitShifts);
@@ -111,6 +137,7 @@ bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id) 
         if (strlen(seq_1) < start+charLength) {
             fprintf(stderr, "Error within binarySearch.cpp in funciton FlipBitsChars() strlen of R2 larger than start + length\n");
             fprintf(stderr, "String Len = %lu, start = %d, length = %d\n", strlen(seq_1), start, charLength);
+            disReads++;
             return false;
         }
         
@@ -126,10 +153,13 @@ bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id) 
                 tmp = G;
             } else if (seq[loc] == 'C') {
                 tmp = C;
+            } else if (seq[loc] == 'N') {
+                disReads++;
+                return false;
             } else {
                 fprintf(stderr, "In binarySearch.cpp in funciton FlipBitsChar() Bad character in R2\n");
                 fprintf(stderr,"Bad character string = %s Bad Char = %c\n", seq, seq[loc]);
-                return false;
+                exit(26);
             }
 
             (*id)[idLoc] ^= (tmp << bitShifts);
@@ -204,21 +234,30 @@ void BinarySearchTree::PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, ui
     if ((*n) == NULL) {
         nodesCreated++;
         (*n) = new Node(R1_, R2_, id, qualScore);
+        (*n)->count = 1;
+        return;
     } else if ((tmpValue = GreaterThan(id, (*n)->id)) == 1) {
         PrivateAddNode(&((*n)->left), R1_, R2_, id, qualScore);
     } else if (tmpValue == -1) {
         PrivateAddNode(&((*n)->right), R1_, R2_, id, qualScore);
+    /*Nodes are equal*/
     } else {
-        if (qualScore != 0) {
+        /*Makes sure that single ends are kept track of*/
+        if ((R2_ && !((*n)->single)) || (!R2_ && (*n)->single)) {
+            (*n)->count++;
             if (qualScore > (*n)->qualScore) {
+                replaced++;
                 (*n)->Replace(R1_, R2_, qualScore);
+                /*exits*/
             } else {
                 delete R1_;
                 delete R2_;
             }
-        } else {
-            delete R1_;
-            delete R2_;
+        /*If node is single end but the read isn't*/
+        } else if (R2_) {
+            PrivateAddNode(&((*n)->left), R1_, R2_, id, qualScore);
+        } else if (!R2_) {
+            PrivateAddNode(&((*n)->right), R1_, R2_, id, qualScore);
         }
     }
 
@@ -227,7 +266,6 @@ void BinarySearchTree::AddNode(readInfo *R1_, readInfo *R2_) {
 
     uint16_t *id;
     uint32_t qualScore = 0;
-     
     if (!getID(R1_, R2_, &id)) {
         disReads++;
         return;

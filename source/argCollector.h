@@ -29,6 +29,8 @@ class argCollector {
         int bpWindowSize;
         int startLoc;
 
+        FILE *log;
+    
         argCollector(int argc, char *argv[]);
 
 };
