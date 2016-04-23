@@ -36,13 +36,13 @@ uint32_t BinarySearchTree::qualSum(char *q) {
     /*Should end on a null character, no tab or newlines*/
     while (q[i] != '\0') {
         /*Allows error checking*/
-        if (q[i] > 32) {
-            score += q[i]-32;
-        } else {
-            fprintf(stderr, "Quality score is not [1,40], ascii [33,73], or [!,I]\n");
+        if (q[i] > 'H' || q[i] < '!') {
+            fprintf(stderr, "Quality score is not between ascii [33,72], or [\",H]\n");
             fprintf(stderr, "Bad quality string = %s\n", q);
             fprintf(stderr, "Bad character='%c'\n", q[i]);
             exit(12);
+        } else {
+            score += q[i]-33;
         }
         i++;
     }
@@ -236,7 +236,6 @@ void BinarySearchTree::AddNode(readInfo *R1_, readInfo *R2_) {
         exit(11);
     }
 
-      
     if (R2_ != NULL) {
         if (qualCheck) {
             qualScore += qualSum((R2_)->getQual());

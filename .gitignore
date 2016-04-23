@@ -3,4 +3,4 @@
 *.fastq.gz
 *.fasta
 *.swp
-
+super_deduper
