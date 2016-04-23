@@ -6,7 +6,6 @@
 #include <stdint.h>
 
 
-
 #include "readInfo.h"
 #include "fileWriter.h"
 

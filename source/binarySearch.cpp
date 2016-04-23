@@ -212,7 +212,13 @@ void BinarySearchTree::PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, ui
         if (qualScore != 0) {
             if (qualScore > (*n)->qualScore) {
                 (*n)->Replace(R1_, R2_, qualScore);
+            } else {
+                delete R1_;
+                delete R2_;
             }
+        } else {
+            delete R1_;
+            delete R2_;
         }
     }
 
