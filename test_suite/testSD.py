@@ -29,12 +29,14 @@ if __name__ == '__main__':
     inputDir="fastqFiles"
     singleEnd=False
     sys_cmd="super_deduper"
+    prefix=" -p superTests/"
+    interleaved=" -o superTests/interleave"
     
     R1_R2 = Recursive_Command(inputDir,singleEnd)
     
     
     for i,a in enumerate(R1_R2['R1']):
-        command = sys_cmd + " -1 " + R1_R2['R1'][i] + " -2 " + R1_R2['R2'][i]
+        command = sys_cmd + " -1 " + R1_R2['R1'][i] + " -2 " + R1_R2['R2'][i] + prefix
         result = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
         if "1X" in command and "duplicates: 1" in result: 
             print("Success")
@@ -62,7 +64,7 @@ if __name__ == '__main__':
             print(result)
             
        
-    command = sys_cmd + " -1 " + R1_R2['R1'][0] + " -2 " + R1_R2['R2'][0] + " -s 25"
+    command = sys_cmd + " -1 " + R1_R2['R1'][0] + " -2 " + R1_R2['R2'][0] + " -s 25" + prefix
     result = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
     if "duplicates: 0" in result: 
         print("Success")
@@ -74,7 +76,7 @@ if __name__ == '__main__':
         print(command)
         print(result)
             
-    command = sys_cmd + " -1 " + R1_R2['R1'][0] + " -2 " + R1_R2['R2'][0] + " -s 10000"
+    command = sys_cmd + " -1 " + R1_R2['R1'][0] + " -2 " + R1_R2['R2'][0] + " -s 10000" + prefix
     result = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
     if "out of bounds" in result: 
         print("Success")
@@ -85,9 +87,9 @@ if __name__ == '__main__':
         print(result) 
 
     # testing expected output
-    command = sys_cmd + " -1 fastqFiles/short_R1.fastq -2 fastqFiles/short_R2.fastq -o interleave"
+    command = sys_cmd + " -1 fastqFiles/short_R1.fastq -2 fastqFiles/short_R2.fastq" + interleaved
     subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
-    result = filecmp.cmp('interleave_nodup_PE1.fastq', 'expected_interleaved_nodup_R1.fastq') 
+    result = filecmp.cmp('superTests/interleave_nodup_PE1.fastq', 'expected_interleaved_nodup_R1.fastq') 
     if result:
         print("Success")
         print(command)
