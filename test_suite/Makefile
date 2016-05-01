@@ -9,9 +9,10 @@
 # in all of it's default settings.
 # We are using an outside python script 
 # 
-# This is the simplest Makefile in 
-# existence.
+#
+# The Makefile caveat is that you have
+# to use tabs and not spaces.
 
 pyScript=testSD.py
 default:
-		python $(pyScript)
+		python $(pyScript) 
