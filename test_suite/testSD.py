@@ -6,6 +6,7 @@ import sys, os, subprocess
 import string
 import numpy as np
 import random
+import filecmp
 
 def Recursive_Command(input_dir, single):
     """Recursive Command - goes through and finds all R1 and R2 fastq files. 
@@ -82,3 +83,14 @@ if __name__ == '__main__':
         print("Test Failed")
         print(command)
         print(result) 
+
+    # testing expected output
+    command = sys_cmd + " -1 " + R1_R2['R1'][0] + " -2 " + R1_R2['R2'][0] + " -o interleaved"
+    result = filecmp.cmp('interleaved_nodup_PE1.fastq', 'expected_interleaved_nodup_R1.fastq') 
+    if result:
+        print("Success")
+        print(command)
+    else:
+        print("Test Failed")
+        print(command)
+        print(result)
