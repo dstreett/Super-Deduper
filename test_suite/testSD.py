@@ -1,6 +1,6 @@
-# import libraries
-
 # Testing default cases for Super-Deduper
+# run this by using $python testSD.py
+
 from __future__ import print_function
 import sys, os, subprocess
 import string
@@ -62,9 +62,9 @@ if __name__ == '__main__':
             print(result)
             
        
-    command = sys_cmd + " -1 " + R1_R2['R1'][0] + " -2 " + R1_R2['R2'][0] + " -s 100"
+    command = sys_cmd + " -1 " + R1_R2['R1'][0] + " -2 " + R1_R2['R2'][0] + " -s 25"
     result = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
-    if "short" in command and "duplicates: 0" in result: 
+    if "duplicates: 0" in result: 
         print("Success")
         print(command)
         print(result)
@@ -85,8 +85,8 @@ if __name__ == '__main__':
         print(result) 
 
     # testing expected output
-	
-    command = sys_cmd + " -1 " + R1_R2['R1'][0] + " -2 " + R1_R2['R2'][0] + " -o interleaved"
+    command = sys_cmd + " -1 fastqFiles/short_R1.fastq -2 fastqFiles/short_R2.fastq -o interleave"
+    subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
     result = filecmp.cmp('interleave_nodup_PE1.fastq', 'expected_interleaved_nodup_R1.fastq') 
     if result:
         print("Success")
@@ -95,3 +95,4 @@ if __name__ == '__main__':
         print("Test Failed")
         print(command)
         print(result)
+
