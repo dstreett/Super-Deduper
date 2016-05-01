@@ -12,7 +12,11 @@
 #
 # The Makefile caveat is that you have
 # to use tabs and not spaces.
-
+.PHONY: clean default install build distclean debug
 pyScript=testSD.py
 default:
+		if [ ! -d "superTests" ]; then mkdir superTests; fi;
 		python $(pyScript) 
+
+clean:
+		if [ -d "superTests" ]; then rm -rf superTests; fi;
