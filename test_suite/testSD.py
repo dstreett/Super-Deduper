@@ -60,4 +60,25 @@ if __name__ == '__main__':
             print(command)
             print(result)
             
-     
+       
+    command = sys_cmd + " -1 " + R1_R2['R1'][0] + " -2 " + R1_R2['R2'][0] + " -s 100"
+    result = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+    if "short" in command and "duplicates: 0" in result: 
+        print("Success")
+        print(command)
+        print(result)
+
+    else:
+        print("Test Failed")
+        print(command)
+        print(result)
+            
+    command = sys_cmd + " -1 " + R1_R2['R1'][0] + " -2 " + R1_R2['R2'][0] + " -s 10000"
+    result = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+    if "out of bounds" in result: 
+        print("Success")
+        print(command)
+    else:
+        print("Test Failed")
+        print(command)
+        print(result) 
