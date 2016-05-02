@@ -4,15 +4,17 @@
 
 
 void BinarySearchTree::outputStats(FILE *f) {
-    fprintf(f, "Reads_Written\tSingletons\tDoubles\tThree_Plus\tDiscarded_Reads\tReplacements_Called\tTotal_Time\n");
-    fprintf(f, "%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%u\n",
-                nodesCreated,
-                       singletons,
-                             doubles,
-                                   threeplus,
-                                         disReads,
-                                                replaced,
-                                                   time_end-time_start);
+    fprintf(f, "Reads_Read\tReads_Written\tReads_Discarded\tSingletons\tDoubles\tThree_Plus\tDisqualifed_Reads\tReplacements_Called\tTotal_Time\n");
+    fprintf(f, "%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%u\n",
+                reads_read,
+                    nodesCreated,
+                        dup_gone,
+                           singletons,
+                                 doubles,
+                                       threeplus,
+                                             disReads,
+                                                    replaced,
+                                                       time_end-time_start);
 }
 
 
@@ -243,8 +245,10 @@ void BinarySearchTree::PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, ui
     /*Nodes are equal*/
     } else {
         /*Makes sure that single ends are kept track of*/
+        
         if ((R2_ && !((*n)->single)) || (!R2_ && (*n)->single)) {
             (*n)->count++;
+            dup_gone++;
             if (qualScore > (*n)->qualScore) {
                 replaced++;
                 (*n)->Replace(R1_, R2_, qualScore);
@@ -266,6 +270,9 @@ void BinarySearchTree::AddNode(readInfo *R1_, readInfo *R2_) {
 
     uint16_t *id;
     uint32_t qualScore = 0;
+    reads_read++;
+
+
     if (!getID(R1_, R2_, &id)) {
         disReads++;
         return;

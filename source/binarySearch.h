@@ -83,6 +83,8 @@ class BinarySearchTree {
         uint64_t doubles;
         uint64_t threeplus;
         uint64_t replaced;
+        uint64_t reads_read;
+        uint64_t dup_gone;
 
         bool qualCheck; 
         
@@ -117,7 +119,6 @@ class BinarySearchTree {
             
             
             
-            
             /*Stats zero out*/
             nodesCreated = 0;
             singletons = 0;
@@ -125,6 +126,8 @@ class BinarySearchTree {
             threeplus = 0;
             replaced = 0;
             disReads = 0;
+            reads_read = 0;    
+            dup_gone = 0;
 
             /*00*/ 
             A = 0;
