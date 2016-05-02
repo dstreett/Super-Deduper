@@ -14,7 +14,7 @@
 # to use tabs and not spaces.
 .PHONY: clean default install build distclean debug
 pyScript=testSD.py
-default:
+test:
 		if [ ! -d "superTests" ]; then mkdir superTests; fi;
 		python $(pyScript) 
 
