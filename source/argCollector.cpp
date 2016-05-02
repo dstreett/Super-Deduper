@@ -85,7 +85,7 @@ argCollector::argCollector(int argc, char *argv[]) {
     char *prefix = NULL;
 
     char *tmplog = (char *)malloc(10);
-    sprintf(tmplog, "sd.log\0");
+    sprintf(tmplog, "sd.log");
 
     while ((cmd_line_char = getopt_long(argc, argv, "VNL:1:2:U:I:T:Os:l:qgiftsP:FSh", longopts, &long_index)) != EOF) {
         switch(cmd_line_char) {

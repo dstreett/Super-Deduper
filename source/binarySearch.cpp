@@ -5,7 +5,7 @@
 
 void BinarySearchTree::outputStats(FILE *f) {
     fprintf(f, "Reads_Written\tSingletons\tDoubles\tThree_Plus\tDiscarded_Reads\tReplacements_Called\tTotal_Time\n");
-    fprintf(f, "%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%llu\n",
+    fprintf(f, "%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%u\n",
                 nodesCreated,
                        singletons,
                              doubles,

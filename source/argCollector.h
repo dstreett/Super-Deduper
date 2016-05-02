@@ -8,6 +8,9 @@
 
 #include "fileHelper.h"
 #include "fileWriter.h"
+
+#define F_OK 0
+
 class argCollector {
 
 

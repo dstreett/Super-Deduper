@@ -10,6 +10,8 @@
 
 #include "readInfo.h"
 
+
+#define F_OK 0
 class FileHelper {
     
     private:

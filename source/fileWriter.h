@@ -8,6 +8,8 @@
 
 #include "readInfo.h"
 
+#define F_OK 0
+
 /*This class is just a basic helper class for writing out the data
  * the bools will determine the functionality of the writer*/
 class FileWriter {
