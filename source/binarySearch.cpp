@@ -41,12 +41,14 @@ void BinarySearchTree::PrintAndDeletePrivate(Node *n, FileWriter *R1, FileWriter
             if (n->R2) {
                 R1->writeData(n->R1, NULL, NULL);
                 R2->writeData(n->R2, NULL, NULL);
+            } else {
+                SE->writeData(n->R1, NULL, NULL);
             }
         } else {
             if (!SE) {
                 R1->writeData(n->R1, n->R2, NULL);
             } else {
-                SE->writeData(n->R1, n->R2, NULL);
+                SE->writeData(n->R1, NULL , NULL);
             }
             
         }
@@ -127,7 +129,8 @@ bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id) 
 
         if (bitShifts == 16) {
             bitShifts = 0;
-            idLoc+=1;
+            idLoc++;
+            (*id)[idLoc] = 0;
         }
         loc++;
     }
@@ -170,11 +173,18 @@ bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id) 
 
             if (bitShifts == 16) {
                 bitShifts = 0;
-                idLoc+=1;
+                idLoc++;
+                (*id)[idLoc] = 0;
             }
             loc++;
         }
-    } 
+    }
+
+    idLoc++;
+    for (int i = 0; i < mallocLength; i++) {
+        (*id)[i] = 0;
+    }
+
     return true;
 
 }
@@ -229,6 +239,9 @@ int BinarySearchTree::GreaterThan(uint16_t *test, uint16_t *value) {
     }
     return 0;
 }
+
+
+
 /*Recursive function to add Node*/
 void BinarySearchTree::PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, uint16_t *id, uint32_t qualScore ) {
     /*Add Node condition*/
@@ -236,6 +249,7 @@ void BinarySearchTree::PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, ui
     if ((*n) == NULL) {
         nodesCreated++;
         (*n) = new Node(R1_, R2_, id, qualScore);
+
         (*n)->count = 1;
         return;
     } else if ((tmpValue = GreaterThan(id, (*n)->id)) == 1) {
@@ -246,7 +260,7 @@ void BinarySearchTree::PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, ui
     } else {
         /*Makes sure that single ends are kept track of*/
         
-        if ((R2_ && !((*n)->single)) || (!R2_ && (*n)->single)) {
+        if ((!R2_ && ((*n)->single)) || (R2_ && !(*n)->single)) {
             (*n)->count++;
             dup_gone++;
             if (qualScore > (*n)->qualScore) {
@@ -295,7 +309,6 @@ void BinarySearchTree::AddNode(readInfo *R1_, readInfo *R2_) {
         /*This just means it is single end reads*/
         /*This is acceptable, no error message*/
     }
-
     PrivateAddNode(&root, R1_, R2_, id, qualScore);
 
 }
