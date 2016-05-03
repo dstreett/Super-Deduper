@@ -45,7 +45,7 @@ void BinarySearchTree::PrintAndDeletePrivate(Node *n, FileWriter *R1, FileWriter
                 SE->writeData(n->R1, NULL, NULL);
             }
         } else {
-            if (!SE) {
+            if (n->R2 || !SE ) {
                 R1->writeData(n->R1, n->R2, NULL);
             } else {
                 SE->writeData(n->R1, NULL , NULL);
