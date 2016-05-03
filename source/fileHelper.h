@@ -1,12 +1,12 @@
 #ifndef SOURCE_FILEHELPER_H_
 #define SOURCE_FILEHELPER_H_
 
-
 #include <iostream>
 #include <string>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "readInfo.h"
 
