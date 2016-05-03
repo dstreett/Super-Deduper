@@ -15,12 +15,16 @@ def findFastqFiles(directory, pattern):
 
 def interLeaved():
     # testing expected output
-    command = "../super_deduper -1 fastqFiles/testCase_1X_R1.fastq -2 fastqFiles/testCase_1X_R2.fastq  -i interleaved_out -N"
+    command = "../super_deduper -1 fastqFiles/testCase_1X_R1.fastq -2 fastqFiles/testCase_1X_R2.fastq  -i -F -N"
     subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
     return filecmp.cmp('interleaved_out_nodup_PE1.fastq', 'expected_interleaved_nodup_R1.fastq') 
 
-def duplicateReads():
-	pass
+def duplicateReads(fastqR1, fastqR2):
+	command = "../super_deduper -1 "+fastqR1+" -2 "+fastqR2+" -N -F"
+	myString =  subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+	print('I ran')
+	return myString
+	
 
 def singleReads():
 	pass
@@ -43,27 +47,16 @@ class SuperDeduperTestCase(unittest.TestCase):
                           'fastqFiles/testCase_3X_R1.fastq',
                           'fastqFiles/testCase_3X_R2.fastq'])
     
-    #def test_out_of_interleaved(self):
-    #    """Should return an interleaved file"""
-    #    self.assertEqual(interLeaved()),([True])    
-
 	def test_duplicate_reads(self):
-		pass
+		"""Should return a tab delimited out put with 11 reads and 10 writes"""
+		self.assertEqual(duplicateReads(fastqFiles/testCase_1X_R1.fastq, fastqFiles/testCase_1X_R2.fastq),
+		                ['Reads_Written\tSingletons\tDoubles\tThree_Plus\tDiscarded_Reads \
+			             \tReplacements_Called\tTotal_Time\n11\t10\t1\t0\t0\t0\t0\n'])
 
-	def test_single_reads(self):
-		pass
+    def test_interleaved_true(self):
+		"""Should return true if the output file matches expected"""
+		self.assertTrue(interLeaved())
 
-	def test_tab_input(self):
-		pass
-
-	def test_tab_output(self):
-		pass
-
-
-
-
-        
-        
         
 
         
