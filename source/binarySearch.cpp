@@ -181,7 +181,7 @@ bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id) 
     }
 
     idLoc++;
-    for (int i = 0; i < mallocLength; i++) {
+    for (int i = idLoc; i < mallocLength; i++) {
         (*id)[i] = 0;
     }
 
@@ -259,7 +259,7 @@ void BinarySearchTree::PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, ui
     /*Nodes are equal*/
     } else {
         /*Makes sure that single ends are kept track of*/
-        
+
         if ((!R2_ && ((*n)->single)) || (R2_ && !(*n)->single)) {
             (*n)->count++;
             dup_gone++;

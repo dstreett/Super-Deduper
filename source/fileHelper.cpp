@@ -82,14 +82,17 @@ void FileHelper::readData(readInfo **r1, readInfo **r2) {
         char *tok, *tmpPointer, data[5][4096];
         int count = 0;
         tmpPointer = &c[0];
+       
         while ((tok = strtok_r(tmpPointer, "\t", &tmpPointer))) {
             strcpy(data[count], tok);
             count++;
-        } 
+        }
+
         if (count == 5) {
             data[4][strlen(data[4])-1] = '\0';
             (*r1) =  new readInfo(data[0], data[1], data[2], opt_reads );
             (*r2) =  new readInfo(data[0], data[3], data[4], opt_reads );
+
         } else if (count == 3) {
             data[2][strlen(data[2])-1] = '\0';
             (*r1) =  new readInfo(data[0], data[1], data[2], opt_reads );

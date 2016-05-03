@@ -89,8 +89,6 @@ class BinarySearchTree {
         bool qualCheck; 
         
         
-        
-        
         Node *root;
 
 
