@@ -83,10 +83,10 @@ class BinarySearchTree {
         uint64_t doubles;
         uint64_t threeplus;
         uint64_t replaced;
+        uint64_t reads_read;
+        uint64_t dup_gone;
 
         bool qualCheck; 
-        
-        
         
         
         Node *root;
@@ -117,7 +117,6 @@ class BinarySearchTree {
             
             
             
-            
             /*Stats zero out*/
             nodesCreated = 0;
             singletons = 0;
@@ -125,6 +124,8 @@ class BinarySearchTree {
             threeplus = 0;
             replaced = 0;
             disReads = 0;
+            reads_read = 0;    
+            dup_gone = 0;
 
             /*00*/ 
             A = 0;
@@ -135,11 +136,12 @@ class BinarySearchTree {
             /*01*/
             C = 1;
         };
-        
+        void Cleaner(uint16_t **bin);
+
         void AddNode(readInfo *R1_, readInfo *R2_);
         /*set the length to be 3 (for 3 bit format) * length specified / 16 (num of bits) + 1 (allocate the correct amount) *
          * 16 bits for each (sizeof)*/
-        void setLength(uint16_t i) {mallocLength = ((3*i)/16 + 1) * sizeof(uint16_t); charLength = i;};
+        void setLength(uint16_t i) {mallocLength = ((2*i)/16 + 1) * sizeof(uint16_t) * 2; charLength = i;};
         /*converts human value to correct position in zero start array*/
         void setStart(uint16_t i) {start = i;};
         void setQualCheck(bool b) {qualCheck = b;};

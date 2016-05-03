@@ -1,7 +1,6 @@
 #ifndef SOURCE_FILEHELPER_H_
 #define SOURCE_FILEHELPER_H_
 
-
 #include <iostream>
 #include <string>
 #include <stdio.h>

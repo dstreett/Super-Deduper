@@ -4,15 +4,17 @@
 
 
 void BinarySearchTree::outputStats(FILE *f) {
-    fprintf(f, "Reads_Written\tSingletons\tDoubles\tThree_Plus\tDiscarded_Reads\tReplacements_Called\tTotal_Time\n");
-    fprintf(f, "%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%u\n",
-                nodesCreated,
-                       singletons,
-                             doubles,
-                                   threeplus,
-                                         disReads,
-                                                replaced,
-                                                   time_end-time_start);
+    fprintf(f, "Reads_Read\tReads_Written\tReads_Discarded\tSingletons\tDoubles\tThree_Plus\tDisqualifed_Reads\tReplacements_Called\tTotal_Time\n");
+    fprintf(f, "%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%u\n",
+                reads_read,
+                    nodesCreated,
+                        dup_gone,
+                           singletons,
+                                 doubles,
+                                       threeplus,
+                                             disReads,
+                                                    replaced,
+                                                       time_end-time_start);
 }
 
 
@@ -39,12 +41,14 @@ void BinarySearchTree::PrintAndDeletePrivate(Node *n, FileWriter *R1, FileWriter
             if (n->R2) {
                 R1->writeData(n->R1, NULL, NULL);
                 R2->writeData(n->R2, NULL, NULL);
+            } else {
+                SE->writeData(n->R1, NULL, NULL);
             }
         } else {
-            if (!SE) {
+            if (n->R2 || !SE ) {
                 R1->writeData(n->R1, n->R2, NULL);
             } else {
-                SE->writeData(n->R1, n->R2, NULL);
+                SE->writeData(n->R1, NULL , NULL);
             }
             
         }
@@ -125,7 +129,8 @@ bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id) 
 
         if (bitShifts == 16) {
             bitShifts = 0;
-            idLoc+=1;
+            idLoc++;
+            (*id)[idLoc] = 0;
         }
         loc++;
     }
@@ -168,11 +173,18 @@ bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id) 
 
             if (bitShifts == 16) {
                 bitShifts = 0;
-                idLoc+=1;
+                idLoc++;
+                (*id)[idLoc] = 0;
             }
             loc++;
         }
-    } 
+    }
+
+    idLoc++;
+    for (int i = idLoc; i < mallocLength; i++) {
+        (*id)[i] = 0;
+    }
+
     return true;
 
 }
@@ -227,6 +239,9 @@ int BinarySearchTree::GreaterThan(uint16_t *test, uint16_t *value) {
     }
     return 0;
 }
+
+
+
 /*Recursive function to add Node*/
 void BinarySearchTree::PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, uint16_t *id, uint32_t qualScore ) {
     /*Add Node condition*/
@@ -234,6 +249,7 @@ void BinarySearchTree::PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, ui
     if ((*n) == NULL) {
         nodesCreated++;
         (*n) = new Node(R1_, R2_, id, qualScore);
+
         (*n)->count = 1;
         return;
     } else if ((tmpValue = GreaterThan(id, (*n)->id)) == 1) {
@@ -243,8 +259,10 @@ void BinarySearchTree::PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, ui
     /*Nodes are equal*/
     } else {
         /*Makes sure that single ends are kept track of*/
-        if ((R2_ && !((*n)->single)) || (!R2_ && (*n)->single)) {
+
+        if ((!R2_ && ((*n)->single)) || (R2_ && !(*n)->single)) {
             (*n)->count++;
+            dup_gone++;
             if (qualScore > (*n)->qualScore) {
                 replaced++;
                 (*n)->Replace(R1_, R2_, qualScore);
@@ -266,6 +284,9 @@ void BinarySearchTree::AddNode(readInfo *R1_, readInfo *R2_) {
 
     uint16_t *id;
     uint32_t qualScore = 0;
+    reads_read++;
+
+
     if (!getID(R1_, R2_, &id)) {
         disReads++;
         return;
@@ -288,7 +309,6 @@ void BinarySearchTree::AddNode(readInfo *R1_, readInfo *R2_) {
         /*This just means it is single end reads*/
         /*This is acceptable, no error message*/
     }
-
     PrivateAddNode(&root, R1_, R2_, id, qualScore);
 
 }

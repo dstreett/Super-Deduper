@@ -139,16 +139,16 @@ void FileWriter::writeData(readInfo *R1, readInfo *R2, readInfo *R3) {
 
         fprintf(fOut, "%s\n%s\n+\n%s\n", tmp->getHeader(), tmp->getSeq(), tmp->getQual());
     } else if (interleaved) {
-        if (!(R1 && R2) || !R3) {
+        if (!(R1 && R2)) {
             fprintf(stderr, "Error in fileWriter.cpp in function writeData\n");
             fprintf(stderr, "Interleaved format only takes two read at a time to write\n");
+            exit(31);
         }
-
         fprintf(fOut, "%s\n%s\n+\n%s\n%s\n%s\n+\n%s\n", R1->getHeader(), R1->getSeq(), R1->getQual(), R2->getHeader(), R2->getSeq(), R2->getQual());
     } else if (tab) {
 
         if (R1 && R2) {
-            fprintf(fOut, "%s\t%s\t%s\t%s\t%s\n", R1->getHeader(), R1->getSeq(), R1->getQual(), R2->getSeq(), R2->getSeq());
+            fprintf(fOut, "%s\t%s\t%s\t%s\t%s\n", R1->getHeader(), R1->getSeq(), R1->getQual(), R2->getSeq(), R2->getQual());
         } else if (R1) {
             fprintf(fOut, "%s\t%s\t%s\n", R1->getHeader(), R1->getSeq(), R1->getQual());
         }
