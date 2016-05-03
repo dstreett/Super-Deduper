@@ -22,7 +22,6 @@ def interLeaved():
 def duplicateReads():
     command = "../super_deduper -1 fastqFiles/testCase_1X_R1.fastq -2 fastqFiles/testCase_1X_R1.fastq -N -F"
     myString =  subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
-    print('I ran')
     return myString
 
 
@@ -41,8 +40,7 @@ class SuperDeduperTestCase(unittest.TestCase):
     def test_duplicate_reads(self):
         """Should return a tab delimited out put with 11 reads and 10 writes"""
         self.assertEqual(duplicateReads(),
-            'Reads_Written\tSingletons\tDoubles\tThree_Plus\tDiscarded_Reads\tReplacements_Called\tTotal_Time\n11\t10\t1\t0\t0\t0\t0\n')
-
+        'Reads_Read\tReads_Written\tReads_Discarded\tSingletons\tDoubles\tThree_Plus\tDisqualifed_Reads\tReplacements_Called\tTotal_Time\n12\t11\t1\t10\t1\t0\t0\t0\t0\n')
 
         
 
