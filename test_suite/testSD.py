@@ -18,7 +18,7 @@ def interLeaved():
     # testing expected output
     command = "../super_deduper -1 fastqFiles/testCase_1X_R1.fastq -2 fastqFiles/testCase_1X_R2.fastq  -i -F -N"
     subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
-    return filecmp.cmp('no_dup_interleaved.fastq', 'expected_interleaved.fastq') 
+    return filecmp.cmp('no_dup_interleaved.fastq', 'expected_interleaved.fastq')
 
 def duplicateReads():
     command = "../super_deduper -1 fastqFiles/testCase_1X_R1.fastq -2 fastqFiles/testCase_1X_R1.fastq -N -F"
@@ -26,18 +26,18 @@ def duplicateReads():
     return myString
 
 
-class SuperDeduperTestCase(unittest.TestCase):
+class TestCase(unittest.TestCase):
 
     def test_find_fastq_files_recursively(self):
         """Should return all fastq files from the sub directories"""
         self.assertEqual(findFastqFiles('fastqFiles', '*.fastq'),
-                         ['fastqFiles/testCase_1X_R1.fastq', 
-                          'fastqFiles/testCase_1X_R2.fastq', 
+                         ['fastqFiles/testCase_1X_R1.fastq',
+                          'fastqFiles/testCase_1X_R2.fastq',
                           'fastqFiles/testCase_2X_R1.fastq',
                           'fastqFiles/testCase_2X_R2.fastq',
                           'fastqFiles/testCase_3X_R1.fastq',
                           'fastqFiles/testCase_3X_R2.fastq'])
-    
+
     def test_duplicate_reads(self):
         """Should return a tab delimited out put with 11 reads and 10 writes"""
         self.assertEqual(duplicateReads(),
@@ -47,7 +47,7 @@ class SuperDeduperTestCase(unittest.TestCase):
 		"""Should compare the output file to the expected_interleaved"""
 		self.assertTrue(interLeaved())
 
-        
-        
+
+
 if __name__ == '__main__':
     unittest.main()
