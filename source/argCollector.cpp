@@ -85,7 +85,7 @@ argCollector::argCollector(int argc, char *argv[]) {
     char *prefix = NULL;
 
     char *tmplog = (char *)malloc(10);
-    sprintf(tmplog, "sd.log");
+    printf(tmplog, "sd.log");
 
     while ((cmd_line_char = getopt_long(argc, argv, "VNL:1:2:U:I:T:Os:l:qgiftsP:FSh", longopts, &long_index)) != EOF) {
         switch(cmd_line_char) {
@@ -196,7 +196,7 @@ argCollector::argCollector(int argc, char *argv[]) {
     /*Default prefix is no_dup*/
     /*no_dup or prefix will be followed by either _R1.fastq, _R2.fastq, _SE.fastq, _interleaved.fastq, _tab.tastq*/
     if (!prefix) {
-        prefix = (char *)malloc(6*sizeof(char));
+        prefix = (char *)malloc(7*sizeof(char));
         sprintf(prefix, "no_dup");
     }
 
