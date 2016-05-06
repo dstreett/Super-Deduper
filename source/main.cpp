@@ -40,6 +40,9 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "File R2 is shorter than File R1\n");
             exit(17);
         }
+        (args->R1_In)->Closer();
+        (args->R2_In)->Closer();
+
     }
 
     if (args->SE_In) {
@@ -55,6 +58,7 @@ int main(int argc, char *argv[]) {
                 break;
             }
         }      
+        (args->SE_In)->Closer();
 
     }
 
@@ -70,6 +74,8 @@ int main(int argc, char *argv[]) {
                 break;
             }    
         }
+        (args->INTER_In)->Closer();
+
     }
     
     if (args->TAB_In) {
@@ -83,6 +89,8 @@ int main(int argc, char *argv[]) {
                 break;
             }
         }
+        (args->TAB_In)->Closer();
+   
     }
 
     if (args->STDIN_In) {
@@ -96,9 +104,23 @@ int main(int argc, char *argv[]) {
                 break;
             }
         }
+        (args->STDIN_In)->Closer();
+
+
     }
     
     bst->PrintAndDelete(args->R1_Out, args->R2_Out, args->SE_Out);
+
+    if (args->R1_Out) {
+       (args->R1_Out)->Closer();
+    }
+    if (args->R2_Out) {
+       (args->R2_Out)->Closer();
+    }
+    if (args->SE_Out) {
+       (args->SE_Out)->Closer();
+    }
+ 
     bst->endTime();
     bst->outputStats(args->log);
     delete bst;

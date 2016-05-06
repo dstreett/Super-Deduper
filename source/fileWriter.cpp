@@ -67,35 +67,23 @@ FileWriter::FileWriter(bool force) {
 
 
 
-void FileWriter::OpenFile(char *fName) {
+void FileWriter::OpenFile(char *fName_) {
     
     if (to_stdout) {
         fOut = stdout;
         setFastq(false);
         setTab(true);
-     } else if (fName != NULL) {
+     } else if (fName_ != NULL) {
         /*Checks if write permissions are held for this file*/
-        if (access(fName, F_OK) != -1) {
+        if (access(fName_, F_OK) != -1) {
             if (force) {
-                fOut = fopen(fName, "w");
-                /*Ensures that the file actually opens*/
-                if (fOut == NULL) {
-                    fprintf(stderr, "Within fileWriter.cpp in OpenFile() (force) fName does not have write permissions\n");
-                    fprintf(stderr, "File not accessable %s\n", fName);
-                    exit(9);
-                }
+                fName = strdup(fName_);
             } else {
-                fprintf(stderr, "File %s exists - please use -F option to force overwrite, -P to change the name of the file, or manually remove or move the file\n", fName);
+                fprintf(stderr, "File %s exists - please use -F option to force overwrite, -P to change the name of the file, or manually remove or move the file\n", fName_);
                 exit(10);
             }
         } else {
-            fOut = fopen(fName, "w");
-            /*Make sure the file is open*/
-            if (fOut == NULL) {
-                fprintf(stderr, "Within fileWriter.cpp in OpenFile() (not force) fName does not have write permissions\n");
-                fprintf(stderr, "File not accessable %s\n", fName);
-                exit(8);
-            }
+            fName = strdup(fName_);
         }
     } else {
         fprintf(stderr, "fName within fileWriter.cpp fName in OpenFile() is NULL\n");
@@ -105,8 +93,11 @@ void FileWriter::OpenFile(char *fName) {
 
 }
 
-
-
+void FileWriter::Closer() {
+    if (fOut) {
+        fclose(fOut);
+    }
+}
 
 void FileWriter::writeData(readInfo *R1, readInfo *R2, readInfo *R3) {
     if ((R1 && R2 && R3)) {
@@ -118,6 +109,19 @@ void FileWriter::writeData(readInfo *R1, readInfo *R2, readInfo *R3) {
         fprintf(stderr, "Error in fileWriter.cpp in function writeData\n");
         fprintf(stderr, "No format takes no reads to write\n");
         exit(7);
+    }
+
+
+    /*this ensures opening only if need be*/
+    if (fOut == NULL) {
+        fOut = fopen(fName, "w");
+        /*Ensures that the file actually opens*/
+        if (fOut == NULL) {
+            fprintf(stderr, "Within fileWriter.cpp in OpenFile() (force) fName does not have write permissions\n");
+            fprintf(stderr, "File not accessable %s\n", fName);
+            exit(9);
+        }
+
     }
 
     if (fastq) {
@@ -139,16 +143,16 @@ void FileWriter::writeData(readInfo *R1, readInfo *R2, readInfo *R3) {
 
         fprintf(fOut, "%s\n%s\n+\n%s\n", tmp->getHeader(), tmp->getSeq(), tmp->getQual());
     } else if (interleaved) {
-        if (!(R1 && R2)) {
+        if (!(R1 && R2) || !R3) {
             fprintf(stderr, "Error in fileWriter.cpp in function writeData\n");
             fprintf(stderr, "Interleaved format only takes two read at a time to write\n");
-            exit(31);
         }
+
         fprintf(fOut, "%s\n%s\n+\n%s\n%s\n%s\n+\n%s\n", R1->getHeader(), R1->getSeq(), R1->getQual(), R2->getHeader(), R2->getSeq(), R2->getQual());
     } else if (tab) {
 
         if (R1 && R2) {
-            fprintf(fOut, "%s\t%s\t%s\t%s\t%s\n", R1->getHeader(), R1->getSeq(), R1->getQual(), R2->getSeq(), R2->getQual());
+            fprintf(fOut, "%s\t%s\t%s\t%s\t%s\n", R1->getHeader(), R1->getSeq(), R1->getQual(), R2->getSeq(), R2->getSeq());
         } else if (R1) {
             fprintf(fOut, "%s\t%s\t%s\n", R1->getHeader(), R1->getSeq(), R1->getQual());
         }
