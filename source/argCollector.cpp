@@ -85,7 +85,7 @@ argCollector::argCollector(int argc, char *argv[]) {
     char *prefix = NULL;
 
     char *tmplog = (char *)malloc(10);
-    printf(tmplog, "sd.log");
+    sprintf(tmplog, "sd.log");
 
     while ((cmd_line_char = getopt_long(argc, argv, "VNL:1:2:U:I:T:Os:l:qgiftsP:FSh", longopts, &long_index)) != EOF) {
         switch(cmd_line_char) {
@@ -169,7 +169,8 @@ argCollector::argCollector(int argc, char *argv[]) {
         if (log == NULL) {
             log = fopen(tmplog, "w");
             if (log == NULL) {
-                fprintf(stderr, "Within argCollecter.cpp in argCollector tmpLog all ready exists\n");
+                 
+                fprintf(stderr, "Within argCollecter.cpp in argCollector() tmpLog open error.\n");
                 fprintf(stderr, "Error with opening file %s\n", tmplog);
                 exit(29);
             }
