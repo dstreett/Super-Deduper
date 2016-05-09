@@ -16,6 +16,6 @@
 pyScript=testSD.py
 test:
 	python $(pyScript) 
-	rm -f no_dup*
+	rm -f no_dup* sd.log
 
 
