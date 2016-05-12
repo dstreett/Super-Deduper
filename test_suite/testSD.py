@@ -26,17 +26,13 @@ def file_compare(command, expected, returned):
     subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
     return filecmp.cmp(expected, returned)
 
-def parse_file(filename):
-    with open(filename, 'r') as f:
-        content = f.readlines()
-
-        # Recreate content without lines that start with @ and +
-        content = [line for line in content if not line[0] in '@+']
-
-        # make a dict of key/value pairs of lists content[0::2] and content[1::2]
-        data = dict(zip(content[0::2], content[1::2]))
-
-    return data
+def parse_fastq(filename):
+    with open(filename) as f:
+        lines=f.readlines()
+    head=[item[:-1] for item in lines[::4]] #get rid of '\n'
+    read=[item[:-1] for item in lines[1::4]]
+    qual=[item[:-1] for item in lines[3::4]]
+    return dict(zip(read, qual))
 
 class TestCase(unittest.TestCase):
 
@@ -78,9 +74,9 @@ class TestCase(unittest.TestCase):
 
     def test_item_from_one_exists_in_two(self):
         """Should return that an entry in the expected output exists in the input"""
-        data01=parse_file("expected_R1.fastq")
-        data02=parse_file("fastqFiles/testCase_1X_R1.fastq")
-        self.assertTrue(data01.items()[0][0] in data02.values())
+        data01=parse_fastq("expected_R1.fastq")
+        data02=parse_fastq("fastqFiles/testCase_1X_R1.fastq")
+        self.assertTrue(data01.items()[0][0] in data02)
 
 
 if __name__ == '__main__':
