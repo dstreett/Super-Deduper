@@ -61,6 +61,7 @@ void FileWriter::setStdout (bool b) {
 
 FileWriter::FileWriter(bool force) {
     setForce(force);
+    
     fOut = NULL;
 }
 
