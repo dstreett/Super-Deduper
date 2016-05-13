@@ -62,8 +62,8 @@ uint32_t BinarySearchTree::qualSum(char *q) {
     /*Should end on a null character, no tab or newlines*/
     while (q[i] != '\0') {
         /*Allows error checking*/
-        if (q[i] > 'H' || q[i] < '!') {
-            fprintf(stderr, "Quality score is not between ascii [33,72], or [\",H]\n");
+        if (q[i] > '~' || q[i] < '!') {
+            fprintf(stderr, "Quality score is not between ascii [33,126], or [\",~]\n");
             fprintf(stderr, "Bad quality string = %s\n", q);
             fprintf(stderr, "Bad character='%c'\n", q[i]);
             exit(12);
