@@ -4,8 +4,8 @@
 
 
 void BinarySearchTree::outputStats(FILE *f) {
-    fprintf(f, "Reads_Read\tReads_Written\tReads_Discarded\tSingletons\tDoubles\tThree_Plus\tDisqualifed_Reads\tReplacements_Called\tTotal_Time\n");
-    fprintf(f, "%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%u\n",
+    fprintf(f, "Reads_Read\tReads_Written\tReads_Discarded\tSingletons\tDoubles\tThree_Plus\tDisqualifed_Reads\tReplacements_Called\tReads_Per_Second\tTotal_Time\n");
+    fprintf(f, "%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%f\t%u\n",
                 reads_read,
                     nodesCreated,
                         dup_gone,
@@ -14,6 +14,7 @@ void BinarySearchTree::outputStats(FILE *f) {
                                        threeplus,
                                              disReads,
                                                     replaced,
+                                                       (double)reads_read/(double)((double)time_end-(double)time_start),
                                                        time_end-time_start);
 }
 
