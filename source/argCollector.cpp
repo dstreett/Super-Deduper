@@ -19,7 +19,7 @@ argCollector::argCollector(int argc, char *argv[]) {
         --force, -F Forces overwrite of files\n\
         --tab-output, -t Tab-delimited output\n\
         --to-stdout, -O Prints to STDOUT in Tab Delimited\n\
-        --prefix, -P Prefix for outputted files\n\
+        --prefix, -p Prefix for outputted files\n\
         --log-file, -L Output-Logfile\n\
         --no-log, N No logfile (outputs to stderr)\n\
         --help, -h Prints help.\n";
@@ -64,7 +64,7 @@ argCollector::argCollector(int argc, char *argv[]) {
         {"force", no_argument, 0, 'F'},
         {"tab-output", no_argument, 0, 't'},
         {"to-stdout", no_argument, 0, 'O'},
-        {"prefix", no_argument, 0, 'P'},
+        {"prefix", no_argument, 0, 'p'},
         {"help", no_argument, 0, 'h'},
         {"log-file", required_argument, 0, 'L'},
         {"no-log", no_argument, 0, 'N'},
@@ -87,7 +87,7 @@ argCollector::argCollector(int argc, char *argv[]) {
     char *tmplog = (char *)malloc(10);
     sprintf(tmplog, "sd.log");
 
-    while ((cmd_line_char = getopt_long(argc, argv, "VNL:1:2:U:I:T:Os:l:qgiftsP:FSh", longopts, &long_index)) != EOF) {
+    while ((cmd_line_char = getopt_long(argc, argv, "VNL:1:2:U:I:T:Os:l:qgiftsp:FSh", longopts, &long_index)) != EOF) {
         switch(cmd_line_char) {
             case 'N':
                 log = stderr;
@@ -151,7 +151,7 @@ argCollector::argCollector(int argc, char *argv[]) {
             case 'F':
                 force = true;
                 break;
-            case 'P':
+            case 'p':
                 prefix = strdup(optarg);
                 break;
             case 'h':
