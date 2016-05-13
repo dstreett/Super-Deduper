@@ -21,7 +21,7 @@ argCollector::argCollector(int argc, char *argv[]) {
         -F, --force              Forces overwrite of files\n\
         -t, --tab-output         Tab-delimited output\n\
         -O, --to-stdout          Prints to STDOUT in Tab Delimited\n\
-        -P, --prefix             Prefix for outputted files\n\
+        -p, --prefix             Prefix for outputted files\n\
         -L, --log-file           Output-Logfile\n\
         -N, --no-log             No logfile <outputs to stderr>\n\
         -h, --help               Prints help.\n";
