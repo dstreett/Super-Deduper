@@ -6,24 +6,24 @@ argCollector::argCollector(int argc, char *argv[]) {
 
     const char *help = "\
         -v, --version            Version print\n\
-        -1, --read1-input        Read 1 input (comma sep for multiple files)\n\
-        -2, --read2-input        Read 2 input (comma sep for multiple files)\n\
-        -U, --singleend-input    Single end read input (comma sep for multiple files)\n\
-        -T, --tab-input          Tab input (comma sep for multiple files)\n\
-        -I, --interleaved-input  Interleaved input I (comma sep for multiple files)\n\
-        -S, --stdin-input        STDIN input (MUST BE TAB DELIMITED INPUT)\n\
-        -s, --start              Start location for unique ID (int)\n\
-        -l, --length             Length of unique ID (int)\n\
+        -1, --read1-input        Read 1 input <comma sep for multiple files)\n\
+        -2, --read2-input        Read 2 input <comma sep for multiple files)\n\
+        -U, --singleend-input    Single end read input <comma sep for multiple files)\n\
+        -T, --tab-input          Tab input <comma sep for multiple files)\n\
+        -I, --interleaved-input  Interleaved input I <comma sep for multiple files)\n\
+        -S, --stdin-input        STDIN input <MUST BE TAB DELIMITED INPUT)\n\
+        -s, --start              Start location for unique ID <int)\n\
+        -l, --length             Length of unique ID <int>\n\
         -q, --quality-check-off  Quality Checking Off First Duplicate seen will be kept\n\
         -g, --gzip-output        Output gzipped\n\
         -i, --interleaved-output Output to interleaved\n\
-        -f, --fastq-output       Fastq format outputted (R1 and R2)\n\
+        -f, --fastq-output       Fastq format outputted <R1 and R2>\n\
         -F, --force              Forces overwrite of files\n\
         -t, --tab-output         Tab-delimited output\n\
         -O, --to-stdout          Prints to STDOUT in Tab Delimited\n\
         -P, --prefix             Prefix for outputted files\n\
         -L, --log-file           Output-Logfile\n\
-        -N, --no-log             No logfile (outputs to stderr)\n\
+        -N, --no-log             No logfile <outputs to stderr>\n\
         -h, --help               Prints help.\n";
 
     /*Initilize Values*/ 
