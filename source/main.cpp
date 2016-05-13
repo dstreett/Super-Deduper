@@ -31,7 +31,6 @@ int main(int argc, char *argv[]) {
              * I need to make sure the files are the same size*/
             bst->AddNode(r1, r2);
         }
-
         /*Means the files are different lengths*/
         if (!r1 && r2) {
             fprintf(stderr, "File R1 is shorter than File R2\n");

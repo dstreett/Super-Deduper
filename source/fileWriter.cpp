@@ -61,6 +61,7 @@ void FileWriter::setStdout (bool b) {
 
 FileWriter::FileWriter(bool force) {
     setForce(force);
+    fOut = NULL;
 }
 
 
@@ -110,7 +111,6 @@ void FileWriter::writeData(readInfo *R1, readInfo *R2, readInfo *R3) {
         fprintf(stderr, "No format takes no reads to write\n");
         exit(7);
     }
-
 
     /*this ensures opening only if need be*/
     if (fOut == NULL) {

@@ -35,10 +35,12 @@ void BinarySearchTree::PrintAndDeletePrivate(Node *n, FileWriter *R1, FileWriter
 
         PrintAndDeletePrivate(n->left, R1, R2, SE); 
         PrintAndDeletePrivate(n->right, R1, R2, SE); 
+     
         /*Only if Fastq file exists*/
         if (R2) {
             /*R1 and R2 printed Normal Fastq format*/
             if (n->R2) {
+
                 R1->writeData(n->R1, NULL, NULL);
                 R2->writeData(n->R2, NULL, NULL);
             } else {
@@ -199,7 +201,6 @@ bool BinarySearchTree::getID(readInfo *R1, readInfo *R2, uint16_t **id) {
         fprintf(stderr, "R1 CANNOT be NULL\n");
         exit(15);
     }
-
 
     /*Single end read*/
     if (R2 == NULL) {
