@@ -98,6 +98,7 @@ class BinarySearchTree {
 
         bool getID(readInfo *R1, readInfo *R2, uint16_t **id);
         bool FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id);
+        bool FlipBitsCharsRC(readInfo *R1, readInfo *R2, uint16_t **id);
         int GreaterThan(uint16_t *test, uint16_t *value);
         void PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, uint16_t *id, uint32_t qualScore);
         void PrintAndDeletePrivate(Node *n, FileWriter *R1, FileWriter *R2, FileWriter *SE);
@@ -112,7 +113,7 @@ class BinarySearchTree {
             /*Defaults*/
             qualCheck = true;
             /*Default values*/
-            setStart(9);
+            setStart(10);
             setLength(12);
             
             
@@ -141,7 +142,7 @@ class BinarySearchTree {
         void AddNode(readInfo *R1_, readInfo *R2_);
         /*set the length to be 3 (for 3 bit format) * length specified / 16 (num of bits) + 1 (allocate the correct amount) *
          * 16 bits for each (sizeof)*/
-        void setLength(uint16_t i) {mallocLength = ((2*i)/16 + 1) * sizeof(uint16_t) * 2; charLength = i;};
+        void setLength(uint16_t i) {mallocLength = ((2*i/16)+1) * sizeof(uint16_t); charLength = i;};
         /*converts human value to correct position in zero start array*/
         void setStart(uint16_t i) {start = i;};
         void setQualCheck(bool b) {qualCheck = b;};
@@ -150,8 +151,6 @@ class BinarySearchTree {
         
         /*Must be called after PrintAndDelete*/
         void outputStats(FILE *f);
-
-
 
 };
 
