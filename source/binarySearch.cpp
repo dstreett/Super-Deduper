@@ -219,10 +219,12 @@ bool BinarySearchTree::getID(readInfo *R1, readInfo *R2, uint16_t **id) {
         exit(-1);
     } else {
         if (FlipBitsChars(R1, R2, &tmp_id) && FlipBitsCharsRC(R1, R2, &tmp_id_rc)) {
-            printStuff(tmp_id, mallocLength);
-            printStuff(tmp_id_rc, mallocLength);
+            //printStuff(tmp_id, mallocLength);
+            //printStuff(tmp_id_rc, mallocLength);
             /*Add Greater Than*/
-            
+            (*id) = tmp_id;
+            free(tmp_id_rc); 
+            return true;            
         }
     }
     return false;
