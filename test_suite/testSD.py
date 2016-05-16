@@ -53,8 +53,8 @@ class TestCase(unittest.TestCase):
     def test_basic_input(self):
         """Tests for 'Reads_Read' in the output"""
         """super_deduper  -1 fastqFiles/testCase_1X_R1.fastq
-                                       -2 fastqFiles/testCase_1X_R2.fastq
-                                       -F -N"""
+                          -2 fastqFiles/testCase_1X_R2.fastq
+                          -F -N"""
         myR1file = " -1 fastqFiles/testCase_1X_R1.fastq "
         myR2file = "-2 fastqFiles/testCase_1X_R2.fastq "
         additFlags = "-N -F"
@@ -65,8 +65,8 @@ class TestCase(unittest.TestCase):
     def test_specific_output(self):
         """Tests for tab delimited output"""
         """super_deduper  -1 fastqFiles/testCase_1X_R1.fastq
-                                      -2 fastqFiles/testCase_1X_R2.fastq
-                                      -F -N"""
+                          -2 fastqFiles/testCase_1X_R2.fastq
+                          -F -N"""
         myR1file = " -1 fastqFiles/testCase_1X_R1.fastq "
         myR2file = "-2 fastqFiles/testCase_1X_R2.fastq "
         additFlags = "-N -F"
@@ -82,8 +82,8 @@ class TestCase(unittest.TestCase):
     def test_file_compare(self):
         """Tests to compare output file matches expected out"""
         """super_deduper  -1 fastqFiles/testCase_1X_R1.fastq
-                                      -2 fastqFiles/testCase_1X_R2.fastq
-                                      -F -N"""
+                          -2 fastqFiles/testCase_1X_R2.fastq
+                          -F -N"""
         myR1file = " -1 fastqFiles/testCase_1X_R1.fastq "
         myR2file = "-2 fastqFiles/testCase_1X_R2.fastq "
         additFlags = "-F -N"
