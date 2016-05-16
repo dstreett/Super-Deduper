@@ -47,26 +47,25 @@ class TestCase(unittest.TestCase):
         """Should return all fastq files from the sub directories"""
         self.assertEqual(find_fastq_files('fastqFiles', '*.fastq'),
                          ['fastqFiles/testCase_1X_R1.fastq',
-                          'fastqFiles/testCase_1X_R2.fastq'])
+                          'fastqFiles/testCase_1X_R2.fastq'],
+                         "Unable to find test files")
 
     # copy this def to make new command tests
     def test_basic_input(self):
         """Tests for 'Reads_Read' in the output"""
-        """super_deduper  -1 fastqFiles/testCase_1X_R1.fastq
-                          -2 fastqFiles/testCase_1X_R2.fastq
-                          -F -N"""
         myR1file = " -1 fastqFiles/testCase_1X_R1.fastq "
         myR2file = "-2 fastqFiles/testCase_1X_R2.fastq "
         additFlags = "-N -F"
         myShellCmd = "../super_deduper"
         myCommand = myShellCmd + myR1file + myR2file + additFlags
-        self.assertIn("Reads_Read", sub_process(myCommand))
+        self.assertIn("Reads_Read", sub_process(myCommand)
+                      "Expected to see 'Reads_Read' in output"
+                      "super_deduper -1 fastqFiles/testCase_1X_R1.fastq"
+                      "-2 fastqFiles/testCase_1X_R2.fastq"
+                      "-F -N")
 
     def test_specific_output(self):
         """Tests for tab delimited output"""
-        """super_deduper  -1 fastqFiles/testCase_1X_R1.fastq
-                          -2 fastqFiles/testCase_1X_R2.fastq
-                          -F -N"""
         myR1file = " -1 fastqFiles/testCase_1X_R1.fastq "
         myR2file = "-2 fastqFiles/testCase_1X_R2.fastq "
         additFlags = "-N -F"
@@ -77,13 +76,14 @@ class TestCase(unittest.TestCase):
                             "Disqualifed_Reads\tReplacements_Called\t"
                             "Total_Time\n12\t11\t1\t10\t"
                             "1\t0\t0\t0\t0\n")
-        self.assertEqual(sub_process(myCommand), myExpectedOutput)
+        self.assertEqual(sub_process(myCommand), myExpectedOutput,
+                         "Unexpected tab delimited output"
+                         "super_deduper -1 fastqFiles/testCase_1X_R1.fastq"
+                         "-2 fastqFiles/testCase_1X_R2.fastq"
+                         "-F -N")
 
     def test_file_compare(self):
         """Tests to compare output file matches expected out"""
-        """super_deduper  -1 fastqFiles/testCase_1X_R1.fastq
-                          -2 fastqFiles/testCase_1X_R2.fastq
-                          -F -N"""
         myR1file = " -1 fastqFiles/testCase_1X_R1.fastq "
         myR2file = "-2 fastqFiles/testCase_1X_R2.fastq "
         additFlags = "-F -N"
@@ -92,7 +92,11 @@ class TestCase(unittest.TestCase):
         myExpectedFile = "expected_R1.fastq"
         myReturnedFile = "no_dup_R1.fastq"
         self.assertTrue(file_compare(
-            myCommand, myExpectedFile, myReturnedFile))
+            myCommand, myExpectedFile, myReturnedFile),
+            "Files do no match"
+            "super_deduper -1 fastqFiles/testCase_1X_R1.fastq"
+            "-2 fastqFiles/testCase_1X_R2.fastq"
+            "-F -N")
 
     def test_item_from_one_exists_in_two(self):
         """Should return that the first entry in the expected output """
