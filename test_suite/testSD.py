@@ -95,7 +95,7 @@ class TestCase(unittest.TestCase):
             myCommand, myExpectedFile, myReturnedFile))
 
     def test_item_from_one_exists_in_two(self):
-        """Should return that an entry in the expected output """
+        """Should return that the first entry in the expected output """
         """exists in the input"""
         data01 = parse_fastq("expected_R1.fastq")
         data02 = parse_fastq("fastqFiles/testCase_1X_R1.fastq")
