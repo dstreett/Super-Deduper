@@ -51,7 +51,10 @@ class TestCase(unittest.TestCase):
 
     # copy this def to make new command tests
     def test_basic_input(self):
-        """Should return that basic input works"""
+        """Tests for 'Reads_Read' in the output"""
+        """super_deduper  -1 fastqFiles/testCase_1X_R1.fastq
+                                       -2 fastqFiles/testCase_1X_R2.fastq
+                                       -F -N"""
         myR1file = " -1 fastqFiles/testCase_1X_R1.fastq "
         myR2file = "-2 fastqFiles/testCase_1X_R2.fastq "
         additFlags = "-N -F"
@@ -60,7 +63,10 @@ class TestCase(unittest.TestCase):
         self.assertIn("Reads_Read", sub_process(myCommand))
 
     def test_specific_output(self):
-        """Should return a tab delimited out put"""
+        """Tests for tab delimited output"""
+        """super_deduper  -1 fastqFiles/testCase_1X_R1.fastq
+                                      -2 fastqFiles/testCase_1X_R2.fastq
+                                      -F -N"""
         myR1file = " -1 fastqFiles/testCase_1X_R1.fastq "
         myR2file = "-2 fastqFiles/testCase_1X_R2.fastq "
         additFlags = "-N -F"
@@ -74,7 +80,10 @@ class TestCase(unittest.TestCase):
         self.assertEqual(sub_process(myCommand), myExpectedOutput)
 
     def test_file_compare(self):
-        """Should  return that two files match line for line"""
+        """Tests to compare output file matches expected out"""
+        """super_deduper  -1 fastqFiles/testCase_1X_R1.fastq
+                                      -2 fastqFiles/testCase_1X_R2.fastq
+                                      -F -N"""
         myR1file = " -1 fastqFiles/testCase_1X_R1.fastq "
         myR2file = "-2 fastqFiles/testCase_1X_R2.fastq "
         additFlags = "-F -N"
