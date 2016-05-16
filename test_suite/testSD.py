@@ -58,8 +58,8 @@ class TestCase(unittest.TestCase):
         additFlags = "-N -F"
         myShellCmd = "../super_deduper"
         myCommand = myShellCmd + myR1file + myR2file + additFlags
-        self.assertIn("Reads_Read", sub_process(myCommand)
-                      "Expected to see 'Reads_Read' in output"
+        self.assertIn("Reads_Read", sub_process(myCommand),
+                      "Expected to see 'Reads_Read' in output "
                       "super_deduper -1 fastqFiles/testCase_1X_R1.fastq"
                       "-2 fastqFiles/testCase_1X_R2.fastq"
                       "-F -N")
@@ -77,7 +77,7 @@ class TestCase(unittest.TestCase):
                             "Total_Time\n12\t11\t1\t10\t"
                             "1\t0\t0\t0\t0\n")
         self.assertEqual(sub_process(myCommand), myExpectedOutput,
-                         "Unexpected tab delimited output"
+                         "Unexpected tab delimited output "
                          "super_deduper -1 fastqFiles/testCase_1X_R1.fastq"
                          "-2 fastqFiles/testCase_1X_R2.fastq"
                          "-F -N")
@@ -93,7 +93,7 @@ class TestCase(unittest.TestCase):
         myReturnedFile = "no_dup_R1.fastq"
         self.assertTrue(file_compare(
             myCommand, myExpectedFile, myReturnedFile),
-            "Files do no match"
+            "Files do no match "
             "super_deduper -1 fastqFiles/testCase_1X_R1.fastq"
             "-2 fastqFiles/testCase_1X_R2.fastq"
             "-F -N")
@@ -103,7 +103,9 @@ class TestCase(unittest.TestCase):
         """exists in the input"""
         data01 = parse_fastq("expected_R1.fastq")
         data02 = parse_fastq("fastqFiles/testCase_1X_R1.fastq")
-        self.assertTrue(data01.items()[0][0] in data02)
+        self.assertTrue(data01.items()[0][0] in data02,
+				"The first entry was in expected output "
+				"is not found in the testcase")
 
 
 if __name__ == '__main__':
