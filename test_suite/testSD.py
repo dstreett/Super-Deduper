@@ -99,13 +99,12 @@ class TestCase(unittest.TestCase):
             "-F -N")
 
     def test_item_from_one_exists_in_two(self):
-        """Should return that the first entry in the expected output """
-        """exists in the input"""
+        """Tests if the first entry in the expected output is in the input"""
         data01 = parse_fastq("expected_R1.fastq")
         data02 = parse_fastq("fastqFiles/testCase_1X_R1.fastq")
         self.assertTrue(data01.items()[0][0] in data02,
-				"The first entry was in expected output "
-				"is not found in the testcase")
+                        "The first entry was in expected output "
+                        "is not found in the testcase")
 
 
 if __name__ == '__main__':
