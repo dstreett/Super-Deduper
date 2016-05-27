@@ -1,0 +1,3 @@
+[submodule "source/baseclass"]
+	path = source/baseclass
+	url = git@github.com:dstreett/HTSBaseReadWriteClass.git
