@@ -4,8 +4,8 @@
 
 
 void BinarySearchTree::outputStats(FILE *f) {
-    fprintf(f, "Reads_Read\tReads_Written\tReads_Discarded\tSingletons\tDoubles\tThree_Plus\tDisqualifed_Reads\tReplacements_Called\tTotal_Time\n");
-    fprintf(f, "%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%u\n",
+    fprintf(f, "Reads_Read\tReads_Written\tReads_Discarded\tSingletons\tDoubles\tThree_Plus\tDisqualifed_Reads\tReplacements_Called\tReads_Per_Second\tTotal_Time\n");
+    fprintf(f, "%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%f\t%u\n",
                 reads_read,
                     nodesCreated,
                         dup_gone,
@@ -14,6 +14,7 @@ void BinarySearchTree::outputStats(FILE *f) {
                                        threeplus,
                                              disReads,
                                                     replaced,
+                                                       (double)reads_read/(double)((double)time_end-(double)time_start),
                                                        time_end-time_start);
 }
 
@@ -35,10 +36,12 @@ void BinarySearchTree::PrintAndDeletePrivate(Node *n, FileWriter *R1, FileWriter
 
         PrintAndDeletePrivate(n->left, R1, R2, SE); 
         PrintAndDeletePrivate(n->right, R1, R2, SE); 
+     
         /*Only if Fastq file exists*/
         if (R2) {
             /*R1 and R2 printed Normal Fastq format*/
             if (n->R2) {
+
                 R1->writeData(n->R1, NULL, NULL);
                 R2->writeData(n->R2, NULL, NULL);
             } else {
@@ -62,8 +65,8 @@ uint32_t BinarySearchTree::qualSum(char *q) {
     /*Should end on a null character, no tab or newlines*/
     while (q[i] != '\0') {
         /*Allows error checking*/
-        if (q[i] > 'H' || q[i] < '!') {
-            fprintf(stderr, "Quality score is not between ascii [33,72], or [\",H]\n");
+        if (q[i] > '~' || q[i] < '!') {
+            fprintf(stderr, "Quality score is not between ascii [33,126], or [\",~]\n");
             fprintf(stderr, "Bad quality string = %s\n", q);
             fprintf(stderr, "Bad character='%c'\n", q[i]);
             exit(12);
@@ -199,7 +202,6 @@ bool BinarySearchTree::getID(readInfo *R1, readInfo *R2, uint16_t **id) {
         fprintf(stderr, "R1 CANNOT be NULL\n");
         exit(15);
     }
-
 
     /*Single end read*/
     if (R2 == NULL) {

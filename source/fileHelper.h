@@ -1,6 +1,7 @@
 #ifndef SOURCE_FILEHELPER_H_
 #define SOURCE_FILEHELPER_H_
 
+
 #include <iostream>
 #include <string>
 #include <stdio.h>
@@ -9,7 +10,6 @@
 #include <unistd.h>
 
 #include "readInfo.h"
-
 
 #define F_OK 0
 class FileHelper {
@@ -29,6 +29,7 @@ class FileHelper {
         void setTab(bool b) {tab = b;};
         void setInterleaved(bool b) {interleaved = b;};
         void Strip(char *c[]);
+        void Closer();
 
         /*fileHelper for stdin*/
         FileHelper() {
