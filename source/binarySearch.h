@@ -77,14 +77,14 @@ class BinarySearchTree {
         /*Tree Stats*/
         uint32_t time_start;
         uint32_t time_end;
-        uint64_t disReads;
-        uint64_t nodesCreated;
-        uint64_t singletons;
-        uint64_t doubles;
-        uint64_t threeplus;
-        uint64_t replaced;
-        uint64_t reads_read;
-        uint64_t dup_gone;
+        long long unsigned int disReads;
+        long long unsigned int nodesCreated;
+        long long unsigned int singletons;
+        long long unsigned int doubles;
+        long long unsigned int threeplus;
+        long long unsigned int replaced;
+        long long unsigned int reads_read;
+        long long unsigned int dup_gone;
 
         bool qualCheck; 
         
