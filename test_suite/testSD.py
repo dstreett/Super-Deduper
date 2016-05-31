@@ -56,8 +56,7 @@ class TestCase(unittest.TestCase):
     def test_find_fastq_files_recursively(self):
         """Should return all fastq files from the sub directories"""
         self.assertEqual(find_fastq_files('fastqFiles', '*.fastq'),
-                         ['fastqFiles/expected_R1.fastq',
-                          'fastqFiles/testCase_1X_R1.fastq',
+                         ['fastqFiles/testCase_1X_R1.fastq',
                           'fastqFiles/testCase_1X_R2.fastq'],
                          "Unable to find test files")
 
