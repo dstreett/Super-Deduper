@@ -4,8 +4,6 @@ import fnmatch
 import subprocess
 import filecmp
 
-# find all files, output names
-
 
 def find_fastq_files(directory, pattern):
     """Walks the directory structure, appending filenames to an array"""
@@ -77,6 +75,14 @@ class TestCase(unittest.TestCase):
         self.assertIn("@higher_qscore_duplicate_of_read_one",
                       data01['Headers'],
                       "The output does not contain the expected sequence")
+
+    def test_for_reverse_complement(self):
+        """Tests that the reverse complement was removed"""
+        sub_process(self.myCommand)
+        data01 = parse_fastq("no_dup_R1.fastq")
+        self.assertNotIn("@reverse_complement_of_read_one_R1",
+                         data01['Headers'],
+                         "The reverse complement was not removed")
 
 
 if __name__ == '__main__':
