@@ -3,7 +3,6 @@ import os
 import fnmatch
 import subprocess
 import filecmp
-import time
 
 # find all files, output names
 
@@ -19,22 +18,21 @@ def find_fastq_files(directory, pattern):
     filenames.sort()
     return filenames
 
-# basic call to the shell application we are testing
-
 
 def sub_process(command):
+    """Run a shell command """
     return subprocess.check_output(
         command, stderr=subprocess.STDOUT, shell=True)
 
 
 def file_compare(command, expected, returned):
-    # testing expected file output
+    """Use this function to compare two files"""
     subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
     return filecmp.cmp(expected, returned)
 
 
 def parse_fastq(filename):
-    # output the file to a dictionary
+    """Use this function to create a dicionary of the fastq file"""
     with open(filename) as f:
         lines = f.readlines()
     head = [item[:-1] for item in lines[0::4]]
