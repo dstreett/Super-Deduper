@@ -60,7 +60,7 @@ class TestCase(unittest.TestCase):
         """Tests for 'Reads_Read' in the output"""
         self.assertIn("Reads_Read\tReads_Written\tReads_Discarded\t"
                       "Singletons\tDoubles\tThree_Plus\t"
-                      "Disqualifed_Reads\tReplacements_Called\t"
+                      "Disqualifed_Reads\tReplacements_Called\tReads_Per_Second\t"
                       "Total_Time",
                       sub_process(self.myCommand),
                       "Unexpected tab structure "

@@ -22,6 +22,7 @@ class FileWriter {
         bool gzip;
         bool to_stdout;
         bool force;
+        char *fName;
     public:
         FILE *fOut;
         void setGzipped(bool b) {gzip = b;};
@@ -31,6 +32,7 @@ class FileWriter {
         void setInterleaved(bool b);
         void setStdout(bool b);
         void setTab(bool b);
+        void Closer();
 
 
         FileWriter(bool force);
