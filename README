@@ -16,3 +16,15 @@
 --to-stdout, -O Prints to STDOUT in Tab Delimited
 --prefix, -P Prefix for outputted files
 --help, -h Prints help.
+
+Test Suite
+------
+The test cases currently check;
+1.  Do the test files exist in `fastqFiles `
+2.  Is there tab-delimited output
+3.  Does Super-Deduper keep the duplicate with the higher q-score
+4.  Does Super-Deduper recognize reverse complements
+
+
+
+
