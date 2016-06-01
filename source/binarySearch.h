@@ -142,7 +142,7 @@ class BinarySearchTree {
         void AddNode(readInfo *R1_, readInfo *R2_);
         /*set the length to be 3 (for 3 bit format) * length specified / 16 (num of bits) + 1 (allocate the correct amount) *
          * 16 bits for each (sizeof)*/
-        void setLength(uint16_t i) {mallocLength = ((2*i/16)+1) * sizeof(uint16_t); charLength = i;};
+        void setLength(uint16_t i) {mallocLength = ((2*i/16)+1) * sizeof(uint16_t) * 2; charLength = i;};
         /*converts human value to correct position in zero start array*/
         void setStart(uint16_t i) {start = i - 1;};
         void setQualCheck(bool b) {qualCheck = b;};
