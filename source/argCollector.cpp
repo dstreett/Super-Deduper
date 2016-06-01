@@ -21,12 +21,12 @@ argCollector::argCollector(int argc, char *argv[]) {
         -F, --force              Forces overwrite of files\n\
         -t, --tab-output         Tab-delimited output\n\
         -O, --to-stdout          Prints to STDOUT in Tab Delimited\n\
-        -P, --prefix             Prefix for outputted files\n\
+        -p, --prefix             Prefix for outputted files\n\
         -L, --log-file           Output-Logfile\n\
         -N, --no-log             No logfile <outputs to stderr>\n\
         -h, --help               Prints help.\n";
 
-    /*Initilize Values*/ 
+    /*Initilize Values*/
     R1_In = NULL;
     R2_In = NULL;
     SE_In = NULL;
@@ -39,8 +39,8 @@ argCollector::argCollector(int argc, char *argv[]) {
     log = NULL;
 
     bpWindowSize = 12;
-    startLoc = 10; 
-    
+    startLoc = 10;
+
     int long_index;
     int cmd_line_char;
     extern char *optarg;
@@ -163,14 +163,14 @@ argCollector::argCollector(int argc, char *argv[]) {
             default:
                 fprintf(stderr, "This argument is no good %c\n Bad argument :( Exiting\n", cmd_line_char);
                 exit(5);
-           }  
+           }
     }
 
     if (force || access(tmplog, F_OK) == -1) {
         if (log == NULL) {
             log = fopen(tmplog, "w");
             if (log == NULL) {
-                 
+
                 fprintf(stderr, "Within argCollecter.cpp in argCollector() tmpLog open error.\n");
                 fprintf(stderr, "Error with opening file %s\n", tmplog);
                 exit(29);
@@ -181,7 +181,7 @@ argCollector::argCollector(int argc, char *argv[]) {
         fprintf(stderr, "Please, use -F option (force overwrite), -L to change the name, or manually remove or move %s\n", tmplog);
         exit(28);
     }
-       
+
 
     if (!R1_In && !R2_In && !SE_In && !TAB_In && !INTER_In && !STDIN_In) {
         fprintf(stderr, "Within argCollector.cpp argCollector(). Error: No input files given\n");
@@ -208,7 +208,7 @@ argCollector::argCollector(int argc, char *argv[]) {
         char *r1 = (char *)malloc(strlen(prefix)+strlen("_tab.tastq")+1);
         sprintf(r1, "%s_tab.tastq", prefix);
 
-        /*Spins of file writer*/  
+        /*Spins of file writer*/
         R1_Out = new FileWriter(force);
         R1_Out->OpenFile(r1);
         R1_Out->setTab(true);
@@ -227,7 +227,7 @@ argCollector::argCollector(int argc, char *argv[]) {
         R1_Out->setForce(force);
 
         R2_Out = NULL;
-        
+
         /*SE read MIGHT need to be used if Tab input or SE input*/
         if (SE_In || TAB_In || STDIN_In) {
             char *se = (char *)malloc(strlen(prefix)+strlen("_SE.fastq")+1);
@@ -276,7 +276,7 @@ argCollector::argCollector(int argc, char *argv[]) {
 
 
         R2_Out = NULL;
-        SE_Out = NULL;        
+        SE_Out = NULL;
     }
 
 
