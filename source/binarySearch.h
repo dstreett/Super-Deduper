@@ -144,7 +144,7 @@ class BinarySearchTree {
          * 16 bits for each (sizeof)*/
         void setLength(uint16_t i) {mallocLength = ((2*i/16)+1) * sizeof(uint16_t); charLength = i;};
         /*converts human value to correct position in zero start array*/
-        void setStart(uint16_t i) {start = i;};
+        void setStart(uint16_t i) {start = i - 1;};
         void setQualCheck(bool b) {qualCheck = b;};
         void PrintAndDelete(FileWriter *R1, FileWriter *R2, FileWriter *SE);
         void endTime() {time_end = time(0);};
