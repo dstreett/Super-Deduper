@@ -153,16 +153,22 @@ bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id, 
     if (seq_2 == NULL) {
         seq = (char *)malloc(sizeof(char) * charLength + 1);
         sprintf(seq, "%.*s", charLength, seq_1 + start);
-    } else {
+    } 
+    else if (RC) {
+        seq = (char *)malloc(sizeof(char) * charLength * 2 + 1 );
+        sprintf(seq, "%.*s%.*s", charLength, seq_2 + start, charLength, seq_1 + start);
+    }
+    else {
         seq = (char *)malloc(sizeof(char) * charLength * 2 + 1 );
         sprintf(seq, "%.*s%.*s", charLength, seq_1 + start, charLength, seq_2 + start);
+
     }
 
-
+/*
     if (RC) {
         RC_Read(&seq);
     }
-
+*/
 
     uint16_t loc = 0;
 
