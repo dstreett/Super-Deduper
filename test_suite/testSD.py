@@ -45,7 +45,7 @@ class TestCase(unittest.TestCase):
         """Setup any thing used in muliple tests"""
         myR1file = " -1 fastqFiles/testCase_1X_R1.fastq "
         myR2file = " -2 fastqFiles/testCase_1X_R2.fastq "
-        additFlags = "-N -F"
+        additFlags = "-s 10 -l 10 -N -F"
         myShellCmd = "../super_deduper"
         self.myCommand = myShellCmd + myR1file + myR2file + additFlags
 
@@ -76,7 +76,6 @@ class TestCase(unittest.TestCase):
                       data01['Headers'],
                       "The output does not contain the expected sequence")
 
-    @unittest.skip("Reverse Compliment not supported yet")
     def test_for_reverse_complement(self):
         """Tests that the reverse complement was removed"""
         sub_process(self.myCommand)
