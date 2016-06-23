@@ -15,5 +15,7 @@
 .PHONY: clean default install build distclean debug
 pyScript=testSD.py
 test:
-		python $(pyScript) 
+	python $(pyScript) 
+	rm -f no_dup* sd.log
+
 
