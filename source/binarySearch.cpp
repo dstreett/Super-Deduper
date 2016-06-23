@@ -41,7 +41,6 @@ void BinarySearchTree::PrintAndDeletePrivate(Node *n, FileWriter *R1, FileWriter
         if (R2) {
             /*R1 and R2 printed Normal Fastq format*/
             if (n->R2) {
-
                 R1->writeData(n->R1, NULL, NULL);
                 R2->writeData(n->R2, NULL, NULL);
             } else {
@@ -79,56 +78,116 @@ uint32_t BinarySearchTree::qualSum(char *q) {
     return score;
 }
 
-/*Flip bits functionality for character string*/
-bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id) {
 
-    uint16_t loc = start;
+
+
+
+
+bool BinarySearchTree::FlipBitsCheck(char *seq, bool r2) {
+    /*Another error check for the humans*/
+    if (strlen(seq) < start+charLength) {
+        fprintf(stderr, "Error within binarySearch.cpp in funciton FlipBitsChars() strlen of %s larger than start + length\n", r2 ? "R2" : "R1");
+        fprintf(stderr, "String Len = %lu, start = %d, length = %d\n", strlen(seq), start, charLength);
+        disReads++;
+        return false;
+    }
+
+    return true;
+
+}
+
+
+char RC_BP(char bp) {
+    if (bp == 'N') {
+        return 'N';
+    } else if (bp == 'A') {
+        return 'T';
+    } else if (bp == 'T') {
+        return 'A';
+    } else if (bp == 'G') {
+        return 'C';
+    } else if (bp == 'C') {
+        return 'G';
+    } else {
+        return '\0';
+    }
+}
+
+void RC_Read(char **seq) {
+    char *new_seq = strdup(*seq);
+    int len = strlen(*seq);
+    int i = 0;
+    while ((*seq)[i] != '\0') {
+        (*seq)[(len - 1) - i] = RC_BP(new_seq[i]);
+        if ((*seq)[(len -1) - i] == '\0') {
+            fprintf(stderr, "ERROR in RC_Read in binarySearch.cpp, Illegal char in %s\n", *seq);
+            exit(42);
+        }
+        i++;
+    }
+    free(new_seq);
+}
+
+
+
+/*Flip bits functionality for character string*/
+bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id, bool RC) {
+
     char *seq_1, *seq_2;
     
     /*Incementor for id array*/
     uint16_t idLoc = 0, bitShifts = 0;
 
     seq_1 = R1->getSeq();
+    if (!(FlipBitsCheck(seq_1, false))) { return false; }
 
     if (R2) {
         seq_2 = R2->getSeq();
+        if (!(FlipBitsCheck(seq_2, true))) { return false; }
     } else {
         seq_2 = NULL;
     }
+    
+    char *seq;
 
+    if (seq_2 == NULL) {
+        seq = (char *)malloc(sizeof(char) * charLength + 1);
+        sprintf(seq, "%.*s", charLength, seq_1 + start);
+    } 
+    else if (RC) {
+        seq = (char *)malloc(sizeof(char) * charLength * 2 + 1 );
+        sprintf(seq, "%.*s%.*s", charLength, seq_2 + start, charLength, seq_1 + start);
+    }
+    else {
+        seq = (char *)malloc(sizeof(char) * charLength * 2 + 1 );
+        sprintf(seq, "%.*s%.*s", charLength, seq_1 + start, charLength, seq_2 + start);
 
-    /*Another error check for the humans*/
-    if (strlen(seq_1) < start+charLength) {
-        fprintf(stderr, "Error within binarySearch.cpp in funciton FlipBitsChars() strlen of R1 larger than start + length\n");
-        fprintf(stderr, "String Len = %lu, start = %d, length = %d\n", strlen(seq_1), start, charLength);
-        disReads++;
-        return false;
     }
 
-    char *seq = seq_1;
-    
-    while (loc < start+charLength) {
-        uint16_t tmp;
-        if (seq[loc] == 'A') {
-            tmp = A;
-        } else if (seq[loc] == 'T') {
-            tmp = T;
-        } else if (seq[loc] == 'G') {
-            tmp = G;
-        } else if (seq[loc] == 'C') {
-            tmp = C;
-        } else if (seq[loc] == 'N') {
+/*
+    if (RC) {
+        RC_Read(&seq);
+    }
+*/
+
+    uint16_t loc = 0;
+
+    (*id)[0] = 0;
+
+    while (seq[loc] != '\0') {
+        uint16_t bit_1, bit_2;
+        
+        if (seq[loc] == 'N') {
             disReads++;
             return false;
-        } else {
-            fprintf(stderr, "In binarySearch.cpp in funciton FlipBitsChar() Bad character in R1\n");
-            fprintf(stderr,"Bad character string = %s Bad Char = %c\n", seq, seq[loc]);
-            exit(27);
         }
-
-        (*id)[idLoc] ^= (tmp << bitShifts);
         
-        bitShifts += 2;
+        bit_1 = !!((seq[loc] + 10) & (1 << 2));
+        bit_2= !!((seq[loc] + 10) & (1 << 4));
+        (*id)[idLoc] ^= (bit_1 << bitShifts);
+        bitShifts++;
+        (*id)[idLoc] ^= (bit_2 << bitShifts);
+        bitShifts++;
 
         if (bitShifts == 16) {
             bitShifts = 0;
@@ -137,53 +196,9 @@ bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id) 
         }
         loc++;
     }
-    /*Bit flips for the R2 if needed*/
-    if (R2 == NULL) {
-    /*This is totally fine, SE reads*/
-    } else {
-        loc = start;
-        if (strlen(seq_1) < start+charLength) {
-            fprintf(stderr, "Error within binarySearch.cpp in funciton FlipBitsChars() strlen of R2 larger than start + length\n");
-            fprintf(stderr, "String Len = %lu, start = %d, length = %d\n", strlen(seq_1), start, charLength);
-            disReads++;
-            return false;
-        }
-        
-        char *seq = seq_2;
-
-        while (loc < start+charLength) {
-            uint16_t tmp;
-            if (seq[loc] == 'A') {
-                tmp = A;
-            } else if (seq[loc] == 'T') {
-                tmp = T;
-            } else if (seq[loc] == 'G') {
-                tmp = G;
-            } else if (seq[loc] == 'C') {
-                tmp = C;
-            } else if (seq[loc] == 'N') {
-                disReads++;
-                return false;
-            } else {
-                fprintf(stderr, "In binarySearch.cpp in funciton FlipBitsChar() Bad character in R2\n");
-                fprintf(stderr,"Bad character string = %s Bad Char = %c\n", seq, seq[loc]);
-                exit(26);
-            }
-
-            (*id)[idLoc] ^= (tmp << bitShifts);
-            
-            bitShifts += 2;
-
-            if (bitShifts == 16) {
-                bitShifts = 0;
-                idLoc++;
-                (*id)[idLoc] = 0;
-            }
-            loc++;
-        }
-    }
 
     idLoc++;
+
     for (int i = idLoc; i < mallocLength; i++) {
         (*id)[i] = 0;
     }
@@ -191,6 +206,7 @@ bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id) 
     return true;
 
 }
+
 
 
 /*this one will allocate memory, that is why i'm not return a uint16 * and passing it by ref*/
@@ -203,14 +219,10 @@ bool BinarySearchTree::getID(readInfo *R1, readInfo *R2, uint16_t **id) {
         exit(15);
     }
 
-    /*Single end read*/
-    if (R2 == NULL) {
-        (*id) = (uint16_t *)malloc(mallocLength);
-    } else {
-        /*Lenght for both read 1 and two*/
-        (*id) = (uint16_t *)malloc(mallocLength*2);
-    }
+    (*id) = (uint16_t *)malloc(mallocLength);
 
+    uint16_t *tmp_id = (uint16_t *)malloc(mallocLength);
+    uint16_t *tmp_id_rc = (uint16_t *)malloc(mallocLength);
 
 
     /*Not funcitonal yet*/
@@ -218,7 +230,19 @@ bool BinarySearchTree::getID(readInfo *R1, readInfo *R2, uint16_t **id) {
         fprintf(stderr, "Optimizmations no funciotnal yet\n");
         exit(-1);
     } else {
-        return FlipBitsChars(R1, R2, id);
+        if (FlipBitsChars(R1, R2, &tmp_id, false) && FlipBitsChars(R1, R2, &tmp_id_rc, true)) {
+            if (GreaterThan(tmp_id, tmp_id_rc) > 0) {
+                (*id) = tmp_id;
+                free(tmp_id_rc);
+            } else {
+                (*id) = tmp_id_rc;
+                free(tmp_id);
+            }
+            //printStuff(tmp_id, mallocLength);
+            //printStuff(tmp_id_rc, mallocLength);
+            /*Add Greater Than*/
+            return true;            
+        }
     }
     return false;
 }
@@ -261,7 +285,7 @@ void BinarySearchTree::PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, ui
     /*Nodes are equal*/
     } else {
         /*Makes sure that single ends are kept track of*/
-
+        
         if ((!R2_ && ((*n)->single)) || (R2_ && !(*n)->single)) {
             (*n)->count++;
             dup_gone++;

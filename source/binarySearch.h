@@ -77,14 +77,14 @@ class BinarySearchTree {
         /*Tree Stats*/
         uint32_t time_start;
         uint32_t time_end;
-        uint64_t disReads;
-        uint64_t nodesCreated;
-        uint64_t singletons;
-        uint64_t doubles;
-        uint64_t threeplus;
-        uint64_t replaced;
-        uint64_t reads_read;
-        uint64_t dup_gone;
+        long long unsigned int disReads;
+        long long unsigned int nodesCreated;
+        long long unsigned int singletons;
+        long long unsigned int doubles;
+        long long unsigned int threeplus;
+        long long unsigned int replaced;
+        long long unsigned int reads_read;
+        long long unsigned int dup_gone;
 
         bool qualCheck; 
         
@@ -97,10 +97,12 @@ class BinarySearchTree {
         
 
         bool getID(readInfo *R1, readInfo *R2, uint16_t **id);
-        bool FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id);
+        bool FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id, bool RC);
         int GreaterThan(uint16_t *test, uint16_t *value);
         void PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, uint16_t *id, uint32_t qualScore);
         void PrintAndDeletePrivate(Node *n, FileWriter *R1, FileWriter *R2, FileWriter *SE);
+        bool FlipBitsCheck(char *seq, bool r2);
+
     public:
 
 
@@ -112,7 +114,7 @@ class BinarySearchTree {
             /*Defaults*/
             qualCheck = true;
             /*Default values*/
-            setStart(9);
+            setStart(10);
             setLength(12);
             
             
@@ -141,17 +143,15 @@ class BinarySearchTree {
         void AddNode(readInfo *R1_, readInfo *R2_);
         /*set the length to be 3 (for 3 bit format) * length specified / 16 (num of bits) + 1 (allocate the correct amount) *
          * 16 bits for each (sizeof)*/
-        void setLength(uint16_t i) {mallocLength = ((2*i)/16 + 1) * sizeof(uint16_t) * 2; charLength = i;};
+        void setLength(uint16_t i) {mallocLength = ((2*i/16)+1) * sizeof(uint16_t) * 2; charLength = i;};
         /*converts human value to correct position in zero start array*/
-        void setStart(uint16_t i) {start = i;};
+        void setStart(uint16_t i) {start = i - 1;};
         void setQualCheck(bool b) {qualCheck = b;};
         void PrintAndDelete(FileWriter *R1, FileWriter *R2, FileWriter *SE);
         void endTime() {time_end = time(0);};
         
         /*Must be called after PrintAndDelete*/
         void outputStats(FILE *f);
-
-
 
 };
 
