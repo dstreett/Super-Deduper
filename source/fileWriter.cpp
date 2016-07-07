@@ -14,6 +14,7 @@ void FileWriter::setTab(bool b) {
     } else {
         fprintf(stderr, "Within fileWriter.cpp setTab() - stdout, fastq, or interleaved all ready set\n");
         fprintf(stderr, "Please, only set one type of output, either fastq, interleaved, tab, or stdout (stdout is always tab)\n");
+        fprintf(stderr, "setTab: fastq=%i interleaved=%i\n", fastq, interleaved);
         exit(24);
     }
 
@@ -61,16 +62,17 @@ void FileWriter::setStdout (bool b) {
 
 FileWriter::FileWriter(bool force) {
     setForce(force);
-    
+
     fOut = NULL;
+    tab = false;
+    fastq = false;
+    interleaved = false;
+    to_stdout = false;
 }
 
 
-
-
-
 void FileWriter::OpenFile(char *fName_) {
-    
+
     if (to_stdout) {
         fOut = stdout;
         setFastq(false);
@@ -132,7 +134,7 @@ void FileWriter::writeData(readInfo *R1, readInfo *R2, readInfo *R3) {
         }
         /*Temparary for R1, R2, or R3*/
         readInfo *tmp ;
-        
+
         /*Eventually we could have different header data*/
         if (R1) {
             tmp = R1;
@@ -159,7 +161,7 @@ void FileWriter::writeData(readInfo *R1, readInfo *R2, readInfo *R3) {
         }
     }
 
-        
+
 
 
 
