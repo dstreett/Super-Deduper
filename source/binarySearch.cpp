@@ -4,18 +4,23 @@
 
 
 void BinarySearchTree::outputStats(FILE *f) {
-    fprintf(f, "Reads_Read\tReads_Written\tReads_Discarded\tSingletons\tDoubles\tThree_Plus\tDisqualifed_Reads\tReplacements_Called\tReads_Per_Second\tTotal_Time\n");
-    fprintf(f, "%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%llu\t%f\t%u\n",
-                reads_read,
-                    nodesCreated,
-                        dup_gone,
-                           singletons,
-                                 doubles,
-                                       threeplus,
-                                             disReads,
-                                                    replaced,
-                                                       (double)reads_read/(double)((double)time_end-(double)time_start),
-                                                       time_end-time_start);
+
+    const char *print_names[10] = {"Reads", "Written", "Discarded", "Singletons", "Doubles", "Three_Plus", "Disqualified", \
+                                    "Replacements", "Reads/Sec", "Total_Time(s)"};
+    
+    long long unsigned int print_values[8] = {reads_read, nodesCreated, dup_gone, singletons, doubles, threeplus, disReads, replaced};
+    
+    for (int i = 0; i < 10; i++)
+    {
+        fprintf(f, "%11s\t", print_names[i]);
+    }
+    fprintf(f, "\n");
+    for (int i = 0; i < 8; i++)
+    {
+        fprintf(f, "%11u\t", print_values[i]);
+    }
+    fprintf(f, "%11.0f\t %11u \n", (double)reads_read/(double)((double)time_end-(double)time_start), time_end-time_start);
+
 }
 
 
