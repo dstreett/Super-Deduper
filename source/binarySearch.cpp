@@ -276,7 +276,7 @@ int BinarySearchTree::GreaterThan(uint16_t *test, uint16_t *value) {
 /*Recursive function to add Node*/
 void BinarySearchTree::PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, uint16_t *id, uint32_t qualScore ) {
     /*Add Node condition*/
-    int tmpValue;
+    int tmpValue = 0;
     if ((*n) == NULL) {
         nodesCreated++;
         (*n) = new Node(R1_, R2_, id, qualScore);
