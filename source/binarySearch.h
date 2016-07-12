@@ -1,9 +1,10 @@
 #ifndef SOURCE_BINARYSEARCHTREE_H_
 #define SOURCE_BINARYSEARCHTREE_H_
-
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+//#include <stdint.h>
 #include <time.h>
 #include <string.h>
 

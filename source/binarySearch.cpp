@@ -17,7 +17,7 @@ void BinarySearchTree::outputStats(FILE *f) {
     fprintf(f, "\n");
     for (int i = 0; i < 8; i++)
     {
-        fprintf(f, "%11u\t", print_values[i]);
+        fprintf(f, "%11" PRIu64"\t", print_values[i]);
     }
     fprintf(f, "%11.0f\t %11u \n", (double)reads_read/(double)((double)time_end-(double)time_start), time_end-time_start);
 
