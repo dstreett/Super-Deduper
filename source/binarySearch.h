@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <time.h>
+#include <string.h>
 
 
 #include "readInfo.h"
@@ -77,14 +78,14 @@ class BinarySearchTree {
         /*Tree Stats*/
         uint32_t time_start;
         uint32_t time_end;
-        long long unsigned int disReads;
-        long long unsigned int nodesCreated;
-        long long unsigned int singletons;
-        long long unsigned int doubles;
-        long long unsigned int threeplus;
-        long long unsigned int replaced;
-        long long unsigned int reads_read;
-        long long unsigned int dup_gone;
+        uint64_t disReads;
+        uint64_t nodesCreated;
+        uint64_t singletons;
+        uint64_t doubles;
+        uint64_t threeplus;
+        uint64_t replaced;
+        uint64_t reads_read;
+        uint64_t dup_gone;
 
         bool qualCheck; 
         
@@ -102,6 +103,7 @@ class BinarySearchTree {
         void PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, uint16_t *id, uint32_t qualScore);
         void PrintAndDeletePrivate(Node *n, FileWriter *R1, FileWriter *R2, FileWriter *SE);
         bool FlipBitsCheck(char *seq, bool r2);
+        
 
     public:
 
@@ -154,8 +156,6 @@ class BinarySearchTree {
         void outputStats(FILE *f);
 
 };
-
-
 
 
 

@@ -8,7 +8,7 @@ void BinarySearchTree::outputStats(FILE *f) {
     const char *print_names[10] = {"Reads", "Written", "Discarded", "Singletons", "Doubles", "Three_Plus", "Disqualified", \
                                     "Replacements", "Reads/Sec", "Total_Time(s)"};
     
-    long long unsigned int print_values[8] = {reads_read, nodesCreated, dup_gone, singletons, doubles, threeplus, disReads, replaced};
+    uint64_t print_values[8] = {reads_read, nodesCreated, dup_gone, singletons, doubles, threeplus, disReads, replaced};
     
     for (int i = 0; i < 10; i++)
     {

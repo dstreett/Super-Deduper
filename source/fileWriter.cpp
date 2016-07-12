@@ -133,7 +133,7 @@ void FileWriter::writeData(readInfo *R1, readInfo *R2, readInfo *R3) {
             fprintf(stderr, "Fastq format only takes one read at a time to write\n");
         }
         /*Temparary for R1, R2, or R3*/
-        readInfo *tmp ;
+        readInfo *tmp = NULL;
 
         /*Eventually we could have different header data*/
         if (R1) {

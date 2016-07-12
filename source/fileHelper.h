@@ -12,6 +12,7 @@
 #include "readInfo.h"
 
 #define F_OK 0
+
 class FileHelper {
     
     private:
@@ -38,6 +39,7 @@ class FileHelper {
             fastq = false;
             opt_reads = false;
             files = (FILE **)malloc(1*sizeof(FILE *));
+
             fileCount = 1;
             currentFile = 0;
             files[0] = stdin;    
