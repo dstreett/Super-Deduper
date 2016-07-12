@@ -21,7 +21,7 @@ class BinarySearchTree {
                 /*Search pointers for the bst*/
                 Node *left;
                 Node *right;
-                
+
 
                 /*Contains read info, it will either have R1, or both R1 and R2*/
                 readInfo *R1;
@@ -30,12 +30,13 @@ class BinarySearchTree {
                 /*ID is the key for the BST*/
                 uint16_t *id;
 
+
                 /*If quality checking is off, qualScore is zero*/
                 uint32_t qualScore;
                 uint16_t count;
 
                 bool single;
-                
+
                 /*This is the only constructor needed, the only reason to create is to have reads within each node*/
                 Node (readInfo *R1_, readInfo *R2_, uint16_t *id_, uint32_t qualScore_) {
                     left = NULL;
@@ -67,14 +68,14 @@ class BinarySearchTree {
                     R1 = R1_;
                     R2 = R2_;
                     qualScore = qualScore_;
-                } 
+                }
         };
         /*A, T, G, C binary mapped to values*/
         uint8_t A;
         uint8_t T;
         uint8_t G ;
         uint8_t C;
-       
+
 
         /*Tree Stats*/
         uint32_t time_start;
@@ -88,15 +89,15 @@ class BinarySearchTree {
         uint64_t reads_read;
         uint64_t dup_gone;
 
-        bool qualCheck; 
-        
-        
+        bool qualCheck;
+
+
         Node *root;
 
 
         uint32_t qualSum(char *q);
         uint16_t charLength, mallocLength, start;
-        
+
 
         bool getID(readInfo *R1, readInfo *R2, uint16_t **id);
         bool FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id, bool RC);
@@ -104,7 +105,7 @@ class BinarySearchTree {
         void PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, uint16_t *id, uint32_t qualScore);
         void PrintAndDeletePrivate(Node *n, FileWriter *R1, FileWriter *R2, FileWriter *SE);
         bool FlipBitsCheck(char *seq, bool r2);
-        
+
 
     public:
 
@@ -119,9 +120,9 @@ class BinarySearchTree {
             /*Default values*/
             setStart(10);
             setLength(12);
-            
-            
-            
+
+
+
             /*Stats zero out*/
             nodesCreated = 0;
             singletons = 0;
@@ -129,10 +130,10 @@ class BinarySearchTree {
             threeplus = 0;
             replaced = 0;
             disReads = 0;
-            reads_read = 0;    
+            reads_read = 0;
             dup_gone = 0;
 
-            /*00*/ 
+            /*00*/
             A = 0;
             /*11*/
             T = 3;
@@ -152,7 +153,7 @@ class BinarySearchTree {
         void setQualCheck(bool b) {qualCheck = b;};
         void PrintAndDelete(FileWriter *R1, FileWriter *R2, FileWriter *SE);
         void endTime() {time_end = time(0);};
-        
+
         /*Must be called after PrintAndDelete*/
         void outputStats(FILE *f);
 
@@ -163,4 +164,3 @@ class BinarySearchTree {
 
 
 #endif
-

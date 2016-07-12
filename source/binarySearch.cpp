@@ -7,9 +7,9 @@ void BinarySearchTree::outputStats(FILE *f) {
 
     const char *print_names[10] = {"Reads", "Written", "Discarded", "Singletons", "Doubles", "Three_Plus", "Disqualified", \
                                     "Replacements", "Reads/Sec", "Total_Time(s)"};
-    
+
     uint64_t print_values[8] = {reads_read, nodesCreated, dup_gone, singletons, doubles, threeplus, disReads, replaced};
-    
+
     for (int i = 0; i < 10; i++)
     {
         fprintf(f, "%11s\t", print_names[i]);
@@ -39,9 +39,9 @@ void BinarySearchTree::PrintAndDeletePrivate(Node *n, FileWriter *R1, FileWriter
            threeplus++;
         }
 
-        PrintAndDeletePrivate(n->left, R1, R2, SE); 
-        PrintAndDeletePrivate(n->right, R1, R2, SE); 
-     
+        PrintAndDeletePrivate(n->left, R1, R2, SE);
+        PrintAndDeletePrivate(n->right, R1, R2, SE);
+
         /*Only if Fastq file exists*/
         if (R2) {
             /*R1 and R2 printed Normal Fastq format*/
@@ -57,7 +57,7 @@ void BinarySearchTree::PrintAndDeletePrivate(Node *n, FileWriter *R1, FileWriter
             } else {
                 SE->writeData(n->R1, NULL , NULL);
             }
-            
+
         }
     }
 }
@@ -137,9 +137,8 @@ void RC_Read(char **seq) {
 
 /*Flip bits functionality for character string*/
 bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id, bool RC) {
-
     char *seq_1, *seq_2;
-    
+
     /*Incementor for id array*/
     uint16_t idLoc = 0, bitShifts = 0;
 
@@ -152,13 +151,13 @@ bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id, 
     } else {
         seq_2 = NULL;
     }
-    
+
     char *seq;
 
     if (seq_2 == NULL) {
         seq = (char *)malloc(sizeof(char) * charLength + 1);
         sprintf(seq, "%.*s", charLength, seq_1 + start);
-    } 
+    }
     else if (RC) {
         seq = (char *)malloc(sizeof(char) * charLength * 2 + 1 );
         sprintf(seq, "%.*s%.*s", charLength, seq_2 + start, charLength, seq_1 + start);
@@ -181,12 +180,12 @@ bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id, 
 
     while (seq[loc] != '\0') {
         uint16_t bit_1, bit_2;
-        
+
         if (seq[loc] == 'N') {
             disReads++;
             return false;
         }
-        
+
         bit_1 = !!((seq[loc] + 10) & (1 << 2));
         bit_2= !!((seq[loc] + 10) & (1 << 4));
         (*id)[idLoc] ^= (bit_1 << bitShifts);
@@ -246,7 +245,7 @@ bool BinarySearchTree::getID(readInfo *R1, readInfo *R2, uint16_t **id) {
             //printStuff(tmp_id, mallocLength);
             //printStuff(tmp_id_rc, mallocLength);
             /*Add Greater Than*/
-            return true;            
+            return true;
         }
     }
     return false;
@@ -290,7 +289,7 @@ void BinarySearchTree::PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, ui
     /*Nodes are equal*/
     } else {
         /*Makes sure that single ends are kept track of*/
-        
+
         if ((!R2_ && ((*n)->single)) || (R2_ && !(*n)->single)) {
             (*n)->count++;
             dup_gone++;
@@ -310,7 +309,7 @@ void BinarySearchTree::PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, ui
         }
     }
 
-} 
+}
 void BinarySearchTree::AddNode(readInfo *R1_, readInfo *R2_) {
 
     uint16_t *id;
@@ -321,10 +320,10 @@ void BinarySearchTree::AddNode(readInfo *R1_, readInfo *R2_) {
     if (!getID(R1_, R2_, &id)) {
         disReads++;
         return;
-    } 
+    }
     /*R1 will never be null, but checking incase something goes horriblely wrong*/
     if (R1_ != NULL) {
-        if (qualCheck) { 
+        if (qualCheck) {
             qualScore += qualSum((R1_)->getQual());
         }
     } else {
