@@ -224,7 +224,7 @@ bool BinarySearchTree::getID(readInfo *R1, readInfo *R2, uint16_t **id) {
         exit(15);
     }
 
-    (*id) = (uint16_t *)malloc(mallocLength);
+    //(*id) = (uint16_t *)malloc(mallocLength);
 
     uint16_t *tmp_id = (uint16_t *)malloc(mallocLength);
     uint16_t *tmp_id_rc = (uint16_t *)malloc(mallocLength);
