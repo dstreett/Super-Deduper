@@ -4,3 +4,6 @@
 *.fasta
 *.swp
 super_deduper
+.cproject
+.project
+.settings/
