@@ -21,4 +21,4 @@ debug:
 	g++ $(SDIR)main.cpp $(SDIR)fileHelper.cpp $(SDIR)readInfo.cpp $(SDIR)argCollector.cpp $(SDIR)fileWriter.cpp $(SDIR)binarySearch.cpp -ggdb -o $(NAME)
 
 valgrind:
-	valgrind ./super_deduper -F -1 /bio/Super-Deduper/test_suite/fastqFiles/testCase_1X_R1.fastq -2 /bio/Super-Deduper/test_suite/fastqFiles/testCase_1X_R1.fastq -O
+	valgrind ./super_deduper -F -1 ./test_suite/fastqFiles/testCase_1X_R1.fastq -2 ./test_suite/fastqFiles/testCase_1X_R1.fastq -O
