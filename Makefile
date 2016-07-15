@@ -16,3 +16,6 @@ test:
 
 clean:
 	rm super_deduper
+
+debug:
+	g++ $(SDIR)main.cpp $(SDIR)fileHelper.cpp $(SDIR)readInfo.cpp $(SDIR)argCollector.cpp $(SDIR)fileWriter.cpp $(SDIR)binarySearch.cpp -ggdb -o $(NAME)

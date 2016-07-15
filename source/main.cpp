@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
 	if (args->R1_In && args->R2_In) {
 		FileHelper *R1 = args->R1_In;
 		FileHelper *R2 = args->R2_In;
-		readInfo *r1, *r2;
+		readInfo *r1 = 0, *r2 = 0;
 
 		/*Yeah, I hate this too, I did try and do while((r1 = R1-readData) != NULL && (r2 = R2->readData....
 		 * however, it would check the R1->getData, receive NULL, and then exit if statment
@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
 
 	if (args->SE_In) {
 		FileHelper *SE = args->SE_In;
-		readInfo *se;
+		readInfo *se = 0;
 
 		while(1) {
 			SE->readData(&se);

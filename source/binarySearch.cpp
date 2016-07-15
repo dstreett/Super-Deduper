@@ -209,7 +209,7 @@ bool BinarySearchTree::getID(readInfo *R1, readInfo *R2, uint16_t **id) {
 		exit(15);
 	}
 
-	(*id) = (uint16_t *)malloc(mallocLength);
+	//(*id) = (uint16_t *)malloc(mallocLength);
 
 	uint16_t *tmp_id = (uint16_t *)malloc(mallocLength);
 	uint16_t *tmp_id_rc = (uint16_t *)malloc(mallocLength);
@@ -258,14 +258,17 @@ int BinarySearchTree::GreaterThan(uint16_t *test, uint16_t *value) {
 /*Recursive function to add Node*/
 void BinarySearchTree::PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, uint16_t *id, uint32_t qualScore ) {
 	/*Add Node condition*/
-	int tmpValue;
+	int tmpValue = 0;
 	if ((*n) == NULL) {
 		nodesCreated++;
 		(*n) = new Node(R1_, R2_, id, qualScore);
 
 		(*n)->count = 1;
 		return;
-	} else if ((tmpValue = GreaterThan(id, (*n)->id)) == 1) {
+	}
+
+	tmpValue = GreaterThan(id, (*n)->id);
+	if (tmpValue == 1) {
 		PrivateAddNode(&((*n)->left), R1_, R2_, id, qualScore);
 	} else if (tmpValue == -1) {
 		PrivateAddNode(&((*n)->right), R1_, R2_, id, qualScore);
@@ -296,7 +299,7 @@ void BinarySearchTree::PrivateAddNode(Node **n, readInfo *R1_, readInfo *R2_, ui
 
 
 void BinarySearchTree::AddNode(readInfo *R1_, readInfo *R2_) {
-	uint16_t *id;
+	uint16_t *id = 0;
 	uint32_t qualScore = 0;
 	reads_read++;
 
