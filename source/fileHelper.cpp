@@ -9,7 +9,7 @@ void FileHelper::ParseFileNames(char *fName) {
     if (fName != NULL) {
         /*Breaks up the commas and opens each of those files
          * and checks if there are OK to read and gzipped*/
-        char *tok, *tmpPointer;
+        char *tok;
         while ((tok = strtok_r(fName, ",", &fName))) {
             FileCheck(tok);
         } 

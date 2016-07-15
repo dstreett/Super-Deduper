@@ -35,17 +35,12 @@ private:
 		bool single;
 
 		/*This is the only constructor needed, the only reason to create is to have reads within each node*/
-		Node (readInfo *R1_, readInfo *R2_, uint16_t *id_, uint32_t qualScore_) {
-			left = NULL;
-			right = NULL;
-			R1 = R1_;
-			R2 = R2_;
-			qualScore = qualScore_;
+		Node (readInfo *R1_, readInfo *R2_, uint16_t *id_, uint32_t qualScore_) :
+            left(NULL), right(NULL), R1(R1_), R2(R2_), id(id_), qualScore(qualScore_), count(0), single(false)
+        {
 			if (!R2) {
 				single = true;
 			}
-			id = id_;
-			count = 0;
 		}
 
 		/*Deconstructor to ensure memory cleanup*/
@@ -94,7 +89,7 @@ private:
 
 
 	uint32_t qualSum(char *q);
-	uint16_t charLength, mallocLength, start;
+	uint16_t charLength, newsize, start;
 
 
 	bool getID(readInfo *R1, readInfo *R2, uint16_t **id);
@@ -144,7 +139,10 @@ public:
 	void AddNode(readInfo *R1_, readInfo *R2_);
 	/*set the length to be 3 (for 3 bit format) * length specified / 16 (num of bits) + 1 (allocate the correct amount) *
 	 * 16 bits for each (sizeof)*/
-	void setLength(uint16_t i) {mallocLength = ((2*i/16)+1) * sizeof(uint16_t) * 2; charLength = i;};
+    // 2*i = # bits,
+    void setLength(uint16_t i) {newsize = (2*i)/sizeof(uint16_t) + 1; charLength = i;};
+
+//	void setLength(uint16_t i) {mallocLength = ((2*i/16)+1) * sizeof(uint16_t) * 2; charLength = i;};
 	/*converts human value to correct position in zero start array*/
 	void setStart(uint16_t i) {start = i - 1;};
 	void setQualCheck(bool b) {qualCheck = b;};

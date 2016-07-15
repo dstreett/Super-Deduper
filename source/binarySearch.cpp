@@ -190,12 +190,11 @@ bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t **id, 
 
 	idLoc++;
 
-	for (int i = idLoc; i < mallocLength; i++) {
+	for (int i = idLoc; i < newsize; i++) {
 		(*id)[i] = 0;
 	}
 
 	return true;
-
 }
 
 
@@ -211,8 +210,8 @@ bool BinarySearchTree::getID(readInfo *R1, readInfo *R2, uint16_t **id) {
 
 	//(*id) = (uint16_t *)malloc(mallocLength);
 
-	uint16_t *tmp_id = (uint16_t *)malloc(mallocLength);
-	uint16_t *tmp_id_rc = (uint16_t *)malloc(mallocLength);
+	uint16_t *tmp_id =  new uint16_t[newsize];
+	uint16_t *tmp_id_rc = new uint16_t[newsize];
 
 
 	/*Not funcitonal yet*/
@@ -223,10 +222,10 @@ bool BinarySearchTree::getID(readInfo *R1, readInfo *R2, uint16_t **id) {
 		if (FlipBitsChars(R1, R2, &tmp_id, false) && FlipBitsChars(R1, R2, &tmp_id_rc, true)) {
 			if (GreaterThan(tmp_id, tmp_id_rc) > 0) {
 				(*id) = tmp_id;
-				free(tmp_id_rc);
+				delete [] tmp_id_rc;
 			} else {
 				(*id) = tmp_id_rc;
-				free(tmp_id);
+				delete [] tmp_id;
 			}
 			//printStuff(tmp_id, mallocLength);
 			//printStuff(tmp_id_rc, mallocLength);
@@ -244,7 +243,7 @@ bool BinarySearchTree::getID(readInfo *R1, readInfo *R2, uint16_t **id) {
  * -1 Less Than*/
 
 int BinarySearchTree::GreaterThan(uint16_t *test, uint16_t *value) {
-	for (int i = 0; i < mallocLength; i++) {
+	for (int i = 0; i < newsize; i++) {
 		if (test[i] > value[i]) {
 			return 1;
 		} else if (test[i] < value[i]) {

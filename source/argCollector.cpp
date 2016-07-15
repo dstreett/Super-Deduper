@@ -44,9 +44,6 @@ argCollector::argCollector(int argc, char *argv[]) {
     int long_index;
     int cmd_line_char;
     extern char *optarg;
-    extern int optind;
-    extern int optopt;
-    extern int opterr;
 
     const struct option longopts[] = {
         {"version", no_argument, 0, 'v'},
@@ -72,10 +69,7 @@ argCollector::argCollector(int argc, char *argv[]) {
         {0, 0, 0, 0}
     };
 
-    /*Qual check on by defualt*/
     bool qual_check = false;
-
-
     /*Fastq by default*/
     bool gzip_out = false;
     bool tab = false;
