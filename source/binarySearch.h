@@ -54,7 +54,6 @@ private:
 			delete right;
 			delete R1;
 			delete R2;
-			delete count;
 			free(id);
 		}
 
