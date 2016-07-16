@@ -76,7 +76,6 @@ class TestCase(unittest.TestCase):
                       data01['Headers'],
                       "The output does not contain the expected sequence")
 
-    @unittest.skip("Reverse Compliment not supported yet")
     def test_for_reverse_complement(self):
         """Tests that the reverse complement was removed"""
         sub_process(self.myCommand)
