@@ -19,7 +19,7 @@ void BinarySearchTree::outputStats(FILE *f) {
 
 /*Print and Delete*/
 void BinarySearchTree::PrintAndDelete(FileWriter *R1, FileWriter *R2, FileWriter *SE) {
-	PrintAndDeletePrivate(root, R1, R2, SE);
+	PrintAndDeletePrivate(root.get(), R1, R2, SE);
 }
 
 void BinarySearchTree::PrintAndDeletePrivate(Node *n, FileWriter *R1, FileWriter *R2, FileWriter *SE) {
@@ -32,23 +32,23 @@ void BinarySearchTree::PrintAndDeletePrivate(Node *n, FileWriter *R1, FileWriter
 			threeplus++;
 		}
 
-		PrintAndDeletePrivate(n->left, R1, R2, SE);
-		PrintAndDeletePrivate(n->right, R1, R2, SE);
+		PrintAndDeletePrivate(n->left.get(), R1, R2, SE);
+		PrintAndDeletePrivate(n->right.get(), R1, R2, SE);
 
 		/*Only if Fastq file exists*/
 		if (R2) {
 			/*R1 and R2 printed Normal Fastq format*/
 			if (n->R2) {
-				R1->writeData(n->R1, NULL, NULL);
-				R2->writeData(n->R2, NULL, NULL);
+				R1->writeData(n->R1.get(), NULL, NULL);
+				R2->writeData(n->R2.get(), NULL, NULL);
 			} else {
-				SE->writeData(n->R1, NULL, NULL);
+				SE->writeData(n->R1.get(), NULL, NULL);
 			}
 		} else {
 			if (n->R2 || !SE ) {
-				R1->writeData(n->R1, n->R2, NULL);
+				R1->writeData(n->R1.get(), n->R2.get(), NULL);
 			} else {
-				SE->writeData(n->R1, NULL , NULL);
+				SE->writeData(n->R1.get(), NULL , NULL);
 			}
 
 		}
@@ -114,7 +114,7 @@ void RC_Read(char *&seq) {
 	while (seq[i] != '\0') {
 		seq[(len - 1) - i] = RC_BP(new_seq[i]);
 		if (seq[(len -1) - i] == '\0') {
-			fprintf(stderr, "ERROR in RC_Read in binarySearch.cpp, Illegal char in %s\n", *seq);
+			fprintf(stderr, "ERROR in RC_Read in binarySearch.cpp, Illegal char in %s\n", seq);
 			exit(42);
 		}
 		i++;
@@ -124,7 +124,7 @@ void RC_Read(char *&seq) {
 
 
 /*Flip bits functionality for character string*/
-bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t *&id, bool RC) {
+bool BinarySearchTree::FlipBitsChars(std::shared_ptr<readInfo> R1, std::shared_ptr<readInfo> R2, idptr &id, bool RC) {
 	char *seq_1, *seq_2;
 
 	/*Incementor for id array*/
@@ -140,19 +140,19 @@ bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t *&id, 
 		seq_2 = NULL;
 	}
 
-	char *seq;
+    std::unique_ptr<char[]> seq;
 
 	if (seq_2 == NULL) {
-		seq = (char *)malloc(sizeof(char) * charLength + 1);
-		sprintf(seq, "%.*s", charLength, seq_1 + start);
+		seq = std::unique_ptr<char[]>(new char[charLength + 1]);
+		sprintf(seq.get(), "%.*s", charLength, seq_1 + start);
 	}
 	else if (RC) {
-		seq = (char *)malloc(sizeof(char) * charLength * 2 + 1 );
-		sprintf(seq, "%.*s%.*s", charLength, seq_2 + start, charLength, seq_1 + start);
+        seq = std::unique_ptr<char[]>(new char[charLength * 2 + 1]);
+		sprintf(seq.get(), "%.*s%.*s", charLength, seq_2 + start, charLength, seq_1 + start);
 	}
 	else {
-		seq = (char *)malloc(sizeof(char) * charLength * 2 + 1 );
-		sprintf(seq, "%.*s%.*s", charLength, seq_1 + start, charLength, seq_2 + start);
+        seq = std::unique_ptr<char[]>(new char[charLength * 2 + 1]);
+		sprintf(seq.get(), "%.*s%.*s", charLength, seq_1 + start, charLength, seq_2 + start);
 	}
 
 	/*
@@ -173,6 +173,7 @@ bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t *&id, 
 			return false;
 		}
 
+        // why + 10 here? should this be the startLoc?
 		bit_1 = !!((seq[loc] + 10) & (1 << 2));
 		bit_2= !!((seq[loc] + 10) & (1 << 4));
 		id[idLoc] ^= (bit_1 << bitShifts);
@@ -199,7 +200,7 @@ bool BinarySearchTree::FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t *&id, 
 
 
 /*This creates the id that the binary search tree will use to dive down the tree*/
-bool BinarySearchTree::getID(readInfo *R1, readInfo *R2, uint16_t *&id) {
+bool BinarySearchTree::getID(std::shared_ptr<readInfo> R1, std::shared_ptr<readInfo> R2, idptr &id) {
 	/*3 bit * length / 16 this was handled constructur*/
 	if (!R1 and !R2) {
 		fprintf(stderr, "Both reads within binarySearch.cpp function getID() are NULL\n");
@@ -207,22 +208,19 @@ bool BinarySearchTree::getID(readInfo *R1, readInfo *R2, uint16_t *&id) {
 		exit(15);
 	}
 
-	uint16_t *tmp_id =  new uint16_t[newsize];
-	uint16_t *tmp_id_rc = new uint16_t[newsize];
-
-
+    idptr tmp_id = idptr(new uint16_t[newsize]);
+    idptr tmp_id_rc = idptr(new uint16_t[newsize]);
+    
 	/*Not funcitonal yet*/
 	if (R1->optimized) {
 		fprintf(stderr, "Optimizmations no funciotnal yet\n");
 		exit(-1);
 	} else {
 		if (FlipBitsChars(R1, R2, tmp_id, false) && FlipBitsChars(R1, R2, tmp_id_rc, true)) {
-			if (GreaterThan(tmp_id, tmp_id_rc) > 0) {
-				id = tmp_id;
-				delete [] tmp_id_rc;
+			if (GreaterThan(tmp_id.get(), tmp_id_rc.get()) > 0) {
+				id = std::move(tmp_id);
 			} else {
-				id = tmp_id_rc;
-				delete [] tmp_id;
+				id = std::move(tmp_id_rc);
 			}
 			//printStuff(tmp_id, mallocLength);
 			//printStuff(tmp_id_rc, mallocLength);
@@ -252,22 +250,22 @@ int BinarySearchTree::GreaterThan(uint16_t *test, uint16_t *value) {
 
 
 /*Recursive function to add Node*/
-void BinarySearchTree::PrivateAddNode(Node *&n, readInfo *R1_, readInfo *R2_, uint16_t *id, uint32_t qualScore ) {
+void BinarySearchTree::PrivateAddNode(std::shared_ptr<Node> &n, std::shared_ptr<readInfo> R1_, std::shared_ptr<readInfo> R2_, idptr id, uint32_t qualScore ) {
 	/*Add Node condition*/
 	int tmpValue = 0;
 	if (n == NULL) {
 		nodesCreated++;
-		n = new Node(R1_, R2_, id, qualScore);
+		n = std::make_shared<Node>(R1_, R2_, std::move(id), qualScore);
 
 		n->count = 1;
 		return;
 	}
 
-	tmpValue = GreaterThan(id, n->id);
+	tmpValue = GreaterThan(id.get(), n->id.get());
 	if (tmpValue == 1) {
-		PrivateAddNode(n->left, R1_, R2_, id, qualScore);
+		PrivateAddNode(n->left, R1_, R2_, std::move(id), qualScore);
 	} else if (tmpValue == -1) {
-		PrivateAddNode(n->right, R1_, R2_, id, qualScore);
+		PrivateAddNode(n->right, R1_, R2_, std::move(id), qualScore);
 		/*Nodes are equal*/
 	} else {
 		/*Makes sure that single ends are kept track of*/
@@ -280,22 +278,20 @@ void BinarySearchTree::PrivateAddNode(Node *&n, readInfo *R1_, readInfo *R2_, ui
 				n->Replace(R1_, R2_, qualScore);
 				/*exits*/
 			} else {
-				delete R1_;
-				delete R2_;
 			}
 			/*If node is single end but the read isn't*/
 		} else if (R2_) {
-			PrivateAddNode(n->left, R1_, R2_, id, qualScore);
+			PrivateAddNode(n->left, R1_, R2_, std::move(id), qualScore);
 		} else if (!R2_) {
-			PrivateAddNode(n->right, R1_, R2_, id, qualScore);
+			PrivateAddNode(n->right, R1_, R2_, std::move(id), qualScore);
 		}
 	}
 
 }
 
 
-void BinarySearchTree::AddNode(readInfo *R1_, readInfo *R2_) {
-	uint16_t *id = 0;
+void BinarySearchTree::AddNode(std::shared_ptr<readInfo> R1_, std::shared_ptr<readInfo> R2_) {
+    idptr id = nullptr;
 	uint32_t qualScore = 0;
 	reads_read++;
 
@@ -305,7 +301,7 @@ void BinarySearchTree::AddNode(readInfo *R1_, readInfo *R2_) {
 		return;
 	}
 	/*R1 will never be null, but checking incase something goes horriblely wrong*/
-	if (R1_ != NULL) {
+	if (R1_.get() != NULL) {
 		if (qualCheck) {
 			qualScore += qualSum((R1_)->getQual());
 		}
@@ -314,7 +310,7 @@ void BinarySearchTree::AddNode(readInfo *R1_, readInfo *R2_) {
 		exit(11);
 	}
 
-	if (R2_ != NULL) {
+	if (R2_.get() != NULL) {
 		if (qualCheck) {
 			qualScore += qualSum((R2_)->getQual());
 		}
@@ -322,6 +318,6 @@ void BinarySearchTree::AddNode(readInfo *R1_, readInfo *R2_) {
 		/*This just means it is single end reads*/
 		/*This is acceptable, no error message*/
 	}
-	PrivateAddNode(root, R1_, R2_, id, qualScore);
+	PrivateAddNode(root, R1_, R2_, std::move(id), qualScore);
 
 }

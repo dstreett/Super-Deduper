@@ -62,7 +62,7 @@ void FileHelper::FileCheck(char *fName) {
 }
 
 
-void FileHelper::readData(readInfo *&r1, readInfo *&r2) {
+void FileHelper::readData(std::shared_ptr<readInfo> &r1, std::shared_ptr<readInfo> &r2) {
 
     if (fastq) {
         fprintf(stderr, "Error withink fileHelper.cpp in readData(readInfo**, readInfo**)\n");
@@ -72,8 +72,6 @@ void FileHelper::readData(readInfo *&r1, readInfo *&r2) {
         char c[4096];
         if (fgets(c, 4096, files[currentFile]) == NULL) {
             if (currentFile == fileCount -1) {
-                r1 = NULL;
-                r2 = NULL;
                 return;
             } else {
                 return;
@@ -88,11 +86,11 @@ void FileHelper::readData(readInfo *&r1, readInfo *&r2) {
         } 
         if (count == 5) {
             data[4][strlen(data[4])-1] = '\0';
-            r1 =  new readInfo(data[0], data[1], data[2], opt_reads );
-            r2 =  new readInfo(data[0], data[3], data[4], opt_reads );
+            r1 =  std::make_shared<readInfo>(data[0], data[1], data[2], opt_reads );
+            r2 =  std::make_shared<readInfo>(data[0], data[3], data[4], opt_reads );
         } else if (count == 3) {
             data[2][strlen(data[2])-1] = '\0';
-            r1 =  new readInfo(data[0], data[1], data[2], opt_reads );
+            r1 =  std::make_shared<readInfo>(data[0], data[1], data[2], opt_reads );
             r2 =  NULL;
         } else {
             fprintf(stderr, "Error in fileHelper.cpp readData(readInfo**, readInfo**)\n");
@@ -120,7 +118,7 @@ void FileHelper::readData(readInfo *&r1, readInfo *&r2) {
                         return readData(r1, r2);
                     }
                 } else if (f == 4) {
-                    r1 = new readInfo(c[0], c[1], c[3], opt_reads);
+                    r1 = std::make_shared<readInfo>(c[0], c[1], c[3], opt_reads);
                     r2 = NULL;
                 } else {
                     fprintf(stderr, "Within fileHelper.cpp readData(readInfo **, readInfo**) function*/");
@@ -131,8 +129,8 @@ void FileHelper::readData(readInfo *&r1, readInfo *&r2) {
             }
         }
 
-        r1 =  new readInfo(c[0], c[1], c[3], opt_reads );
-        r2 =  new readInfo(c[4], c[5], c[7], opt_reads );
+        r1 =  std::make_shared<readInfo>(c[0], c[1], c[3], opt_reads );
+        r2 =  std::make_shared<readInfo>(c[4], c[5], c[7], opt_reads );
 
     }
 
@@ -147,7 +145,7 @@ void FileHelper::Closer() {
     }
 }
 /*Starts reading files*/
-void FileHelper::readData(readInfo *&r) {
+void FileHelper::readData(std::shared_ptr<readInfo> &r) {
     /*Loops through each FILE **/
     /*fgets(char *, size, file) == NULL bad*/
     if (tab || interleaved ) {
@@ -183,7 +181,7 @@ void FileHelper::readData(readInfo *&r) {
                 exit(3);
             }
         }
-        r =  new readInfo(c[0], c[1], c[3], opt_reads );
+        r =  std::make_shared<readInfo>(c[0], c[1], c[3], opt_reads );
         
     }
 

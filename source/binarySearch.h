@@ -5,28 +5,30 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <time.h>
-
+#include <memory>
 
 #include "readInfo.h"
 #include "fileWriter.h"
 
 
 class BinarySearchTree {
+public:
+    typedef std::unique_ptr<uint16_t[]> idptr;
 
 private:
 	class Node {
 	public:
 		/*Search pointers for the bst*/
-		Node *left;
-		Node *right;
+        std::shared_ptr<Node> left;
+        std::shared_ptr<Node> right;
 
 
 		/*Contains read info, it will either have R1, or both R1 and R2*/
-		readInfo *R1;
-		readInfo *R2;
+		std::shared_ptr<readInfo> R1;
+		std::shared_ptr<readInfo> R2;
 
 		/*ID is the key for the BST*/
-		uint16_t *id;
+		idptr id;
 
 		/*If quality checking is off, qualScore is zero*/
 		uint32_t qualScore;
@@ -35,31 +37,18 @@ private:
 		bool single;
 
 		/*This is the only constructor needed, the only reason to create is to have reads within each node*/
-		Node (readInfo *R1_, readInfo *R2_, uint16_t *id_, uint32_t qualScore_) :
-            left(NULL), right(NULL), R1(R1_), R2(R2_), id(id_), qualScore(qualScore_), count(0), single(false)
+		Node (std::shared_ptr<readInfo> R1_, std::shared_ptr<readInfo> R2_, idptr id_, uint32_t qualScore_) :
+            left(NULL), right(NULL), R1(R1_), R2(R2_), id(std::move(id_)), qualScore(qualScore_), count(0), single(false)
         {
 			if (!R2) {
 				single = true;
 			}
 		}
 
-		/*Deconstructor to ensure memory cleanup*/
-		~Node() {
-			delete left;
-			delete right;
-			delete R1;
-			delete R2;
-			free(id);
-		}
-
 		/*Replace values within the node and frees old memory*/
-		void Replace(readInfo *R1_, readInfo *R2_, uint32_t qualScore_) {
-			delete R1;
-			delete R2;
-			R1 = NULL;
-			R2 = NULL;
-			R1 = R1_;
-			R2 = R2_;
+		void Replace(std::shared_ptr<readInfo> R1_, std::shared_ptr<readInfo> R2_, uint32_t qualScore_) {
+            R1 = R1_;
+            R2 = R2_;
 			qualScore = qualScore_;
 		}
 	};
@@ -85,65 +74,54 @@ private:
 	bool qualCheck;
 
 
-	Node *root;
+    std::shared_ptr<Node> root;
 
 
 	uint32_t qualSum(char *q);
 	uint16_t charLength, newsize, start;
 
 
-	bool getID(readInfo *R1, readInfo *R2, uint16_t *&id);
-	bool FlipBitsChars(readInfo *R1, readInfo *R2, uint16_t *&id, bool RC);
+	bool getID(std::shared_ptr<readInfo> R1, std::shared_ptr<readInfo> R2, idptr &id);
+	bool FlipBitsChars(std::shared_ptr<readInfo> R1, std::shared_ptr<readInfo> R2, idptr &id, bool RC);
 	int GreaterThan(uint16_t *test, uint16_t *value);
-	void PrivateAddNode(Node *&n, readInfo *R1_, readInfo *R2_, uint16_t *id, uint32_t qualScore);
+	void PrivateAddNode(std::shared_ptr<Node> &n, std::shared_ptr<readInfo> R1_, std::shared_ptr<readInfo> R2_, idptr id, uint32_t qualScore);
 	void PrintAndDeletePrivate(Node *n, FileWriter *R1, FileWriter *R2, FileWriter *SE);
 	bool FlipBitsCheck(char *seq, bool r2);
 
 public:
 
-
-	BinarySearchTree() {
-		/*Time start*/
-		time_start = time(NULL);
-
-		root = NULL;
-		/*Defaults*/
-		qualCheck = true;
-		/*Default values*/
-		setStart(10);
-		setLength(12);
-
-
-
-		/*Stats zero out*/
-		nodesCreated = 0;
-		singletons = 0;
-		doubles = 0;
-		threeplus = 0;
-		replaced = 0;
-		disReads = 0;
-		reads_read = 0;
-		dup_gone = 0;
-
+	BinarySearchTree(uint16_t length, uint16_t startLoc):
 		/*00*/
-		A = 0;
+		A(0),
 		/*11*/
-		T = 3;
+        T(3),
 		/*10*/
-		G = 2;
+		G(2),
 		/*01*/
-		C = 1;
-	};
+		C(1),
+        time_start(0),
+        time_end(0),
+        disReads(0),
+        nodesCreated(0),
+        singletons(0),
+        doubles(0),
+        threeplus(0),
+        replaced(0),
+        reads_read(0),
+        dup_gone(0),
+        qualCheck(true),
+        root(nullptr),
+        charLength(length),
+        // set the length to be 3 (for 3 bit format) * length specified / 16 (num of bits) + 1 (allocate the correct amount) 
+        // 2*i = # bits,
+        newsize((2*length)/sizeof(uint16_t) + 1),
+        /*converts human value to correct position in zero start array*/
+        start(startLoc -1)   {	};
+    
 	void Cleaner(uint16_t *&bin);
 
-	void AddNode(readInfo *R1_, readInfo *R2_);
-	/*set the length to be 3 (for 3 bit format) * length specified / 16 (num of bits) + 1 (allocate the correct amount) *
-	 * 16 bits for each (sizeof)*/
-    // 2*i = # bits,
-    void setLength(uint16_t i) {newsize = (2*i)/sizeof(uint16_t) + 1; charLength = i;};
+	void AddNode(std::shared_ptr<readInfo> R1_, std::shared_ptr<readInfo> R2_);
 
-	/*converts human value to correct position in zero start array*/
-	void setStart(uint16_t i) {start = i - 1;};
 	void setQualCheck(bool b) {qualCheck = b;};
 	void PrintAndDelete(FileWriter *R1, FileWriter *R2, FileWriter *SE);
 	void endTime() {time_end = time(0);};

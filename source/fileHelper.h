@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <memory>
 
 #include "readInfo.h"
 
@@ -54,8 +55,8 @@ class FileHelper {
             ParseFileNames(fName);
             
         }
-        void readData(readInfo *&r); 
-        void readData(readInfo *&r1, readInfo *&r2); 
+        void readData(std::shared_ptr<readInfo> &r); 
+        void readData(std::shared_ptr<readInfo> &r1, std::shared_ptr<readInfo> &r2); 
 
 };
 
