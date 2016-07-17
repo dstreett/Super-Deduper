@@ -54,8 +54,8 @@ class FileHelper {
             ParseFileNames(fName);
             
         }
-        void readData(readInfo **r); 
-        void readData(readInfo **r1, readInfo **r2); 
+        void readData(readInfo *&r); 
+        void readData(readInfo *&r1, readInfo *&r2); 
 
 };
 

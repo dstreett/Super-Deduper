@@ -22,8 +22,8 @@ int main(int argc, char *argv[]) {
 		 * this means r2 wouldn't also be set to null to check the size of the file R2
 		 * that is why I stuck with always true with the break*/
 		while(1) {
-			R1->readData(&r1);
-			R2->readData(&r2);
+			R1->readData(r1);
+			R2->readData(r2);
 			if (!r1 || !r2) {
 				break;
 			}
@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 		readInfo *se = 0;
 
 		while(1) {
-			SE->readData(&se);
+			SE->readData(se);
 			if (se) {
 				/*Single end reads R1 is !null R2 is null*/
 				bst->AddNode(se, NULL);
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 		readInfo *r1, *r2;
 
 		while (1) {
-			INTER->readData(&r1, &r2);
+			INTER->readData(r1, r2);
 			if (r1 && r2) {
 				bst->AddNode(r1, r2);
 			} else {
@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
 		FileHelper *TAB = args->TAB_In;
 		readInfo *r1, *r2;
 		while (1) {
-			TAB->readData(&r1, &r2);
+			TAB->readData(r1, r2);
 			if (r1) {
 				bst->AddNode(r1, r2);
 			} else {
@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
 		FileHelper *STDIN = args->STDIN_In;
 		readInfo *r1, *r2;
 		while (1) {
-			STDIN->readData(&r1, &r2);
+			STDIN->readData(r1, r2);
 			if (r1) {
 				bst->AddNode(r1, r2);
 			} else {

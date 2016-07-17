@@ -62,7 +62,7 @@ void FileHelper::FileCheck(char *fName) {
 }
 
 
-void FileHelper::readData(readInfo **r1, readInfo **r2) {
+void FileHelper::readData(readInfo *&r1, readInfo *&r2) {
 
     if (fastq) {
         fprintf(stderr, "Error withink fileHelper.cpp in readData(readInfo**, readInfo**)\n");
@@ -72,8 +72,8 @@ void FileHelper::readData(readInfo **r1, readInfo **r2) {
         char c[4096];
         if (fgets(c, 4096, files[currentFile]) == NULL) {
             if (currentFile == fileCount -1) {
-                (*r1) = NULL;
-                (*r2) = NULL;
+                r1 = NULL;
+                r2 = NULL;
                 return;
             } else {
                 return;
@@ -88,12 +88,12 @@ void FileHelper::readData(readInfo **r1, readInfo **r2) {
         } 
         if (count == 5) {
             data[4][strlen(data[4])-1] = '\0';
-            (*r1) =  new readInfo(data[0], data[1], data[2], opt_reads );
-            (*r2) =  new readInfo(data[0], data[3], data[4], opt_reads );
+            r1 =  new readInfo(data[0], data[1], data[2], opt_reads );
+            r2 =  new readInfo(data[0], data[3], data[4], opt_reads );
         } else if (count == 3) {
             data[2][strlen(data[2])-1] = '\0';
-            (*r1) =  new readInfo(data[0], data[1], data[2], opt_reads );
-            (*r2) =  NULL;
+            r1 =  new readInfo(data[0], data[1], data[2], opt_reads );
+            r2 =  NULL;
         } else {
             fprintf(stderr, "Error in fileHelper.cpp readData(readInfo**, readInfo**)\n");
             fprintf(stderr, "Tab delimited format is broken. Make sure tabs are tabs and not space, and make sure there is either 3 or 5 enteries per line\n");
@@ -112,16 +112,16 @@ void FileHelper::readData(readInfo **r1, readInfo **r2) {
                 /*If it fails at f == 0 then the value is actually NULL*/
                 if (f == 0) {
                     if (currentFile == fileCount -1) {
-                        (*r1) = NULL;
-                        (*r2) = NULL;
+                        r1 = NULL;
+                        r2 = NULL;
                         return;
                     } else {
                         currentFile++;
                         return readData(r1, r2);
                     }
                 } else if (f == 4) {
-                    (*r1) = new readInfo(c[0], c[1], c[3], opt_reads);
-                    (*r2) = NULL;
+                    r1 = new readInfo(c[0], c[1], c[3], opt_reads);
+                    r2 = NULL;
                 } else {
                     fprintf(stderr, "Within fileHelper.cpp readData(readInfo **, readInfo**) function*/");
                     fprintf(stderr, "Something wrong with fgets(), file might be uneven\n");
@@ -131,8 +131,8 @@ void FileHelper::readData(readInfo **r1, readInfo **r2) {
             }
         }
 
-        (*r1) =  new readInfo(c[0], c[1], c[3], opt_reads );
-        (*r2) =  new readInfo(c[4], c[5], c[7], opt_reads );
+        r1 =  new readInfo(c[0], c[1], c[3], opt_reads );
+        r2 =  new readInfo(c[4], c[5], c[7], opt_reads );
 
     }
 
@@ -147,7 +147,7 @@ void FileHelper::Closer() {
     }
 }
 /*Starts reading files*/
-void FileHelper::readData(readInfo **r) {
+void FileHelper::readData(readInfo *&r) {
     /*Loops through each FILE **/
     /*fgets(char *, size, file) == NULL bad*/
     if (tab || interleaved ) {
@@ -170,7 +170,7 @@ void FileHelper::readData(readInfo **r) {
                      * the file pointer will keep track of current location so
                      * this function sort of acts like a generator.*/
                     if (currentFile == fileCount - 1) {
-                        (*r) =  NULL;
+                        r =  NULL;
                         return;
                     } else {
                         currentFile++;
@@ -183,7 +183,7 @@ void FileHelper::readData(readInfo **r) {
                 exit(3);
             }
         }
-        (*r) =  new readInfo(c[0], c[1], c[3], opt_reads );
+        r =  new readInfo(c[0], c[1], c[3], opt_reads );
         
     }
 
