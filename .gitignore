@@ -7,3 +7,8 @@ super_deduper
 .cproject
 .project
 .settings/
+CMakeCache.txt
+CMakeFiles
+build
+cmake_install.cmake
+
