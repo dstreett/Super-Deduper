@@ -29,9 +29,9 @@ public:
 		//free(useq);
 		//free(uqual);
 	}
-	char *getSeq() {return seq;};
-	char *getQual() {return qual;};
-	char *getHeader() {return header;};
+	char *getSeq() {return seq;}
+	char *getQual() {return qual;}
+	char *getHeader() {return header;}
 
 
 };

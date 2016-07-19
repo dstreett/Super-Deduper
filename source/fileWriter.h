@@ -25,8 +25,8 @@ class FileWriter {
         char *fName;
     public:
         FILE *fOut;
-        void setGzipped(bool b) {gzip = b;};
-        void setForce(bool b) {force = b;};
+        void setGzipped(bool b) {gzip = b;}
+        void setForce(bool b) {force = b;}
 
         void setFastq(bool b);
         void setInterleaved(bool b);

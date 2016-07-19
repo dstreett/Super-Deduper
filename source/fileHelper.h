@@ -26,9 +26,9 @@ class FileHelper {
     public:
         void ParseFileNames(char *fName);
         void FileCheck(char *fName);
-        void setFastq(bool b) {fastq = b;};
-        void setTab(bool b) {tab = b;};
-        void setInterleaved(bool b) {interleaved = b;};
+        void setFastq(bool b) {fastq = b;}
+        void setTab(bool b) {tab = b;}
+        void setInterleaved(bool b) {interleaved = b;}
         void Strip(char *c[]);
         void Closer();
 

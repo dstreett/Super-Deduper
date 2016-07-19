@@ -1,5 +1,5 @@
 #include "fileWriter.h"
-
+#include <stdexcept>
 
 /*Gzip output writer*/
 
@@ -142,6 +142,8 @@ void FileWriter::writeData(readInfo *R1, readInfo *R2, readInfo *R3) {
             tmp = R2;
         } else if (R3) {
             tmp = R3;
+        } else {
+            throw std::runtime_error("all 3 reads were null");
         }
 
         fprintf(fOut, "%s\n%s\n+\n%s\n", tmp->getHeader(), tmp->getSeq(), tmp->getQual());

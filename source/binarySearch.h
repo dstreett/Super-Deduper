@@ -60,8 +60,8 @@ private:
 
 
 	/*Tree Stats*/
-	uint32_t time_start;
-	uint32_t time_end;
+	time_t time_start;
+	time_t time_end;
 	long long unsigned int disReads;
 	long long unsigned int nodesCreated;
 	long long unsigned int singletons;
@@ -116,15 +116,15 @@ public:
         // 2*i = # bits,
         newsize((2*length)/sizeof(uint16_t) + 1),
         /*converts human value to correct position in zero start array*/
-        start(startLoc -1)   {	};
+        start(startLoc -1)   {	}
     
 	void Cleaner(uint16_t *&bin);
 
 	void AddNode(std::shared_ptr<readInfo> R1_, std::shared_ptr<readInfo> R2_);
 
-	void setQualCheck(bool b) {qualCheck = b;};
+	void setQualCheck(bool b) {qualCheck = b;}
 	void PrintAndDelete(FileWriter *R1, FileWriter *R2, FileWriter *SE);
-	void endTime() {time_end = time(0);};
+	void endTime() {time_end = time(0);}
 
 	/*Must be called after PrintAndDelete*/
 	void outputStats(FILE *f);
